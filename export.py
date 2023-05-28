@@ -56,5 +56,7 @@ class PAK_OT_Export(Operator):
 
                 tex.save(filepath = path + name)
         
+        self.report({'INFO'}, "Pak export complete.")
+
         return {'FINISHED'}
 

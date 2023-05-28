@@ -1,7 +1,8 @@
 
-
 import bpy
 from bpy.types import AddonPreferences, PropertyGroup
+from .update import *
+
 from bpy.props import (
     IntProperty, 
     FloatProperty, 
@@ -60,6 +61,8 @@ class PAK_TextureListItem(PropertyGroup):
         description = "A pointer for the texture this list item represents",
     )
 
+    is_selected: BoolProperty(default = False)
+
 
 class PAK_ExportLocations(PropertyGroup):
     # Defines a single export location that can be reused across multiple textures
@@ -86,9 +89,6 @@ class PAK_FileData(PropertyGroup):
     # if true, this object is the empty created for the purposes of storing preset data.
     is_file_data: BoolProperty(default = False)
 
-    # if true, images can be edited with a psuedo multiselect interface.
-    enable_multiselect: BoolProperty(default = False)
-
     # the available baking presets
     textures: CollectionProperty(type = PAK_TextureListItem)
 
@@ -101,7 +101,35 @@ class PAK_FileData(PropertyGroup):
     ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
     locations_list_index: IntProperty(default = 0)
     
+    # if true, images can be edited with a psuedo multiselect interface.
+    enable_multiselect: BoolProperty(
+        name = "Enable Multiselect",
+        description = "When enabled, multiple textures can be selected and edited at the same time",
+        default = False,
+    )
 
+    # if true, images can be edited with a psuedo multiselect interface.
+    enable_bundles: BoolProperty(
+        name = "Enable Bundles",
+        description = "When enabled, textures sharing the same name but using common suffixes (like BaseColor, Height, etc) will be represented as a single entry in the list, and can be edited as a set of images",
+        default = False,
+    )
+
+    ## PROXIES
+    # These are used for multi-select operations.
+    proxy_enable_export: BoolProperty(
+        name = "Enable Export",
+        description = "Enable or disable the texture for export",
+        default = False,
+        update = PAK_Update_EnableExport,
+    )
+
+    proxy_export_location: EnumProperty(
+        name = "Export Location",
+        description = "Set the file path that the texture will be exported to",
+        items = GetLocationPresets,
+        update = PAK_Update_ExportLocation,
+    )
 
 
 
