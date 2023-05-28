@@ -1,5 +1,6 @@
-import bpy
-from bpy.types import Menu, Panel, Operator, UIList
+import bpy, platform
+from bpy.types import Operator
+from bpy.props import EnumProperty
 
 def Find3DViewContext():
     """
@@ -30,7 +31,7 @@ def Find3DViewContext():
     return override
 
 class PAK_OT_CreateFileData(Operator):
-    """Create a new empty object for which Capsule data is stored and where both Active Export Presets and other scene data is stored"""
+    """Create a new empty object for which Pak data is stored"""
 
     bl_idname = "pak.create_file_data"
     bl_label = "Create Pak Data"
@@ -63,7 +64,7 @@ class PAK_OT_CreateFileData(Operator):
                 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)  
 
             # Otherwise create the object using the addon preference data
-            bpy.ops.object.select_all(action ='DESELECT')
+            bpy.ops.object.select_all(action = 'DESELECT')
             bpy.ops.object.empty_add(type = 'CIRCLE') # apparently using plain axes causes a crash.
 
             default_datablock = bpy.context.view_layer.objects.active
@@ -89,6 +90,7 @@ class PAK_OT_CreateFileData(Operator):
         self.report({'INFO'}, "Pak data created.")
         return {'FINISHED'}
 
+
 class PAK_OT_Refresh(Operator):
     """Refreshes the list of textures used in the current scene."""
 
@@ -99,30 +101,130 @@ class PAK_OT_Refresh(Operator):
         
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].CAPFile
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
         except:
             return {'CANCELLED'}
         
-        scene_data = context.scene.PAK_SceneData
-        tex_list = scene_data.tex_list
-        tex_list.clear()
+        textures = file_data.textures
+        textures.clear()
 
         for tex in bpy.data.images:
-            entry = tex_list.add()
+            entry = textures.add()
             entry.tex = tex
         
         return {'FINISHED'}
+
+class PAK_OT_AddPath(Operator):
+    """Create a new Export Location"""
+
+    bl_idname = "scene.pak_addpath"
+    bl_label = "Add"
+
+    def execute(self, context):
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+
+        new_path = file_data.locations.add()
+        new_path.name = "Location " + str(len(file_data.locations))
+        new_path.path = ""
+
+        return {'FINISHED'}
     
 
-class PAK_UL_TextureList(UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
+class PAK_OT_DeletePath(Operator):
+    "Delete the selected export location from the list.  This will also set the export location of all textures that used this to 'None'"
 
-        # if file_data.enable_multiselect is True:
-        #     layout.prop(item, "is_selected", text="", emboss=False)
+    bl_idname = "scene.pak_deletepath"
+    bl_label = "Remove"
 
-        layout.prop(item.tex, "name", text="", emboss=False)
-        layout.prop(item.tex.PAK_Tex, "enable_export", text="")
+    def execute(self, context):
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+
+        sel_index = file_data.locations_list_index
+
+        # Ensure that any objects with a matching preset are set to None.
+        # The index needs increasing by one as it doesnt include 'None'
+        images = bpy.data.images
+        for img in images:
+            if img.PAK_Tex.export_location == str(sel_index + 1):
+                img.PAK_Tex.export_location = '0'
 
         
+        # TODO: Ensure the selection interface is updated so it gets the new value!
+        # TODO: Ensure this is as efficient as it can be for large scenes
+        
+        # Once everything has been set, remove it.
+        file_data.locations.remove(sel_index)
+
+        # ensure the selected list index is within the list bounds
+        if len(file_data.locations) > 0:
+            file_data.locations_list_index -= 1
+        
+
+        return {'FINISHED'}
+
+class PAK_OT_AddExportLocTag(Operator):
+    """Add a new export location tag to the currently selected location.  These are used to auto-name file structures with information about the export like file name, time, etc"""
+
+    bl_idname = "scene.pak_add_export_loc_tag"
+    bl_label = "Add Export Location Tag"
+
+    path_tags: EnumProperty(
+        name = "Add Path Tag",
+        description = "",
+        items =  (
+        # ('tex_name', 'Image Name', 'Adds a folder with the name of the Image being exported.'),
+        ('blend_file_name', 'Blend File Name', 'Adds a folder with the blend file name.'),
+        # ('export_preset_name', 'Export Preset Name', 'Adds a folder with the Export Preset name used on export.'),
+        ('export_date_ymd', 'Export Date (Year-Month-Day)', 'Adds a folder with the date of the export.'),
+        ('export_date_dmy', 'Export Date (Day-Month-Year)', 'Adds a folder with the date of the export.'),
+        ('export_date_mdy', 'Export Date (Month-Year-Day)', 'Adds a folder with the date of the export.'),
+        ('export_time_hm', 'Export Time (Hour-Minute)', 'Adds a folder with the time of the export.'),
+        ('export_time_hms', 'Export Time (Hour-Minute-Second)', 'Adds a folder with the time of the export.'),
+        ),
+    )
+
+    def execute(self, context):
+        #print(self)
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+        
+        # get the selected path
+        path_index = file_data.locations_list_index
+        new_path = file_data.locations[path_index].path
+        end_path = ""
+
+        # directory failsafe
+        if platform.system() == 'Windows':
+            if new_path.endswith("\\") == False and new_path.endswith("//") == False:
+                new_path += "\\"
+            end_path = "\\"
+        else:
+            if new_path.endswith("/") == False:
+                new_path += "/"
+            end_path = "\\"
+
+        # insert the selected option into the currently selected path
+        new_path += "^"
+        new_path += self.path_tags
+        new_path += "^" + end_path
+        
+        file_data.locations[path_index].path = new_path
+
+        return {'FINISHED'}
+
 
 

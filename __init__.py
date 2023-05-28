@@ -49,8 +49,6 @@ def register():
     bpy.utils.register_class(PAK_AddonPreferences)
     
     # Assign datablocks now all classes have been registered.
-    bpy.types.Scene.PAK_SceneData = PointerProperty(name='Pak Scene Data', 
-                                                    type = PAK_SceneData)
     bpy.types.Image.PAK_Tex = PointerProperty(name = 'Pak Texture Data', 
                                                 type = PAK_Texture)
     bpy.types.Object.PAK_FileData = PointerProperty(name = 'Pak File Data', 
@@ -58,8 +56,7 @@ def register():
 
 def unregister():
     del bpy.types.Object.PAK_FileData
-    del bpy.types.Texture.PAK_Tex
-    del bpy.types.Scene.PAK_SceneData
+    del bpy.types.Image.PAK_Tex
 
     bpy.utils.unregister_class(PAK_AddonPreferences)
 
