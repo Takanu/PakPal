@@ -45,16 +45,17 @@ class PAK_OT_Export(Operator):
             return {'CANCELLED'}
         
         
-        for tex_item in file_data.textures:
-            if tex_item.tex.PAK_Tex.enable_export:
-                tex = tex_item.tex
-                location_index = int(tex.PAK_Tex.export_location) - 1
-                location = file_data.locations[file_data.locations_list_index]
+        for bundle in file_data.bundles:
+            for item in bundle.bundle_items:
+                if item.tex.PAK_Tex.enable_export:
+                    tex = item.tex
+                    location_index = int(tex.PAK_Tex.export_location) - 1
+                    location = file_data.locations[file_data.locations_list_index]
 
-                path = CreateFilePath(location, tex, True)
-                name = SubstituteNameCharacters(tex.name)
+                    path = CreateFilePath(location, tex, True)
+                    name = SubstituteNameCharacters(tex.name)
 
-                tex.save(filepath = path + name)
+                    tex.save(filepath = path + name)
         
         self.report({'INFO'}, "Pak export complete.")
 

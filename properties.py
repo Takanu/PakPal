@@ -35,7 +35,8 @@ def GetLocationPresets(scene, context):
 
 class PAK_Texture(PropertyGroup):
     """
-    Define an object as a list property, for use when displaying objects in the user interface
+    Define an object as a list property, for use when displaying objects 
+    in the user interface.
     """
 
     enable_export: BoolProperty(
@@ -50,9 +51,10 @@ class PAK_Texture(PropertyGroup):
         items = GetLocationPresets,
     )
 
-class PAK_TextureListItem(PropertyGroup):
+class PAK_TextureItem(PropertyGroup):
     """
-    Define an object as a list property, for use when displaying objects in the user interface
+    Defines a single texture within a PAK_TextureListItem.
+    It just wraps an image type in a PropertyGroup as Blender is a bit dumb with collections.
     """
 
     tex: PointerProperty(
@@ -61,6 +63,35 @@ class PAK_TextureListItem(PropertyGroup):
         description = "A pointer for the texture this list item represents",
     )
 
+
+class PAK_TextureListItem(PropertyGroup):
+    """
+    Define an object as a list property, for use when displaying objects in the user interface
+    """
+
+    bundle_items: CollectionProperty(type = PAK_TextureItem)
+
+    name: StringProperty(
+        name = "Texture/Bundle Name",
+        description = "",
+        default = "",
+        update = PAK_Update_TextureListItem_Name
+    )
+
+    enable_export: BoolProperty(
+        name = "Enable Export",
+        description = "Enable or disable the texture for export",
+        default = False,
+        update = PAK_Update_TextureListItem_EnableExport,
+    )
+
+    export_location: EnumProperty(
+        name = "Export Location",
+        description = "Set the file path that the texture will be exported to",
+        items = GetLocationPresets,
+    )
+
+    # Used for multi-select mode.
     is_selected: BoolProperty(default = False)
 
 
@@ -80,7 +111,6 @@ class PAK_ExportLocations(PropertyGroup):
     )
 
 
-
 class PAK_FileData(PropertyGroup):
     """
     Everything Pak needs to preserve as part of the file.
@@ -90,10 +120,10 @@ class PAK_FileData(PropertyGroup):
     is_file_data: BoolProperty(default = False)
 
     # the available baking presets
-    textures: CollectionProperty(type = PAK_TextureListItem)
+    bundles: CollectionProperty(type = PAK_TextureListItem)
 
     ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
-    textures_list_index: IntProperty(default = 0)
+    bundles_list_index: IntProperty(default = 0)
 
     # the available baking presets
     locations: CollectionProperty(type = PAK_ExportLocations)
@@ -113,10 +143,16 @@ class PAK_FileData(PropertyGroup):
         name = "Enable Bundles",
         description = "When enabled, textures sharing the same name but using common suffixes (like BaseColor, Height, etc) will be represented as a single entry in the list, and can be edited as a set of images",
         default = False,
+        update = PAK_Update_EnableBundles,
     )
 
+    
     ## PROXIES
     # These are used for multi-select operations.
+
+    # Used during a refresh to prevent unnecessary update function triggers.
+    is_internal_update: BoolProperty(default = False)
+
     proxy_enable_export: BoolProperty(
         name = "Enable Export",
         description = "Enable or disable the texture for export",
@@ -133,4 +169,10 @@ class PAK_FileData(PropertyGroup):
 
 
 
-    
+class PAK_BundleString(PropertyGroup):
+
+    text: StringProperty(
+        name = "Bundle Text",
+        description = "",
+        default = "",
+    )

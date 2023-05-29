@@ -5,11 +5,33 @@ class PAK_UL_TextureList(UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
 
+        
+        
         if data.enable_multiselect is True:
             layout.prop(item, "is_selected", text = "", icon = "RESTRICT_SELECT_OFF")
+        
+        if data.enable_bundles is True:
+            row = layout.row(align = False)
+            row.alignment = 'LEFT'
+            row.emboss = 'NORMAL'
+            row.enabled = False
+            row.separator(factor = 0.05)
+            row.label(text = str(len(item.bundle_items)))
+            row.label(text = "", icon = "IMAGE_DATA")
+            
 
-        layout.prop(item.tex, "name", text = "", emboss = False)
-        layout.prop(item.tex.PAK_Tex, "enable_export", text = "")
+        name = layout.row(align = False)
+        name.alignment = 'EXPAND'
+        name.prop(item, "name", text = "", emboss = False)
+
+        export_item = layout.row(align = False)
+        export_item.alignment = 'RIGHT'
+        export_item.prop(item, "enable_export", text = "")
+
+class PAK_UL_BundleStringList(UIList):
+
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
+        layout.prop(item, "text", text = "", emboss = False)
 
 
 class PAK_UL_ExportLocationList(UIList):
@@ -43,35 +65,27 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         # LIST MENU
         textures = layout.column(align = True)
         # ui_list_area.label(text = "Hey!")
-        textures.template_list("PAK_UL_TextureList", "default", file_data, "textures", 
-                                    file_data, "textures_list_index", rows = 3, maxrows = 6)
-        textures.separator()
-
-        texture_ops = layout.column(align = True)
-        texture_ops.use_property_split = True
-        texture_ops.use_property_decorate = False
-        texture_ops.prop(file_data, "enable_multiselect")
-        texture_ops.prop(file_data, "enable_bundles")
-        texture_ops.separator()
-        texture_ops.separator()
-        texture_ops.operator("scene.pak_refresh", icon = 'FILE_REFRESH')
-        texture_ops.operator("scene.pak_export", icon = 'EXPORT')
-        texture_ops.separator()
-        texture_ops.separator()
-        
-        
+        textures.template_list("PAK_UL_TextureList", "default", file_data, "bundles", 
+                                    file_data, "bundles_list_index", rows = 3, maxrows = 6)
 
         # //////////////////////////////////
         # SELECTION MENU
         sel_name = 'No Selected Images'
         if file_data.enable_multiselect is True:
-            sel_list = [item for item in file_data.textures if item.is_selected]
+            sel_list = [item for item in file_data.bundles if item.is_selected]
             sel_name = str(len(sel_list)) + " images selected"
-        elif len(file_data.textures) > 0:
-            sel_name = file_data.textures[file_data.textures_list_index].tex.name
+        elif len(file_data.bundles) > 0:
+            sel_name = file_data.bundles[file_data.bundles_list_index].name
+
+        list_options = layout.column(align = True)
+        list_options.use_property_split = True
+        list_options.use_property_decorate = False
+        list_options.prop(file_data, "enable_multiselect")
+        list_options.prop(file_data, "enable_bundles")
+        list_options.separator()
+
 
         selection_box = layout.box()
-
         selection_header = selection_box.row(align = True)
         selection_header_split = selection_header.split(factor = 0.8, align = True)
         selection_header_split.label(text = sel_name, icon = "RESTRICT_SELECT_OFF")
@@ -82,19 +96,29 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         selection_box_area.use_property_decorate = False
         selection_box_area.separator()
 
-        if len(file_data.textures) > 0:
+        if len(file_data.bundles) > 0:
             if file_data.enable_multiselect:
                 selection_box_area.prop(file_data, "proxy_enable_export")
                 selection_box_area.separator()
                 selection_box_area.prop(file_data, "proxy_export_location")
                 selection_box_area.separator()
             else:
-                entry = file_data.textures[file_data.textures_list_index]
-                tex = entry.tex.PAK_Tex
-                selection_box_area.prop(tex, "enable_export")
+                entry = file_data.bundles[file_data.bundles_list_index]
+                selection_box_area.prop(entry, "enable_export")
                 selection_box_area.separator()
-                selection_box_area.prop(tex, "export_location")
+                selection_box_area.prop(entry, "export_location")
                 selection_box_area.separator()
+
+        texture_ops = layout.column(align = True)
+        texture_ops.use_property_split = True
+        texture_ops.use_property_decorate = False
+        texture_ops.separator()
+        texture_ops.operator("scene.pak_refresh", icon = 'FILE_REFRESH')
+        texture_ops.operator("scene.pak_export", icon = 'EXPORT')
+        texture_ops.separator()
+        texture_ops.operator("scene.pak_show_preferences", icon = "PREFERENCES")
+        texture_ops.separator()
+        
         
         
 

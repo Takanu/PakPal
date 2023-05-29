@@ -92,7 +92,9 @@ class PAK_OT_CreateFileData(Operator):
 
 
 class PAK_OT_Refresh(Operator):
-    """Refreshes the list of textures used in the current scene."""
+    """
+    Refreshes the list of textures used in the current scene.
+    """
 
     bl_idname = "scene.pak_refresh"
     bl_label = "Refresh List"
@@ -105,12 +107,19 @@ class PAK_OT_Refresh(Operator):
         except:
             return {'CANCELLED'}
         
-        textures = file_data.textures
-        textures.clear()
+        file_data.is_internal_update = True
+
+        bundles = file_data.bundles
+        bundles.clear()
 
         for tex in bpy.data.images:
-            entry = textures.add()
-            entry.tex = tex
+            bundle = bundles.add()
+            bundle_item = bundle.bundle_items.add()
+            bundle_item.tex = tex
+            bundle.name = tex.name
+            bundle.enable_export = tex.PAK_Tex.enable_export
+        
+        file_data.is_internal_update = False
         
         return {'FINISHED'}
 
@@ -136,7 +145,10 @@ class PAK_OT_AddPath(Operator):
     
 
 class PAK_OT_DeletePath(Operator):
-    "Delete the selected export location from the list.  This will also set the export location of all textures that used this to 'None'"
+    """
+    Delete the selected export location from the list.  This will 
+    also set the export location of all textures that used this to 'None'
+    """
 
     bl_idname = "scene.pak_deletepath"
     bl_label = "Remove"
@@ -166,7 +178,7 @@ class PAK_OT_DeletePath(Operator):
         file_data.locations.remove(sel_index)
 
         # ensure the selected list index is within the list bounds
-        if len(file_data.locations) > 0:
+        if len(file_data.locations) > 0 and sel_index != 0:
             file_data.locations_list_index -= 1
         
 
@@ -227,4 +239,81 @@ class PAK_OT_AddExportLocTag(Operator):
         return {'FINISHED'}
 
 
+class PAK_OT_Show_Preferences(Operator):
+    """Open a window to the Pak Addon Preferences Menu"""
+    bl_idname = "scene.pak_show_preferences"
+    bl_label = "Show Addon Preferences"
 
+    def execute(self, context):
+
+        bpy.ops.screen.userpref_show()
+        context.preferences.active_section = 'ADDONS'
+        bpy.data.window_managers["WinMan"].addon_search = "Pak"
+
+
+        return {'FINISHED'}
+
+class PAK_OT_AddBundleString(Operator):
+    """Add a bundle string to the list"""
+
+    bl_idname = "scene.pak_addbundlestring"
+    bl_label = "Add"
+
+    def execute(self, context):
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+        except:
+            return {'CANCELLED'}
+
+        new_string = addon_prefs.bundle_strings.add()
+        new_string.text = "BundleString" + str(len(addon_prefs.bundle_strings))
+
+        return {'FINISHED'}
+    
+
+class PAK_OT_DeleteBundleString(Operator):
+    """Delete the selected bundle string from the list."""
+
+    bl_idname = "scene.pak_deletebundlestring"
+    bl_label = "Remove"
+
+    def execute(self, context):
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+        except:
+            return {'CANCELLED'}
+
+        sel_index = addon_prefs.bundle_strings_list_index
+
+        # Once everything has been set, remove it.
+        addon_prefs.bundle_strings.remove(sel_index)
+
+        # ensure the selected list index is within the list bounds
+        if len(addon_prefs.bundle_strings) > 0 and sel_index != 0:
+            addon_prefs.bundle_strings_list_index -= 1
+        
+
+        return {'FINISHED'}
+
+class PAK_OT_Tutorial_StoredPresets(Operator):
+    """Open a message describing how Bundle Strings work"""
+    bl_idname = "scene.cap_tut_bundlestrings"
+    bl_label = ""
+
+    def execute(self, context):
+
+        def tutorial_layout(self, context):
+            self.layout.label(text = "Bundle Strings let you identify suffixes in image naming schemes")
+            self.layout.label(text = "so that Pak can bundle images together in the interface.")
+            self.layout.label(text = "")
+            self.layout.label(text = "Tick Enable Bundles in the main Properties UI to toggle this behaviour.")
+            self.layout.label(text = "")
+            self.layout.label(text = "NOTE - These are not case sensitive.")
+
+        # Get the current export data
+        bpy.context.window_manager.popup_menu(tutorial_layout, title="Stored Export Presets", icon='HELP')
+
+
+        return {'FINISHED'}
