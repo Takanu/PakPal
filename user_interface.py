@@ -17,7 +17,11 @@ class PAK_UL_TextureList(UIList):
             row.enabled = False
             row.separator(factor = 0.05)
             row.label(text = str(len(item.bundle_items)))
-            row.label(text = "", icon = "IMAGE_DATA")
+
+            if len(item.bundle_items) > 1:
+                row.label(text = "", icon = "RENDERLAYERS")
+            else:
+                row.label(text = "", icon = "IMAGE_DATA")
             
 
         name = layout.row(align = False)

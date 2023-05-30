@@ -80,6 +80,9 @@ class PAK_AddonPreferences(AddonPreferences):
 # This creates a list of commonly used bundle strings when first registering Pak.
 def CreateBundleStrings():
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
+    
+    if len(addon_prefs.bundle_strings) > 0:
+        return
 
     new_string = addon_prefs.bundle_strings.add()
     new_string.text = "BaseColor"

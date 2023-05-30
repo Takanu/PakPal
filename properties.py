@@ -50,6 +50,7 @@ class PAK_Texture(PropertyGroup):
         description = "Set the file path that the texture will be exported to",
         items = GetLocationPresets,
     )
+    
 
 class PAK_TextureItem(PropertyGroup):
     """
@@ -88,7 +89,9 @@ class PAK_TextureListItem(PropertyGroup):
     export_location: EnumProperty(
         name = "Export Location",
         description = "Set the file path that the texture will be exported to",
+        update = PAK_Update_TextureListItem_ExportLocation,
         items = GetLocationPresets,
+        
     )
 
     # Used for multi-select mode.

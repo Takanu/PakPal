@@ -1,4 +1,4 @@
-import bpy
+import bpy, os
 
 def PAK_Update_EnableExport(self, context):
     """
@@ -83,9 +83,22 @@ def PAK_Update_TextureListItem_Name(self, context):
     
     value = self.name
 
-    for bundle in file_data.bundles:
-        for bundle_item in bundle.bundle_items:
+    if file_data.enable_bundles is not True:
+        for bundle_item in self.bundle_items:
             bundle_item.tex.name = value
+    
+    else:
+        bundle_strings = [t.text for t in addon_prefs.bundle_strings]
+
+        for bundle_item in self.bundle_items:
+            tex = bundle_item.tex
+            name = os.path.splitext(tex.name)
+            filename = name[0]
+
+            match = next(filter(filename.endswith, bundle_strings), None)
+            new_name = value + match + name[1]
+            tex.name = new_name
+
 
 
 def PAK_Update_TextureListItem_EnableExport(self, context):
@@ -104,6 +117,26 @@ def PAK_Update_TextureListItem_EnableExport(self, context):
     
     value = self.enable_export
 
-    for bundle in file_data.bundles:
-        for bundle_item in bundle.bundle_items:
-            bundle_item.tex.PAK_Tex.enable_export = value
+    for bundle_item in self.bundle_items:
+        bundle_item.tex.PAK_Tex.enable_export = value
+        
+
+def PAK_Update_TextureListItem_ExportLocation(self, context):
+    """
+    Updates the Enable Export property of a texture bundle from the list UI.
+    """
+
+    try:
+        addon_prefs = context.preferences.addons[__package__].preferences
+        file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+    except KeyError:
+        return
+
+    if file_data.is_internal_update:
+        return
+    
+    
+    value = self.export_location
+
+    for bundle_item in self.bundle_items:
+        bundle_item.tex.PAK_Tex.export_location = value

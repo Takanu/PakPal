@@ -1,4 +1,4 @@
-import bpy, platform
+import bpy, platform, os
 from bpy.types import Operator
 from bpy.props import EnumProperty
 
@@ -112,13 +112,43 @@ class PAK_OT_Refresh(Operator):
         bundles = file_data.bundles
         bundles.clear()
 
-        for tex in bpy.data.images:
-            bundle = bundles.add()
-            bundle_item = bundle.bundle_items.add()
-            bundle_item.tex = tex
-            bundle.name = tex.name
-            bundle.enable_export = tex.PAK_Tex.enable_export
-        
+        if file_data.enable_bundles is False:
+            
+            for tex in bpy.data.images:
+                bundle = bundles.add()
+                bundle.name = tex.name
+                bundle.enable_export = tex.PAK_Tex.enable_export
+                bundle.export_location = tex.PAK_Tex.export_location
+                bundle_item = bundle.bundle_items.add()
+                bundle_item.tex = tex
+
+        else:
+            bundle_dict = {}
+            bundle_strings = [t.text for t in addon_prefs.bundle_strings]
+
+            for tex in bpy.data.images:
+                filename = os.path.splitext(tex.name)[0]
+                match = next(filter(filename.endswith, bundle_strings), None)
+
+                if match:
+                    filename = filename.replace(match, "")
+                
+                if filename not in bundle_dict:
+                    bundle_dict[filename] = []
+                bundle_dict[filename].append(tex)
+
+            for i, (name, textures) in enumerate(bundle_dict.items()):
+
+                bundle = bundles.add()
+                bundle.name = name
+                bundle.enable_export = textures[0].PAK_Tex.enable_export
+                bundle.export_location = textures[0].PAK_Tex.export_location
+                
+                for tex in textures:
+                    bundle_item = bundle.bundle_items.add()
+                    bundle_item.tex = tex
+                
+        file_data.bundles_list_index = 0
         file_data.is_internal_update = False
         
         return {'FINISHED'}
