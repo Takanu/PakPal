@@ -81,12 +81,31 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         elif len(file_data.bundles) > 0:
             sel_name = file_data.bundles[file_data.bundles_list_index].name
 
-        list_options = layout.column(align = True)
-        list_options.use_property_split = True
-        list_options.use_property_decorate = False
-        list_options.prop(file_data, "enable_multiselect")
-        list_options.prop(file_data, "enable_bundles")
-        list_options.separator()
+        def ops_checkbox(boolean):
+            if boolean:
+                return 'CHECKBOX_HLT'
+            else:
+                return 'CHECKBOX_DEHLT'
+
+        list_options = layout.row(align = True)
+        list_options.alignment = 'EXPAND'
+        list_options.operator("scene.pak_multiselect_toggle", 
+                              icon = ops_checkbox(file_data.enable_multiselect))
+        list_options.operator("scene.pak_bundles_toggle", 
+                              icon = ops_checkbox(file_data.enable_bundles))
+        # list_options.prop(file_data, "enable_multiselect", emboss = True)
+        # list_options.prop(file_data, "enable_bundles", emboss = True)
+
+
+        texture_ops = layout.column(align = True)
+        texture_ops.use_property_split = True
+        texture_ops.use_property_decorate = False
+        # texture_ops.separator()
+        texture_ops.operator("scene.pak_refresh", icon = 'FILE_REFRESH')
+        texture_ops.operator("scene.pak_export", icon = 'EXPORT')
+        texture_ops.separator()
+        texture_ops.operator("scene.pak_show_preferences", icon = "PREFERENCES")
+        texture_ops.separator()
 
 
         selection_box = layout.box()
@@ -113,15 +132,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
                 selection_box_area.prop(entry, "export_location")
                 selection_box_area.separator()
 
-        texture_ops = layout.column(align = True)
-        texture_ops.use_property_split = True
-        texture_ops.use_property_decorate = False
-        texture_ops.separator()
-        texture_ops.operator("scene.pak_refresh", icon = 'FILE_REFRESH')
-        texture_ops.operator("scene.pak_export", icon = 'EXPORT')
-        texture_ops.separator()
-        texture_ops.operator("scene.pak_show_preferences", icon = "PREFERENCES")
-        texture_ops.separator()
+        
         
         
         

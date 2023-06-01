@@ -90,6 +90,43 @@ class PAK_OT_CreateFileData(Operator):
         self.report({'INFO'}, "Pak data created.")
         return {'FINISHED'}
 
+class PAK_OT_MultiSelect_Toggle(Operator):
+    """
+    A psuedo-operator for styling purposes, enables and disables multi-select toggle.
+    """
+    bl_idname = "scene.pak_multiselect_toggle"
+    bl_label = "Enable Multiselect"
+
+    def execute(self, context):
+        
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+        
+        file_data.is_internal_update = True
+        file_data.enable_multiselect = not file_data.enable_multiselect
+        return {'FINISHED'}
+
+class PAK_OT_Bundles_Toggle(Operator):
+    """
+    A psuedo-operator for styling purposes, enables and disables multi-select toggle.
+    """
+    bl_idname = "scene.pak_bundles_toggle"
+    bl_label = "Enable Bundles"
+
+    def execute(self, context):
+        
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+        
+        file_data.is_internal_update = True
+        file_data.enable_bundles = not file_data.enable_bundles
+        return {'FINISHED'}
 
 class PAK_OT_Refresh(Operator):
     """
