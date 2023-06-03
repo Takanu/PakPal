@@ -29,7 +29,7 @@ from . import auto_load
 from bpy.types import AddonPreferences, PropertyGroup, UIList
 from bpy.props import PointerProperty,  StringProperty, CollectionProperty
 
-from .user_interface import PAK_CreatePakDataUI
+from .user_interface import PAK_UI_CreatePakData
 
 auto_load.init()
 
@@ -45,6 +45,7 @@ class PAK_AddonPreferences(AddonPreferences):
         default = ">Pak Blend File Data<"
     )
 
+    # Bundle Strings (needs a better name) are used to track potential texture slots
     bundle_strings: CollectionProperty(type = PAK_BundleString)
 
     bundle_strings_list_index: IntProperty(default = 0)
@@ -55,7 +56,7 @@ class PAK_AddonPreferences(AddonPreferences):
         try:
             file_data = bpy.data.objects[self.default_datablock].PAK_FileData
         except:
-            PAK_CreatePakDataUI(layout)
+            PAK_UI_CreatePakData(layout)
             return
 
         bundle_strings_box = layout.box()

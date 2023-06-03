@@ -65,6 +65,7 @@ def PAK_Update_EnableBundles(self, context):
     bpy.ops.scene.pak_refresh()
 
 
+
 def PAK_Update_TextureListItem_Name(self, context):
     """
     Updates the name of a texture bundle from the list UI.

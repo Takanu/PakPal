@@ -4,8 +4,6 @@ from bpy.types import Menu, Panel, Operator, UIList
 class PAK_UL_TextureList(UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
-
-        
         
         if data.enable_multiselect is True:
             layout.prop(item, "is_selected", text = "", icon = "RESTRICT_SELECT_OFF")
@@ -44,6 +42,7 @@ class PAK_UL_ExportLocationList(UIList):
         layout.prop(item, "name", text="", emboss=False)
 
 
+
 class PAK_UL_MainMenu(bpy.types.Panel):
     """Creates a Panel in the Object properties window"""
 
@@ -62,7 +61,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         try:
             file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
         except KeyError:
-            PAK_CreatePakDataUI(layout)
+            PAK_UI_CreatePakData(layout)
             return
 
         # //////////////////////////////////
@@ -71,15 +70,6 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         # ui_list_area.label(text = "Hey!")
         textures.template_list("PAK_UL_TextureList", "default", file_data, "bundles", 
                                     file_data, "bundles_list_index", rows = 3, maxrows = 6)
-
-        # //////////////////////////////////
-        # SELECTION MENU
-        sel_name = 'No Selected Images'
-        if file_data.enable_multiselect is True:
-            sel_list = [item for item in file_data.bundles if item.is_selected]
-            sel_name = str(len(sel_list)) + " images selected"
-        elif len(file_data.bundles) > 0:
-            sel_name = file_data.bundles[file_data.bundles_list_index].name
 
         def ops_checkbox(boolean):
             if boolean:
@@ -107,17 +97,16 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         texture_ops.operator("scene.pak_show_preferences", icon = "PREFERENCES")
         texture_ops.separator()
 
+        # //////////////////////////////////
+        # SELECTION MENU
+        
 
         selection_box = layout.box()
-        selection_header = selection_box.row(align = True)
-        selection_header_split = selection_header.split(factor = 0.8, align = True)
-        selection_header_split.label(text = sel_name, icon = "RESTRICT_SELECT_OFF")
-        selection_header.separator()
-
         selection_box_area = selection_box.column(align = True)
         selection_box_area.use_property_split = True
         selection_box_area.use_property_decorate = False
-        selection_box_area.separator()
+
+        PAK_UI_CreateSelectionHeader(selection_box_area, file_data)
 
         if len(file_data.bundles) > 0:
             if file_data.enable_multiselect:
@@ -133,9 +122,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
                 selection_box_area.separator()
 
         
-        
-        
-        
+
 
 class PAK_PT_Location(Panel):
     bl_space_type = "PROPERTIES"
@@ -180,7 +167,7 @@ class PAK_PT_Location(Panel):
             location_info.operator_menu_enum("scene.pak_add_export_loc_tag", "path_tags")
 
 
-def PAK_CreatePakDataUI(layout):
+def PAK_UI_CreatePakData(layout):
 
     # UI Prompt for when the Pak file data can no longer be found.
     col_export = layout.column(align= True)
@@ -191,3 +178,20 @@ def PAK_CreatePakDataUI(layout):
     col_export.operator("pak.create_file_data")
     col_export.separator()
     return
+
+def PAK_UI_CreateSelectionHeader(layout, file_data):
+    # Used to create a consistent banner to express what the selected image
+    # or bundle is.
+
+    sel_name = 'No Selected Images'
+    if file_data.enable_multiselect is True:
+        sel_list = [item for item in file_data.bundles if item.is_selected]
+        sel_name = str(len(sel_list)) + " images selected"
+    elif len(file_data.bundles) > 0:
+        sel_name = file_data.bundles[file_data.bundles_list_index].name
+    
+    selection_header = layout.row(align = True)
+    selection_header_split = selection_header.split(factor = 0.8, align = True)
+    selection_header_split.label(text = sel_name, icon = "RESTRICT_SELECT_OFF")
+    selection_header.separator()
+    

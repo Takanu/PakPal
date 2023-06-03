@@ -33,6 +33,8 @@ def GetLocationPresets(scene, context):
 
     return items
 
+
+
 class PAK_Texture(PropertyGroup):
     """
     Define an object as a list property, for use when displaying objects 
@@ -170,6 +172,108 @@ class PAK_FileData(PropertyGroup):
         update = PAK_Update_ExportLocation,
     )
 
+    # CHANNEL MIXING
+    # These options are used when performing a channel mix operation
+    pack_r_source: StringProperty(
+        name = "R Source Slots",
+        description = "Set the texture slot that will be used as a source for the packed image's red channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        default = ""
+    )
+
+    pack_g_source: StringProperty(
+        name = "G Source Slots",
+        description = "Set the texture slot that will be used as a source for the packed image's green channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        default = ""
+    )
+
+    pack_b_source: StringProperty(
+        name = "B Source Slots",
+        description = "Set the texture slot that will be used as a source for the packed image's blue channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        default = ""
+    )
+
+    pack_a_source: StringProperty(
+        name = "A Source Slots",
+        description = "Set the texture slot that will be used as a source for the packed image's alpha channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        default = ""
+    )
+
+
+    pack_r_channel: EnumProperty(
+		name = " ",
+		items = (('R', "R", ""),
+			    ('G', "G", ""),
+			    ('B', "B", ""),
+                ('A', "A", "")),
+		description = "",
+		default = 'R',
+	)
+
+    pack_g_channel: EnumProperty(
+		name = " ",
+		items = (('R', "R", ""),
+			    ('G', "G", ""),
+			    ('B', "B", ""),
+                ('A', "A", "")),
+		description = "",
+		default = 'R',
+	)
+
+    pack_b_channel: EnumProperty(
+		name = " ",
+		items = (('R', "R", ""),
+			    ('G', "G", ""),
+			    ('B', "B", ""),
+                ('A', "A", "")),
+		description = "",
+		default = 'R',
+	)
+
+    pack_a_channel: EnumProperty(
+		name = " ",
+		items = (('R', "R", ""),
+			    ('G', "G", ""),
+			    ('B', "B", ""),
+                ('A', "A", "")),
+		description = "",
+		default = 'R',
+	)
+
+    pack_r_invert: BoolProperty(
+        name = "Invert R Source",
+        description = "Invert the source image channel input",
+        default = False,
+    )
+
+    pack_g_invert: BoolProperty(
+        name = "Invert G Source",
+        description = "Invert the source image channel input",
+        default = False,
+    )
+
+    pack_b_invert: BoolProperty(
+        name = "Invert B Source",
+        description = "Invert the source image channel input",
+        default = False,
+    )
+
+    pack_a_invert: BoolProperty(
+        name = "Invert A Source",
+        description = "Invert the source image channel input",
+        default = False,
+    )
+
+    packed_image_suffix: StringProperty(
+        name = "Result Image Suffix",
+        description = "Set the suffix the new image will be given.  The base name will be the same as the one for the Bundle",
+        default = "",
+    )
+
+    overwrite_image_pack: BoolProperty(
+        name = "Overwrite Existing Image",
+        description = "If an image is found with the same name in the Blend file, the new packed image will replace it",
+        default = False,
+    )
 
 
 class PAK_BundleString(PropertyGroup):

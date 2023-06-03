@@ -1,4 +1,6 @@
+
 import bpy, platform, os
+
 from bpy.types import Operator
 from bpy.props import EnumProperty
 
@@ -105,7 +107,6 @@ class PAK_OT_MultiSelect_Toggle(Operator):
         except:
             return {'CANCELLED'}
         
-        file_data.is_internal_update = True
         file_data.enable_multiselect = not file_data.enable_multiselect
         return {'FINISHED'}
 
@@ -124,7 +125,6 @@ class PAK_OT_Bundles_Toggle(Operator):
         except:
             return {'CANCELLED'}
         
-        file_data.is_internal_update = True
         file_data.enable_bundles = not file_data.enable_bundles
         return {'FINISHED'}
 
@@ -384,3 +384,5 @@ class PAK_OT_Tutorial_StoredPresets(Operator):
 
 
         return {'FINISHED'}
+    
+
