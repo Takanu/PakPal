@@ -52,7 +52,7 @@ class PAK_OT_Export(Operator):
                     location_index = int(tex.PAK_Tex.export_location) - 1
                     location = file_data.locations[file_data.locations_list_index]
 
-                    path = CreateFilePath(location, tex, True)
+                    path = CreateFilePath(location.path, tex, True)
                     name = SubstituteNameCharacters(tex.name)
 
                     tex.save(filepath = path + name)

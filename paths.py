@@ -1,13 +1,11 @@
 import bpy, os, platform
 
 
-def CreateFilePath(export_location, targets, replace_invalid_chars):
+def CreateFilePath(location_path, targets, replace_invalid_chars):
     """
     Extracts and calculates a final path with which to export the target to.
     """
 
-    # First fetch the path
-    location_path = export_location.path
 
     if location_path == "":
         raise Exception('WARNING: This location preset has no path defined, please define it!')

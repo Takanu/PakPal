@@ -275,6 +275,19 @@ class PAK_FileData(PropertyGroup):
         default = False,
     )
 
+    add_fake_user: BoolProperty(
+        name = "Add Fake User",
+        description = "Adds a fake user to any generated packed images to prevent them from disappearing when the blend file is closed",
+        default = False,
+    )
+
+    temp_bake_path: StringProperty(
+        name = "Temporary Save Location",
+        description = "A temporary location used to save packed images.  Pak needs to save images somewhere before reloading and saving them in the blend file",
+        default = "//Pak_TempImagePacks\\",
+        subtype = "FILE_PATH"
+    )
+
 
 class PAK_BundleString(PropertyGroup):
 
