@@ -236,16 +236,18 @@ class PAK_PT_ImagePackMenu(Panel):
 # //////////////////////////////////////////////////////////////
 # IMAGE PACK OPERATOR
 
+
 class PAK_OT_CreateImagePack(Operator):
     """Creates a new packed image based on channels from existing images found within a bundle"""
     bl_idname = "scene.cap_createimagepack"
-    bl_label = "Create Packed Image"
+    bl_label = "Create Packed Images"
 
     # Thanks!
     # https://blender.stackexchange.com/questions/19500/controling-compositor-by-python
     # https://docs.blender.org/api/current/bpy.types.CompositorNode.html
     def create_compositor_packer(self):
-
+        
+        print(bpy.context.scene)
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
         links = tree.links
@@ -358,7 +360,6 @@ class PAK_OT_CreateImagePack(Operator):
         # When using a File Output node it will forcefully add a frame number to the end.
         bpy.ops.render.render(animation=False, write_still=False, use_viewport=False, layer="", scene="")
 
-
     
     def execute(self, context):
 
@@ -384,16 +385,21 @@ class PAK_OT_CreateImagePack(Operator):
             
             return None
         
-        # TODO: Return a valid warning.
         if file_data.enable_bundles is False:
-            self.report({'WARNING'}, "Image bundling only works when Bundles are enabled.")
+            self.report({'WARNING'}, "Image packing requires Bundles to be enabled.")
             return {'FINISHED'}
         
-        # Store the existing compositor to restore once done.
-        use_tree = context.scene.use_nodes = True
-        current_tree = bpy.context.scene.node_tree
+        # Create a new scene to composite in
+        # NOTE - The context won't actually change unless we escape the properties context.
+        # Properties > Output has it's own scene context!
+        # TODO: Potentially find a way to change the scene context for just the properties panel.
+        old_type = context.area.type
+        context.area.type = 'VIEW_3D'
+        bpy.ops.scene.new(type = 'NEW')
+        composite_scene = bpy.context.scene
 
-        report_info = {'new_images': 0, 'updated_images': 0, 'not_found': 0}
+
+        report_info = {'new_images': 0, 'updated_images': 0, 'not_found': 0, 'not_overwritten': 0}
         bundle_strings = [t.text for t in addon_prefs.bundle_strings]
         valid_bundles = [file_data.bundles[file_data.bundles_list_index]]
         if file_data.enable_multiselect:
@@ -402,6 +408,15 @@ class PAK_OT_CreateImagePack(Operator):
         
         
         for bundle in valid_bundles:
+
+            file_name = bundle.name + file_data.packed_image_suffix
+            file_directory = CreateFilePath(file_data.temp_bake_path, None, True)
+            file_path = file_directory + file_name + ".png"
+
+            # Skip if we aren't allowed to overwrite an image.
+            if file_name in bpy.data.images and file_data.overwrite_image_pack is False:
+                report_info['not_overwritten'] += 1
+                continue
 
             # Access source, channel and inversion data
             self.source_r = get_image_for_slot(bundle, file_data.pack_r_source)
@@ -424,9 +439,6 @@ class PAK_OT_CreateImagePack(Operator):
             self.invert_b = file_data.pack_b_invert
             self.invert_a = file_data.pack_a_invert
 
-            file_name = bundle.name + file_data.packed_image_suffix
-            file_directory = CreateFilePath(file_data.temp_bake_path, None, True)
-            file_path = file_directory + file_name + ".png"
             
             self.create_compositor_packer()
 
@@ -452,28 +464,35 @@ class PAK_OT_CreateImagePack(Operator):
                 new_image.filepath = file_path
                 new_image.name = file_name
 
+                bundle_proxy = bundle.bundle_items[0].tex.PAK_Tex
+
                 # add the new image to the bundle!
                 new_bundle_item = bundle.bundle_items.add()
                 new_bundle_item.tex = new_image
+                new_bundle_item.tex.PAK_Tex.enable_export = bundle_proxy.enable_export
+                new_bundle_item.tex.PAK_Tex.export_location = bundle_proxy.export_location
 
                 report_info['new_images'] += 1
 
             new_image.pack()
             new_image.use_fake_user = file_data.add_fake_user
 
-        # TODO: Inherit Pak properties and slip new slot into existing bundle
         # TODO: (at some point) add file format selection, will likely require larger design implications in Pak.
         # TODO: Rename Bundle Strings, DUMB NAME
-        # TODO: Delete the saved image once it's been packed.
-        # TODO: Restore compositor when done
+        # TODO: Delete the saved image once it's been packed. (decided not to right now just in case)
+        # TODO: Fully test info statements
 
-        # context.scene.use_nodes = use_tree
-        # bpy.context.scene.node_tree = current_tree
+        # /////////////////////////
+        # RESTORE SCENE
+        # Delete the composite scene and change the area context back.
+        bpy.data.scenes.remove(composite_scene, do_unlink = True)
+        context.area.type = old_type
 
         info = ""
         new_image_info = ""
         updated_image_info = ""
         failed_image_info = ""
+        not_overwritten_image_info = ""
 
         if report_info['new_images'] == 1:
             new_image_info = str(report_info['new_images']) + " new image"
@@ -490,17 +509,26 @@ class PAK_OT_CreateImagePack(Operator):
         elif report_info['not_found'] > 1:
             failed_image_info += str(report_info['not_found']) + " bundles"
         
-        if new_image_info and failed_image_info == "":
+        if report_info['not_overwritten'] == 1:
+            not_overwritten_image_info += str(report_info['not_overwritten']) + " image"
+        elif report_info['not_overwritten'] > 1:
+            not_overwritten_image_info += str(report_info['not_overwritten']) + " images"
+        
+        if new_image_info and failed_image_info == "" and not_overwritten_image_info == "":
             info = "PakPal couldn't find texture slots to pack any selected bundle."
             self.report({'WARNING'}, info)
+
         else:
             if new_image_info != "":
                 if failed_image_info == "":
                     info = "PakPal packed " + new_image_info + ".  "
                 else:
-                    info = "PakPal packed " + new_image_info + " and updates " + updated_image_info + ".  "
-            else:
+                    info = "PakPal packed " + new_image_info + " and updated " + updated_image_info + ".  "
+            elif updated_image_info != "":
                 info = "PakPal updated " + updated_image_info + ".  "
+            
+            if not_overwritten_image_info != "":
+                info += not_overwritten_image_info + " were not overwritten.  "
             
             if failed_image_info != "":
                 info += "Texture slots for " + failed_image_info + " couldn't be found."
