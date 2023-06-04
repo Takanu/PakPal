@@ -284,7 +284,7 @@ class PAK_FileData(PropertyGroup):
     temp_bake_path: StringProperty(
         name = "Temporary Save Location",
         description = "A temporary location used to save packed images.  Pak needs to save images somewhere before reloading and saving them in the blend file",
-        default = "//Pak_TempImagePacks\\",
+        default = "//Pak_Cache\\",
         subtype = "FILE_PATH"
     )
 

@@ -343,11 +343,19 @@ class PAK_OT_CreateImagePack(Operator):
             make_separate_link(a_separate, self.channel_a, combine_color, 'A')
 
         # ADD OUTPUT
-        viewer = tree.nodes.new(type = 'CompositorNodeViewer')
-        viewer.location = 1000, -550
-        links.new(combine_color.outputs[0], viewer.inputs[0])
+        output_node = tree.nodes.new(type = 'CompositorNodeViewer')
+        output_node.location = 1000, -550
 
-        # This updates the viewer
+        # output_node = tree.nodes.new(type = 'CompositorNodeOutputFile')
+        # output_node.location = 1000, -550
+        # output_node.base_path = self.file_directory
+        # output_node.file_slots[0].path = self.file_name + ".png"
+        # output_node.file_slots[0].save_as_render = False
+        
+        links.new(combine_color.outputs[0], output_node.inputs[0])
+
+        # This renders whatever is on the compositor.
+        # When using a File Output node it will forcefully add a frame number to the end.
         bpy.ops.render.render(animation=False, write_still=False, use_viewport=False, layer="", scene="")
 
 
@@ -364,7 +372,7 @@ class PAK_OT_CreateImagePack(Operator):
 
         # Store the existing compositor to restore once done.
         use_tree = context.scene.use_nodes = True
-        tree = bpy.context.scene.node_tree
+        current_tree = bpy.context.scene.node_tree
         
         def get_image_for_slot(bundle, sources):
             if sources == "":
@@ -381,11 +389,6 @@ class PAK_OT_CreateImagePack(Operator):
                     return bundle_item.tex
             
             return None
-                
-        # Thanks!
-        # https://blender.stackexchange.com/questions/40562/how-to-combine-images-using-python
-        # def np_array_from_image(img):
-        #     return np.array(img.pixels[:])
 
         bundle = file_data.bundles[file_data.bundles_list_index]
 
@@ -404,24 +407,45 @@ class PAK_OT_CreateImagePack(Operator):
         self.invert_g = file_data.pack_g_invert
         self.invert_b = file_data.pack_b_invert
         self.invert_a = file_data.pack_a_invert
+
+        file_name = bundle.name + file_data.packed_image_suffix
+        file_directory = CreateFilePath(file_data.temp_bake_path, None, True)
+        file_path = file_directory + file_name + ".png"
         
         self.create_compositor_packer()
 
         # Store the output image in it's own buffer and datablock.
-        name = bundle.name + file_data.packed_image_suffix
-        path = CreateFilePath(file_data.temp_bake_path, None, True)
-        filepath = path + name + ".png"
         viewer = bpy.data.images['Viewer Node']
-        viewer.save(filepath = filepath)
-        viewer.filepath = filepath
-        viewer.name = name
-        viewer.pack()
-        print(viewer.source)
 
-        # TODO: Detect duplicates
+        # use save_render to avoid the viewer node datablock from becoming a FILE type.
+        # TODO: Insert custom image paramaters with the scene somewhere.
+        viewer.save_render(filepath = file_path)
+        
+        new_image = None
+        
+        if file_name in bpy.data.images:
+            new_image = bpy.data.images[file_name]
+            new_image.unpack(method = 'REMOVE')
+            new_image.filepath = file_path
+            new_image.name = file_name
+            new_image.reload()
+        else:
+            new_image = bpy.data.images.load(file_path, check_existing = True)
+            new_image.filepath = file_path
+            new_image.name = file_name
+
+        new_image.pack()
+
+        # TODO: Detect and resolve duplicates
         # TODO: Inherit Pak properties and slip new slot into existing bundle
         # TODO: Add batch packing
+        # TODO: Add fake user when requested
+        # TODO: (at some point) add file format selection, will likely require larger design implications in Pak.
+        # TODO: Rename Bundle Strings, DUMB NAME
+        # TODO: Add an info statement to tell the user what happened
+        # TODO: Delete the saved image once it's been packed.
 
-
+        # context.scene.use_nodes = use_tree
+        # bpy.context.scene.node_tree = current_tree
 
         return {'FINISHED'}
