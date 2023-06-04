@@ -186,7 +186,10 @@ def PAK_UI_CreateSelectionHeader(layout, file_data):
     sel_name = 'No Selected Images'
     if file_data.enable_multiselect is True:
         sel_list = [item for item in file_data.bundles if item.is_selected]
-        sel_name = str(len(sel_list)) + " images selected"
+        if file_data.enable_bundles:
+            sel_name = str(len(sel_list)) + " bundles selected"
+        else:
+            sel_name = str(len(sel_list)) + " images selected"
     elif len(file_data.bundles) > 0:
         sel_name = file_data.bundles[file_data.bundles_list_index].name
     

@@ -368,12 +368,6 @@ class PAK_OT_CreateImagePack(Operator):
         except:
             return {'CANCELLED'}
         
-        bundle_strings = [t.text for t in addon_prefs.bundle_strings]
-
-        # Store the existing compositor to restore once done.
-        use_tree = context.scene.use_nodes = True
-        current_tree = bpy.context.scene.node_tree
-        
         def get_image_for_slot(bundle, sources):
             if sources == "":
                 return None
@@ -389,63 +383,129 @@ class PAK_OT_CreateImagePack(Operator):
                     return bundle_item.tex
             
             return None
-
-        bundle = file_data.bundles[file_data.bundles_list_index]
-
-        # Access source, channel and inversion data
-        self.source_r = get_image_for_slot(bundle, file_data.pack_r_source)
-        self.source_g = get_image_for_slot(bundle, file_data.pack_g_source)
-        self.source_b = get_image_for_slot(bundle, file_data.pack_b_source)
-        self.source_a = get_image_for_slot(bundle, file_data.pack_a_source)
-
-        self.channel_r = file_data.pack_r_channel
-        self.channel_g = file_data.pack_g_channel
-        self.channel_b = file_data.pack_b_channel
-        self.channel_a = file_data.pack_a_channel
-
-        self.invert_r = file_data.pack_r_invert
-        self.invert_g = file_data.pack_g_invert
-        self.invert_b = file_data.pack_b_invert
-        self.invert_a = file_data.pack_a_invert
-
-        file_name = bundle.name + file_data.packed_image_suffix
-        file_directory = CreateFilePath(file_data.temp_bake_path, None, True)
-        file_path = file_directory + file_name + ".png"
         
-        self.create_compositor_packer()
-
-        # Store the output image in it's own buffer and datablock.
-        viewer = bpy.data.images['Viewer Node']
-
-        # use save_render to avoid the viewer node datablock from becoming a FILE type.
-        # TODO: Insert custom image paramaters with the scene somewhere.
-        viewer.save_render(filepath = file_path)
+        # TODO: Return a valid warning.
+        if file_data.enable_bundles is False:
+            self.report({'WARNING'}, "Image bundling only works when Bundles are enabled.")
+            return {'FINISHED'}
         
-        new_image = None
+        # Store the existing compositor to restore once done.
+        use_tree = context.scene.use_nodes = True
+        current_tree = bpy.context.scene.node_tree
+
+        report_info = {'new_images': 0, 'updated_images': 0, 'not_found': 0}
+        bundle_strings = [t.text for t in addon_prefs.bundle_strings]
+        valid_bundles = [file_data.bundles[file_data.bundles_list_index]]
+        if file_data.enable_multiselect:
+            valid_bundles = [b for b in file_data.bundles 
+                            if b.is_selected or file_data.enable_multiselect is False]
         
-        if file_name in bpy.data.images:
-            new_image = bpy.data.images[file_name]
-            new_image.unpack(method = 'REMOVE')
-            new_image.filepath = file_path
-            new_image.name = file_name
-            new_image.reload()
-        else:
-            new_image = bpy.data.images.load(file_path, check_existing = True)
-            new_image.filepath = file_path
-            new_image.name = file_name
+        
+        for bundle in valid_bundles:
 
-        new_image.pack()
+            # Access source, channel and inversion data
+            self.source_r = get_image_for_slot(bundle, file_data.pack_r_source)
+            self.source_g = get_image_for_slot(bundle, file_data.pack_g_source)
+            self.source_b = get_image_for_slot(bundle, file_data.pack_b_source)
+            self.source_a = get_image_for_slot(bundle, file_data.pack_a_source)
 
-        # TODO: Detect and resolve duplicates
+            if (self.source_r and self.source_g 
+                and self.source.b and self.source_a is None):
+                report_info['not_found'] += 1
+                continue
+
+            self.channel_r = file_data.pack_r_channel
+            self.channel_g = file_data.pack_g_channel
+            self.channel_b = file_data.pack_b_channel
+            self.channel_a = file_data.pack_a_channel
+
+            self.invert_r = file_data.pack_r_invert
+            self.invert_g = file_data.pack_g_invert
+            self.invert_b = file_data.pack_b_invert
+            self.invert_a = file_data.pack_a_invert
+
+            file_name = bundle.name + file_data.packed_image_suffix
+            file_directory = CreateFilePath(file_data.temp_bake_path, None, True)
+            file_path = file_directory + file_name + ".png"
+            
+            self.create_compositor_packer()
+
+            # Store the output image in it's own buffer and datablock.
+            viewer = bpy.data.images['Viewer Node']
+
+            # use save_render to avoid the viewer node datablock from becoming a FILE type.
+            # TODO: Insert custom image paramaters with the scene somewhere.
+            viewer.save_render(filepath = file_path)
+            
+            new_image = None
+            
+            if file_name in bpy.data.images:
+                new_image = bpy.data.images[file_name]
+                new_image.unpack(method = 'REMOVE')
+                new_image.filepath = file_path
+                new_image.name = file_name
+                new_image.reload()
+
+                report_info['updated_images'] += 1
+            else:
+                new_image = bpy.data.images.load(file_path, check_existing = True)
+                new_image.filepath = file_path
+                new_image.name = file_name
+
+                # add the new image to the bundle!
+                new_bundle_item = bundle.bundle_items.add()
+                new_bundle_item.tex = new_image
+
+                report_info['new_images'] += 1
+
+            new_image.pack()
+            new_image.use_fake_user = file_data.add_fake_user
+
         # TODO: Inherit Pak properties and slip new slot into existing bundle
-        # TODO: Add batch packing
-        # TODO: Add fake user when requested
         # TODO: (at some point) add file format selection, will likely require larger design implications in Pak.
         # TODO: Rename Bundle Strings, DUMB NAME
-        # TODO: Add an info statement to tell the user what happened
         # TODO: Delete the saved image once it's been packed.
+        # TODO: Restore compositor when done
 
         # context.scene.use_nodes = use_tree
         # bpy.context.scene.node_tree = current_tree
+
+        info = ""
+        new_image_info = ""
+        updated_image_info = ""
+        failed_image_info = ""
+
+        if report_info['new_images'] == 1:
+            new_image_info = str(report_info['new_images']) + " new image"
+        elif report_info['new_images'] > 1:
+            new_image_info = str(report_info['new_images']) + " new images"
+
+        if report_info['updated_images'] == 1:
+            updated_image_info += str(report_info['updated_images']) + " image"
+        elif report_info['updated_images'] > 1:
+            updated_image_info += str(report_info['updated_images']) + " images"
+
+        if report_info['not_found'] == 1:
+            failed_image_info += str(report_info['not_found']) + " bundle"
+        elif report_info['not_found'] > 1:
+            failed_image_info += str(report_info['not_found']) + " bundles"
+        
+        if new_image_info and failed_image_info == "":
+            info = "PakPal couldn't find texture slots to pack any selected bundle."
+            self.report({'WARNING'}, info)
+        else:
+            if new_image_info != "":
+                if failed_image_info == "":
+                    info = "PakPal packed " + new_image_info + ".  "
+                else:
+                    info = "PakPal packed " + new_image_info + " and updates " + updated_image_info + ".  "
+            else:
+                info = "PakPal updated " + updated_image_info + ".  "
+            
+            if failed_image_info != "":
+                info += "Texture slots for " + failed_image_info + " couldn't be found."
+
+            self.report({'INFO'}, info)
+        
 
         return {'FINISHED'}
