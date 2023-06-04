@@ -89,14 +89,14 @@ def PAK_Update_TextureListItem_Name(self, context):
             bundle_item.tex.name = value
     
     else:
-        bundle_strings = [t.text for t in addon_prefs.bundle_strings]
+        texture_slot_names = [t.text for t in addon_prefs.texture_slot_names]
 
         for bundle_item in self.bundle_items:
             tex = bundle_item.tex
             name = os.path.splitext(tex.name)
             filename = name[0]
 
-            match = next(filter(filename.endswith, bundle_strings), None)
+            match = next(filter(filename.endswith, texture_slot_names), None)
             new_name = value + match + name[1]
             tex.name = new_name
 

@@ -1,7 +1,7 @@
 import bpy, os, platform
 from bpy.types import Operator
 
-from .paths import *
+from .export_locations import *
 
 def FindImageContext():
     """

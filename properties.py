@@ -289,7 +289,7 @@ class PAK_FileData(PropertyGroup):
     )
 
 
-class PAK_BundleString(PropertyGroup):
+class PAK_TextureSlot(PropertyGroup):
 
     text: StringProperty(
         name = "Bundle Text",

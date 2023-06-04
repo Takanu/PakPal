@@ -29,7 +29,7 @@ from . import auto_load
 from bpy.types import AddonPreferences, PropertyGroup, UIList
 from bpy.props import PointerProperty,  StringProperty, CollectionProperty
 
-from .user_interface import PAK_UI_CreatePakData
+from .main_menu import PAK_UI_CreatePakData
 
 auto_load.init()
 
@@ -45,55 +45,28 @@ class PAK_AddonPreferences(AddonPreferences):
         default = ">Pak Blend File Data<"
     )
 
-    # Bundle Strings (needs a better name) are used to track potential texture slots
-    bundle_strings: CollectionProperty(type = PAK_BundleString)
-
-    bundle_strings_list_index: IntProperty(default = 0)
-
-    def draw(self, context):
-        layout = self.layout
-
-        try:
-            file_data = bpy.data.objects[self.default_datablock].PAK_FileData
-        except:
-            PAK_UI_CreatePakData(layout)
-            return
-
-        bundle_strings_box = layout.box()
-        
-        bundle_strings_title = bundle_strings_box.row(align= True)
-        bundle_strings_title.label(text= "Bundle Strings", icon = "PRESET")
-        bundle_strings_title.operator("scene.cap_tut_bundlestrings", text = "", icon = "HELP")
-        
-        
-        bundle_strings_area = bundle_strings_box.row(align = False)
-        bundle_strings_list = bundle_strings_area.column(align = True)
-        bundle_strings_list.template_list("PAK_UL_BundleStringList", "default", self, "bundle_strings", 
-                                          self, "bundle_strings_list_index", 
-                                          rows = 3, maxrows = 6)
-        bundle_strings_list.separator()
-
-        bundle_strings_ops = bundle_strings_area.column(align = True)
-        bundle_strings_ops.operator("scene.pak_addbundlestring", text= "", icon = "ADD")
-        bundle_strings_ops.operator("scene.pak_deletebundlestring", text= "", icon = "REMOVE")
+    # Texture slot names are used to bundle images together in the interface and for 
+    # operations like image packing
+    texture_slot_names: CollectionProperty(type = PAK_TextureSlot)
+    texture_slot_names_list_index: IntProperty(default = 0)
 
 
 # This creates a list of commonly used bundle strings when first registering Pak.
-def CreateBundleStrings():
+def CreateTextureSlotNames():
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
     
-    if len(addon_prefs.bundle_strings) > 0:
+    if len(addon_prefs.texture_slot_names) > 0:
         return
 
-    new_string = addon_prefs.bundle_strings.add()
+    new_string = addon_prefs.texture_slot_names.add()
     new_string.text = "BaseColor"
-    new_string = addon_prefs.bundle_strings.add()
+    new_string = addon_prefs.texture_slot_names.add()
     new_string.text = "Height"
-    new_string = addon_prefs.bundle_strings.add()
+    new_string = addon_prefs.texture_slot_names.add()
     new_string.text = "Metallic"
-    new_string = addon_prefs.bundle_strings.add()
+    new_string = addon_prefs.texture_slot_names.add()
     new_string.text = "Normal"
-    new_string = addon_prefs.bundle_strings.add()
+    new_string = addon_prefs.texture_slot_names.add()
     new_string.text = "Roughness"
 
 
@@ -107,7 +80,7 @@ def register():
                                                         type = PAK_FileData)
     
     bpy.utils.register_class(PAK_AddonPreferences)
-    CreateBundleStrings()
+    CreateTextureSlotNames()
 
 def unregister():
     bpy.utils.unregister_class(PAK_AddonPreferences)

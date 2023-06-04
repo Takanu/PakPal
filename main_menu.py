@@ -30,18 +30,6 @@ class PAK_UL_TextureList(UIList):
         export_item.alignment = 'RIGHT'
         export_item.prop(item, "enable_export", text = "")
 
-class PAK_UL_BundleStringList(UIList):
-
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
-        layout.prop(item, "text", text = "", emboss = False)
-
-
-class PAK_UL_ExportLocationList(UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
-
-        layout.prop(item, "name", text="", emboss=False)
-
-
 
 class PAK_UL_MainMenu(bpy.types.Panel):
     """Creates a Panel in the Object properties window"""
@@ -94,8 +82,8 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         texture_ops.operator("scene.pak_refresh", icon = 'FILE_REFRESH')
         texture_ops.operator("scene.pak_export", icon = 'EXPORT')
         texture_ops.separator()
-        texture_ops.operator("scene.pak_show_preferences", icon = "PREFERENCES")
-        texture_ops.separator()
+        # texture_ops.operator("scene.pak_show_preferences", icon = "PREFERENCES")
+        # texture_ops.separator()
 
         # //////////////////////////////////
         # SELECTION MENU
@@ -120,51 +108,6 @@ class PAK_UL_MainMenu(bpy.types.Panel):
                 selection_box_area.separator()
                 selection_box_area.prop(entry, "export_location")
                 selection_box_area.separator()
-
-        
-
-
-class PAK_PT_Location(Panel):
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "scene"
-    bl_label = "Export Locations"
-    bl_parent_id = "PROPERTIES_PT_Pak"
-
-    def draw(self, context):
-
-        preferences = context.preferences
-        addon_prefs = preferences.addons[__package__].preferences
-        layout = self.layout
-
-        try:
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
-        except KeyError:
-            return
-
-        location_list = layout.row(align= True)
-        location_list.template_list("PAK_UL_ExportLocationList", "default", file_data, 
-                                   "locations", file_data, "locations_list_index", 
-                                   rows = 3, maxrows = 6)
-        location_list.separator()
-
-        location_ops = location_list.column(align= True)
-        location_ops.operator("scene.pak_addpath", text= "", icon = "ADD")
-        location_ops.operator("scene.pak_deletepath", text= "", icon = "REMOVE")
-
-        location_info = layout.column(align = False)
-        location_info.use_property_split = True
-        location_info.use_property_decorate = False
-        location_info.separator()
-
-        count = 0
-        for i, item in enumerate(file_data.locations, 1):
-            count += 1
-
-        if file_data.locations_list_index > -1 and file_data.locations_list_index < count:
-            location_info.prop(file_data.locations[file_data.locations_list_index], "path")
-            # location_info.separator()
-            location_info.operator_menu_enum("scene.pak_add_export_loc_tag", "path_tags")
 
 
 def PAK_UI_CreatePakData(layout):

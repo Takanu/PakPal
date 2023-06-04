@@ -6,8 +6,8 @@ from bpy.props import EnumProperty
 from bl_ui.utils import PresetPanel
 from bl_operators.presets import AddPresetBase
 
-from .user_interface import PAK_UI_CreateSelectionHeader
-from .paths import *
+from .main_menu import PAK_UI_CreateSelectionHeader
+from .export_locations import *
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -33,6 +33,7 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
 
     # common values used for fetching preset values
     # WARNING: You need to be careful to keep property requests in context here!
+    # Otherwise cryptic errors can occur.
     preset_defines = [
         "addon_prefs = bpy.context.preferences.addons['Pak'].preferences",
         "file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData",
@@ -71,7 +72,7 @@ class PAK_PT_ImagePack_PresetsOps(PresetPanel, Panel):
 # SLOT ADD SYSTEM
 
 class PAK_OT_ImagePack_AddSlotName(Operator):
-    """Adds an existing Bundle String to a source slot input"""
+    """Adds an existing Texture Slot Name to a source slot input"""
 
     bl_idname = "scene.pak_imagepack_addslotname"
     bl_label = "Add Image Source Slot Name"
@@ -87,7 +88,7 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
         except KeyError:
             return items
         
-        strings = addon_prefs.bundle_strings
+        strings = addon_prefs.texture_slot_names
 
         for i,x in enumerate(strings):
             items.append((str(i+1), x.text, x.text, i+1))
@@ -146,6 +147,7 @@ class PAK_PT_ImagePackMenu(Panel):
     bl_context = "scene"
     bl_label = "Image Packer"
     bl_parent_id = "PROPERTIES_PT_Pak"
+    bl_order = 1
 
     def draw_header_preset(self, _context):
         PAK_PT_ImagePack_PresetsOps.draw_panel_header(self.layout)
@@ -400,7 +402,7 @@ class PAK_OT_CreateImagePack(Operator):
 
 
         report_info = {'new_images': 0, 'updated_images': 0, 'not_found': 0, 'not_overwritten': 0}
-        bundle_strings = [t.text for t in addon_prefs.bundle_strings]
+        texture_slot_names = [t.text for t in addon_prefs.texture_slot_names]
         valid_bundles = [file_data.bundles[file_data.bundles_list_index]]
         if file_data.enable_multiselect:
             valid_bundles = [b for b in file_data.bundles 
