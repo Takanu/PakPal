@@ -2,7 +2,7 @@
 import bpy, platform, os
 
 from bpy.types import Operator
-
+from .texture_slots import FindMaterialSlotInName
 
 def Find3DViewContext():
     """
@@ -33,10 +33,10 @@ def Find3DViewContext():
     return override
 
 class PAK_OT_CreateFileData(Operator):
-    """Create a new empty object for which Pak data is stored"""
+    """Create a new empty object for which PakPal data is stored"""
 
     bl_idname = "pak.create_file_data"
-    bl_label = "Create Pak Data"
+    bl_label = "Create PakPal Data"
 
     def execute(self, context):
 
@@ -89,7 +89,7 @@ class PAK_OT_CreateFileData(Operator):
                 
                 bpy.ops.object.mode_set(mode=prev_mode, toggle=False)
 
-        self.report({'INFO'}, "Pak data created.")
+        self.report({'INFO'}, "PakPal data created.")
         return {'FINISHED'}
 
 class PAK_OT_MultiSelect_Toggle(Operator):
@@ -161,11 +161,10 @@ class PAK_OT_Refresh(Operator):
 
         else:
             bundle_dict = {}
-            texture_slot_names = [t.text for t in addon_prefs.texture_slot_names]
 
             for tex in bpy.data.images:
                 filename = os.path.splitext(tex.name)[0]
-                match = next(filter(filename.endswith, texture_slot_names), None)
+                match = FindMaterialSlotInName(addon_prefs, filename)
 
                 if match:
                     filename = filename.replace(match, "")
@@ -192,7 +191,7 @@ class PAK_OT_Refresh(Operator):
 
 
 class PAK_OT_Show_Preferences(Operator):
-    """Open a window to the Pak Addon Preferences Menu"""
+    """Open a window to the PakPal Addon Preferences Menu"""
     bl_idname = "scene.pak_show_preferences"
     bl_label = "Show Addon Preferences"
 
@@ -200,7 +199,7 @@ class PAK_OT_Show_Preferences(Operator):
 
         bpy.ops.screen.userpref_show()
         context.preferences.active_section = 'ADDONS'
-        bpy.data.window_managers["WinMan"].addon_search = "Pak"
+        bpy.data.window_managers["WinMan"].addon_search = "PakPal"
 
 
         return {'FINISHED'}

@@ -34,7 +34,7 @@ class PAK_UL_TextureList(UIList):
 class PAK_UL_MainMenu(bpy.types.Panel):
     """Creates a Panel in the Object properties window"""
 
-    bl_label = "Pak"
+    bl_label = "PakPal"
     bl_idname = "PROPERTIES_PT_Pak"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -45,7 +45,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         layout = self.layout
         addon_prefs = context.preferences.addons[__package__].preferences
 
-        # UI Prompt for when the .blend Pak data can no longer be found.
+        # UI Prompt for when the .blend PakPal data can no longer be found.
         try:
             file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
         except KeyError:
@@ -112,9 +112,9 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
 def PAK_UI_CreatePakData(layout):
 
-    # UI Prompt for when the Pak file data can no longer be found.
+    # UI Prompt for when the PakPal file data can no longer be found.
     col_export = layout.column(align= True)
-    col_export.label(text= "No Pak data for this .blend file has been found,")
+    col_export.label(text= "No PakPal data for this .blend file has been found,")
     col_export.label(text= "Please press the button below to generate new data.")
     col_export.separator()
     col_export.separator()

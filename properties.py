@@ -20,7 +20,7 @@ def GetLocationPresets(scene, context):
     ]
 
     preferences = context.preferences
-    addon_prefs = preferences.addons['Pak'].preferences
+    addon_prefs = preferences.addons['PakPal'].preferences
     try:
         file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
     except KeyError:
@@ -118,7 +118,7 @@ class PAK_ExportLocations(PropertyGroup):
 
 class PAK_FileData(PropertyGroup):
     """
-    Everything Pak needs to preserve as part of the file.
+    Everything PakPal needs to preserve as part of the file.
     """
 
     # if true, this object is the empty created for the purposes of storing preset data.
@@ -135,6 +135,11 @@ class PAK_FileData(PropertyGroup):
 
     ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
     locations_list_index: IntProperty(default = 0)
+
+    case_sensitive_matching: BoolProperty(
+        name = "Case Sensitive Matching",
+        description = "If enabled, operations that use material slot names such as image packing and material bundling will perform material slot comparisons in a case sensitive manner"
+    )
     
     # if true, images can be edited with a psuedo multiselect interface.
     enable_multiselect: BoolProperty(
@@ -176,25 +181,25 @@ class PAK_FileData(PropertyGroup):
     # These options are used when performing a channel mix operation
     pack_r_source: StringProperty(
         name = "R Source Slots",
-        description = "Set the texture slot that will be used as a source for the packed image's red channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        description = "Set the material slot that will be used as a source for the packed image's red channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
         default = ""
     )
 
     pack_g_source: StringProperty(
         name = "G Source Slots",
-        description = "Set the texture slot that will be used as a source for the packed image's green channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        description = "Set the material slot that will be used as a source for the packed image's green channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
         default = ""
     )
 
     pack_b_source: StringProperty(
         name = "B Source Slots",
-        description = "Set the texture slot that will be used as a source for the packed image's blue channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        description = "Set the material slot that will be used as a source for the packed image's blue channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
         default = ""
     )
 
     pack_a_source: StringProperty(
         name = "A Source Slots",
-        description = "Set the texture slot that will be used as a source for the packed image's alpha channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        description = "Set the material slot that will be used as a source for the packed image's alpha channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
         default = ""
     )
 
@@ -283,13 +288,13 @@ class PAK_FileData(PropertyGroup):
 
     temp_bake_path: StringProperty(
         name = "Temporary Save Location",
-        description = "A temporary location used to save packed images.  Pak needs to save images somewhere before reloading and saving them in the blend file",
+        description = "A temporary location used to save packed images.  PakPal needs to save images somewhere before reloading and saving them in the blend file",
         default = "//Pak_Cache\\",
         subtype = "FILE_PATH"
     )
 
 
-class PAK_TextureSlot(PropertyGroup):
+class PAK_MaterialSlot(PropertyGroup):
 
     text: StringProperty(
         name = "Bundle Text",

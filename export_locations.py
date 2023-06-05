@@ -261,3 +261,4 @@ class PAK_PT_Location(Panel):
             location_info.prop(file_data.locations[file_data.locations_list_index], "path")
             # location_info.separator()
             location_info.operator_menu_enum("scene.pak_add_export_loc_tag", "path_tags")
+            

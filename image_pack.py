@@ -8,6 +8,7 @@ from bl_operators.presets import AddPresetBase
 
 from .main_menu import PAK_UI_CreateSelectionHeader
 from .export_locations import *
+from .texture_slots import FindMaterialSlotInName
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -19,7 +20,7 @@ from .export_locations import *
 #
 class PAK_MT_ImagePack_DisplayPresets(Menu): 
     bl_label = 'Image Pack Display Presets' 
-    preset_subdir = 'pak/image_packs' 
+    preset_subdir = 'pakpal/image_packs' 
     preset_operator = 'script.execute_preset' 
     draw = Menu.draw_preset
 
@@ -35,7 +36,7 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
     # WARNING: You need to be careful to keep property requests in context here!
     # Otherwise cryptic errors can occur.
     preset_defines = [
-        "addon_prefs = bpy.context.preferences.addons['Pak'].preferences",
+        "addon_prefs = bpy.context.preferences.addons['PakPal'].preferences",
         "file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData",
     ]
 
@@ -59,11 +60,11 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
         'file_data.packed_image_suffix',
     ]
 
-    preset_subdir = 'pak/image_packs'
+    preset_subdir = 'pakpal/image_packs'
 
 class PAK_PT_ImagePack_PresetsOps(PresetPanel, Panel):
     bl_label = "Image Pack Format Presets"
-    preset_subdir = "pak/image_packs"
+    preset_subdir = "pakpal/image_packs"
     preset_operator = "script.execute_preset"
     preset_add_operator = "scene.pak_add_image_pack_preset"
 
@@ -72,7 +73,7 @@ class PAK_PT_ImagePack_PresetsOps(PresetPanel, Panel):
 # SLOT ADD SYSTEM
 
 class PAK_OT_ImagePack_AddSlotName(Operator):
-    """Adds an existing Texture Slot Name to a source slot input"""
+    """Adds an existing material slot Name to a source slot input"""
 
     bl_idname = "scene.pak_imagepack_addslotname"
     bl_label = "Add Image Source Slot Name"
@@ -84,11 +85,11 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
         ]
         
         try:
-            addon_prefs = context.preferences.addons['Pak'].preferences
+            addon_prefs = context.preferences.addons['PakPal'].preferences
         except KeyError:
             return items
         
-        strings = addon_prefs.texture_slot_names
+        strings = addon_prefs.material_slot_names
 
         for i,x in enumerate(strings):
             items.append((str(i+1), x.text, x.text, i+1))
@@ -377,10 +378,11 @@ class PAK_OT_CreateImagePack(Operator):
             
             sources = sources.replace(",", "")
             slot_strings = sources.split()
+            slot_strings = [s for s in slot_strings]
 
             for bundle_item in bundle.bundle_items:
                 filename = os.path.splitext(bundle_item.tex.name)[0]
-                match = next(filter(filename.endswith, slot_strings), None)
+                match = FindMaterialSlotInName(addon_prefs, filename, slot_strings)
 
                 if match:
                     return bundle_item.tex
@@ -402,7 +404,6 @@ class PAK_OT_CreateImagePack(Operator):
 
 
         report_info = {'new_images': 0, 'updated_images': 0, 'not_found': 0, 'not_overwritten': 0}
-        texture_slot_names = [t.text for t in addon_prefs.texture_slot_names]
         valid_bundles = [file_data.bundles[file_data.bundles_list_index]]
         if file_data.enable_multiselect:
             valid_bundles = [b for b in file_data.bundles 
@@ -479,7 +480,7 @@ class PAK_OT_CreateImagePack(Operator):
             new_image.pack()
             new_image.use_fake_user = file_data.add_fake_user
 
-        # TODO: (at some point) add file format selection, will likely require larger design implications in Pak.
+        # TODO: (at some point) add file format selection, will likely require larger design implications in PakPal.
         # TODO: Delete the saved image once it's been packed. (decided not to right now just in case)
         # TODO: Fully test info statements
 
@@ -516,7 +517,7 @@ class PAK_OT_CreateImagePack(Operator):
             not_overwritten_image_info += str(report_info['not_overwritten']) + " images"
         
         if new_image_info and failed_image_info == "" and not_overwritten_image_info == "":
-            info = "PakPal couldn't find texture slots to pack any selected bundle."
+            info = "PakPal couldn't find material slots to pack any selected bundle."
             self.report({'WARNING'}, info)
 
         else:
@@ -532,7 +533,7 @@ class PAK_OT_CreateImagePack(Operator):
                 info += not_overwritten_image_info + " were not overwritten.  "
             
             if failed_image_info != "":
-                info += "Texture slots for " + failed_image_info + " couldn't be found."
+                info += "material slots for " + failed_image_info + " couldn't be found."
 
             self.report({'INFO'}, info)
         

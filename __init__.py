@@ -13,13 +13,13 @@
 
 #This states the metadata for the plugin
 bl_info = {
-    "name": "Pak",
+    "name": "PakPal",
     "author": "Takanu Kyriako.",
     "version": (1, 0, 0),
     "blender": (3, 5, 0),
     "location": "Properties > Output",
-    "wiki_url": "https://github.com/Takanu/Pak",
-    "description": "Batch export textures used in scenes",
+    "wiki_url": "https://github.com/Takanu/PakPal",
+    "description": "Helps you prepare and batch export images loaded in Blender",
     "tracker_url": "",
     "category": "Import-Export"
 }
@@ -42,31 +42,31 @@ class PAK_AddonPreferences(AddonPreferences):
     default_datablock: StringProperty(
         name = "Dummy Datablock Name",
         description = "The dummy block being used to store file data, as Blender has no mechanism for adding blend data properties",
-        default = ">Pak Blend File Data<"
+        default = ">PakPal Blend File Data<"
     )
 
-    # Texture slot names are used to bundle images together in the interface and for 
+    # material slot names are used to bundle images together in the interface and for 
     # operations like image packing
-    texture_slot_names: CollectionProperty(type = PAK_TextureSlot)
-    texture_slot_names_list_index: IntProperty(default = 0)
+    material_slot_names: CollectionProperty(type = PAK_MaterialSlot)
+    material_slot_names_list_index: IntProperty(default = 0)
 
 
-# This creates a list of commonly used bundle strings when first registering Pak.
-def CreateTextureSlotNames():
+# This creates a list of commonly used bundle strings when first registering PakPal.
+def CreateMaterialSlotNames():
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
     
-    if len(addon_prefs.texture_slot_names) > 0:
+    if len(addon_prefs.material_slot_names) > 0:
         return
 
-    new_string = addon_prefs.texture_slot_names.add()
+    new_string = addon_prefs.material_slot_names.add()
     new_string.text = "BaseColor"
-    new_string = addon_prefs.texture_slot_names.add()
+    new_string = addon_prefs.material_slot_names.add()
     new_string.text = "Height"
-    new_string = addon_prefs.texture_slot_names.add()
+    new_string = addon_prefs.material_slot_names.add()
     new_string.text = "Metallic"
-    new_string = addon_prefs.texture_slot_names.add()
+    new_string = addon_prefs.material_slot_names.add()
     new_string.text = "Normal"
-    new_string = addon_prefs.texture_slot_names.add()
+    new_string = addon_prefs.material_slot_names.add()
     new_string.text = "Roughness"
 
 
@@ -74,13 +74,13 @@ def register():
     auto_load.register()
 
     # Assign datablocks now all classes have been registered.
-    bpy.types.Image.PAK_Tex = PointerProperty(name = 'Pak Texture Data', 
+    bpy.types.Image.PAK_Tex = PointerProperty(name = 'PakPal Texture Data', 
                                                 type = PAK_Texture)
-    bpy.types.Object.PAK_FileData = PointerProperty(name = 'Pak File Data', 
+    bpy.types.Object.PAK_FileData = PointerProperty(name = 'PakPal File Data', 
                                                         type = PAK_FileData)
     
     bpy.utils.register_class(PAK_AddonPreferences)
-    CreateTextureSlotNames()
+    CreateMaterialSlotNames()
 
 def unregister():
     bpy.utils.unregister_class(PAK_AddonPreferences)

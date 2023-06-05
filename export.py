@@ -62,11 +62,11 @@ class PAK_OT_Export(Operator):
                     report_info['exported_images'] += 1
         
         if report_info['exported_images'] == 0:
-            info = "Pak exported no images."
+            info = "PakPal exported no images."
             self.report({'WARNING'}, info)
 
         else:
-            info = "Pak successfully exported "
+            info = "PakPal successfully exported "
 
             if report_info['exported_images'] == 1:
                 info += str(report_info['exported_images']) + ' image.'
