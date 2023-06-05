@@ -44,9 +44,6 @@ class PAK_OT_Export(Operator):
         except:
             return {'CANCELLED'}
         
-        # TODO: Verify Export Locations before export
-
-        report_info = {'exported_images': 0}
         
         for bundle in file_data.bundles:
             for item in bundle.bundle_items:
@@ -59,22 +56,8 @@ class PAK_OT_Export(Operator):
                     name = SubstituteNameCharacters(tex.name)
 
                     tex.save(filepath = path + name)
-                    report_info['exported_images'] += 1
         
-        if report_info['exported_images'] == 0:
-            info = "Pak exported no images."
-            self.report({'WARNING'}, info)
-
-        else:
-            info = "Pak successfully exported "
-
-            if report_info['exported_images'] == 1:
-                info += str(report_info['exported_images']) + ' image.'
-            else:
-                info += str(report_info['exported_images']) + ' images.'
-
-            self.report({'INFO'}, info)
-        
+        self.report({'INFO'}, "Pak export complete.")
 
         return {'FINISHED'}
 
