@@ -480,7 +480,6 @@ class PAK_OT_CreateImagePack(Operator):
             new_image.use_fake_user = file_data.add_fake_user
 
         # TODO: (at some point) add file format selection, will likely require larger design implications in Pak.
-        # TODO: Rename Bundle Strings, DUMB NAME
         # TODO: Delete the saved image once it's been packed. (decided not to right now just in case)
         # TODO: Fully test info statements
 
