@@ -1,12 +1,12 @@
 # PakPal
-PakPal is a simple tool for batch exporting image files from Blender.  Have a bunch of images in a scene you want to be anywhere but Blender?  Use this :ok_hand:
+**Rename, manage, repack and export lots of images at once** inside Blender all in the same place.
 
-This is a small tool I made to fill a specific workflow need when working on environments and so I don't plan on updating it much, it's a simple tool for a simple job.
+This is a small tool I made to fill a specific workflow need when working on VR environments so I don't plan on updating it much, so keep that in mind.
 
 ### Features
 - **Batch export any number of loaded images with one click**.
 - Visualize sets of material images as bundles grouped by their material slot names.  
-- Batch image renaming and deletion.
+- Batch rename and delete image bundles and selected image sets.
 - **Automatically pack material slots into new images**, with support for custom presets and flexible material slot identification.
 - Create reusable Export Locations with automatic timestamp support.
 
