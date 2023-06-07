@@ -15,7 +15,7 @@
 bl_info = {
     "name": "PakPal",
     "author": "Takanu Kyriako.",
-    "version": (1, 0, 0),
+    "version": (0, 9, 9),
     "blender": (3, 5, 0),
     "location": "Properties > Output",
     "wiki_url": "https://github.com/Takanu/PakPal",
