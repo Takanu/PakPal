@@ -96,7 +96,7 @@ class PAK_OT_MultiSelect_Toggle(Operator):
     """
     A psuedo-operator for styling purposes, enables and disables multi-select toggle.
     """
-    bl_idname = "scene.pak_multiselect_toggle"
+    bl_idname = "pak.toggle_multiselect"
     bl_label = "Enable Multiselect"
 
     def execute(self, context):
@@ -114,7 +114,7 @@ class PAK_OT_Bundles_Toggle(Operator):
     """
     A psuedo-operator for styling purposes, enables and disables multi-select toggle.
     """
-    bl_idname = "scene.pak_bundles_toggle"
+    bl_idname = "pak.toggle_bundles"
     bl_label = "Enable Bundles"
 
     def execute(self, context):
@@ -133,7 +133,7 @@ class PAK_OT_Refresh(Operator):
     Refreshes the list of textures used in the current scene.
     """
 
-    bl_idname = "scene.pak_refresh"
+    bl_idname = "pak.refresh_images"
     bl_label = "Refresh List"
 
     def execute(self, context):
@@ -154,8 +154,8 @@ class PAK_OT_Refresh(Operator):
             for tex in bpy.data.images:
                 bundle = bundles.add()
                 bundle.name = tex.name
-                bundle.enable_export = tex.PAK_Tex.enable_export
-                bundle.export_location = tex.PAK_Tex.export_location
+                bundle.enable_export = tex.PAK_Img.enable_export
+                bundle.export_location = tex.PAK_Img.export_location
                 bundle_item = bundle.bundle_items.add()
                 bundle_item.tex = tex
 
@@ -177,8 +177,8 @@ class PAK_OT_Refresh(Operator):
 
                 bundle = bundles.add()
                 bundle.name = name
-                bundle.enable_export = textures[0].PAK_Tex.enable_export
-                bundle.export_location = textures[0].PAK_Tex.export_location
+                bundle.enable_export = textures[0].PAK_Img.enable_export
+                bundle.export_location = textures[0].PAK_Img.export_location
                 
                 for tex in textures:
                     bundle_item = bundle.bundle_items.add()
@@ -192,7 +192,7 @@ class PAK_OT_Refresh(Operator):
 
 class PAK_OT_Show_Preferences(Operator):
     """Open a window to the PakPal Addon Preferences Menu"""
-    bl_idname = "scene.pak_show_preferences"
+    bl_idname = "pak.show_preferences"
     bl_label = "Show Addon Preferences"
 
     def execute(self, context):
@@ -205,4 +205,22 @@ class PAK_OT_Show_Preferences(Operator):
         return {'FINISHED'}
 
 
+class PAK_OT_Reset_Properties(Operator):
+    """Resets all Pak properties in the current .blend file."""
+    bl_idname = "pak.reset_properties"
+    bl_label = "Reset All Properties"
 
+    def execute(self, context):
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+
+                
+        for image in bpy.data.images:
+            image.PAK_Img.enable_export = False
+            image.PAK_Img.export_location = '0'
+        
+        return {'FINISHED'}

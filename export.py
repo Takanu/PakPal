@@ -33,7 +33,7 @@ def FindImageContext():
 class PAK_OT_Export(Operator):
     """Exports all images marked for export."""
 
-    bl_idname = "scene.pak_export"
+    bl_idname = "pak.export_images"
     bl_label = "Export Images"
 
     def execute(self, context):
@@ -50,9 +50,9 @@ class PAK_OT_Export(Operator):
         
         for bundle in file_data.bundles:
             for item in bundle.bundle_items:
-                if item.tex.PAK_Tex.enable_export:
+                if item.tex.PAK_Img.enable_export:
                     tex = item.tex
-                    location_index = int(tex.PAK_Tex.export_location) - 1
+                    location_index = int(tex.PAK_Img.export_location) - 1
                     location = file_data.locations[file_data.locations_list_index]
 
                     path = CreateFilePath(location.path, tex, True)

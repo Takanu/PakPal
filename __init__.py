@@ -50,6 +50,12 @@ class PAK_AddonPreferences(AddonPreferences):
     material_slot_names: CollectionProperty(type = PAK_MaterialSlot)
     material_slot_names_list_index: IntProperty(default = 0)
 
+    def draw(self, context):
+        layout = self.layout
+        
+        addon_options = layout.column(align = True)
+        addon_options.operator("pak.reset_properties")
+
 
 # This creates a list of commonly used bundle strings when first registering PakPal.
 def CreateMaterialSlotNames():
@@ -74,8 +80,8 @@ def register():
     auto_load.register()
 
     # Assign datablocks now all classes have been registered.
-    bpy.types.Image.PAK_Tex = PointerProperty(name = 'PakPal Texture Data', 
-                                                type = PAK_Texture)
+    bpy.types.Image.PAK_Img = PointerProperty(name = 'PakPal Texture Data', 
+                                                type = PAK_Image)
     bpy.types.Object.PAK_FileData = PointerProperty(name = 'PakPal File Data', 
                                                         type = PAK_FileData)
     
@@ -86,7 +92,7 @@ def unregister():
     bpy.utils.unregister_class(PAK_AddonPreferences)
 
     del bpy.types.Object.PAK_FileData
-    del bpy.types.Image.PAK_Tex
+    del bpy.types.Image.PAK_Img
 
     auto_load.unregister()
 

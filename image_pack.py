@@ -28,7 +28,7 @@ class PAK_MT_ImagePack_DisplayPresets(Menu):
 # It tells blender what properties we need fetched.
 # 
 class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
-    bl_idname = 'scene.pak_add_image_pack_preset'
+    bl_idname = 'pak.add_image_pack_preset'
     bl_label = 'Add Image Pack Preset'
     preset_menu = 'PAK_MT_ImagePack_DisplayPresets'
 
@@ -66,7 +66,7 @@ class PAK_PT_ImagePack_PresetsOps(PresetPanel, Panel):
     bl_label = "Image Pack Format Presets"
     preset_subdir = "pakpal/image_packs"
     preset_operator = "script.execute_preset"
-    preset_add_operator = "scene.pak_add_image_pack_preset"
+    preset_add_operator = "pak.add_image_pack_preset"
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ class PAK_PT_ImagePack_PresetsOps(PresetPanel, Panel):
 class PAK_OT_ImagePack_AddSlotName(Operator):
     """Adds an existing material slot Name to a source slot input"""
 
-    bl_idname = "scene.pak_imagepack_addslotname"
+    bl_idname = "pak.add_image_pack_slot_name"
     bl_label = "Add Image Source Slot Name"
 
     def GetSlots(scene, context):
@@ -171,7 +171,7 @@ class PAK_PT_ImagePackMenu(Panel):
 
         pack_test_r_source = pack_test.row(align = True)
         pack_test_r_source.prop(file_data, "pack_r_source")
-        pack_test_r_source.operator_menu_enum('scene.pak_imagepack_addslotname', "slots",
+        pack_test_r_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                               text = "",
                                               icon = "ADD").path_target = 'R'
         
@@ -183,7 +183,7 @@ class PAK_PT_ImagePackMenu(Panel):
 
         pack_test_g_source = pack_test.row(align = True)
         pack_test_g_source.prop(file_data, "pack_g_source")
-        pack_test_g_source.operator_menu_enum('scene.pak_imagepack_addslotname', "slots",
+        pack_test_g_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                               text = "",
                                               icon = "ADD").path_target = 'G'
         
@@ -195,7 +195,7 @@ class PAK_PT_ImagePackMenu(Panel):
 
         pack_test_b_source = pack_test.row(align = True)
         pack_test_b_source.prop(file_data, "pack_b_source")
-        pack_test_b_source.operator_menu_enum('scene.pak_imagepack_addslotname', "slots",
+        pack_test_b_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                               text = "",
                                               icon = "ADD").path_target = 'B'
         
@@ -207,7 +207,7 @@ class PAK_PT_ImagePackMenu(Panel):
 
         pack_test_a_source = pack_test.row(align = True)
         pack_test_a_source.prop(file_data, "pack_a_source")
-        pack_test_a_source.operator_menu_enum('scene.pak_imagepack_addslotname', "slots",
+        pack_test_a_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                               text = "",
                                               icon = "ADD").path_target = 'A'
         
@@ -233,7 +233,7 @@ class PAK_PT_ImagePackMenu(Panel):
         bake_menu.prop(file_data, "add_fake_user")
         bake_menu.prop(file_data, "temp_bake_path")
         bake_menu.separator()
-        bake_menu.operator("scene.cap_createimagepack")
+        bake_menu.operator("pak.create_image_pack")
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -242,7 +242,7 @@ class PAK_PT_ImagePackMenu(Panel):
 
 class PAK_OT_CreateImagePack(Operator):
     """Creates a new packed image based on channels from existing images found within a bundle"""
-    bl_idname = "scene.cap_createimagepack"
+    bl_idname = "pak.create_image_pack"
     bl_label = "Create Packed Images"
 
     # Thanks!
@@ -467,13 +467,13 @@ class PAK_OT_CreateImagePack(Operator):
                 new_image.filepath = file_path
                 new_image.name = file_name
 
-                bundle_proxy = bundle.bundle_items[0].tex.PAK_Tex
+                bundle_proxy = bundle.bundle_items[0].tex.PAK_Img
 
                 # add the new image to the bundle!
                 new_bundle_item = bundle.bundle_items.add()
                 new_bundle_item.tex = new_image
-                new_bundle_item.tex.PAK_Tex.enable_export = bundle_proxy.enable_export
-                new_bundle_item.tex.PAK_Tex.export_location = bundle_proxy.export_location
+                new_bundle_item.tex.PAK_Img.enable_export = bundle_proxy.enable_export
+                new_bundle_item.tex.PAK_Img.export_location = bundle_proxy.export_location
 
                 report_info['new_images'] += 1
 

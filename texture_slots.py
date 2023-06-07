@@ -34,7 +34,7 @@ def FindMaterialSlotInName(addon_prefs, filename, custom_slots = None):
 class PAK_OT_AddMaterialSlotName(Operator):
     """Add a material slot name to the list"""
 
-    bl_idname = "scene.pak_add_materialslotname"
+    bl_idname = "pak.add_material_slot_name"
     bl_label = "Add"
 
     def execute(self, context):
@@ -53,7 +53,7 @@ class PAK_OT_AddMaterialSlotName(Operator):
 class PAK_OT_DeleteMaterialSlot(Operator):
     """Delete the selected material slot name from the list."""
 
-    bl_idname = "scene.pak_del_materialslotname"
+    bl_idname = "pak.del_material_slot_name"
     bl_label = "Remove"
 
     def execute(self, context):
@@ -77,7 +77,7 @@ class PAK_OT_DeleteMaterialSlot(Operator):
 
 class PAK_OT_Tutorial_StoredPresets(Operator):
     """Open a message describing how material slot Names work"""
-    bl_idname = "scene.cap_tut_materialslots"
+    bl_idname = "pak.show_material_slot_tutorial"
     bl_label = ""
 
     def execute(self, context):
@@ -111,7 +111,7 @@ class PAK_PT_MaterialSlotMenu(Panel):
     def draw_header_preset(self, _context):
         layout = self.layout
         icon = layout.row(align = True)
-        icon.operator("scene.cap_tut_materialslots", text = "", icon = "HELP")
+        icon.operator("pak.show_material_slot_tutorial", text = "", icon = "HELP")
 
     def draw(self, context):
         
@@ -133,10 +133,11 @@ class PAK_PT_MaterialSlotMenu(Panel):
         texture_slot_names_list.separator()
 
         texture_slot_names_ops = texture_slot_names_area.column(align = True)
-        texture_slot_names_ops.operator("scene.pak_add_materialslotname", text= "", icon = "ADD")
-        texture_slot_names_ops.operator("scene.pak_del_materialslotname", text= "", icon = "REMOVE")
+        texture_slot_names_ops.operator("pak.add_material_slot_name", text= "", icon = "ADD")
+        texture_slot_names_ops.operator("pak.del_material_slot_name", text= "", icon = "REMOVE")
         
-        material_slot_options = layout.column()
-        material_slot_options.use_property_split = True
-        material_slot_options.use_property_decorate = False
+        material_slot_options = layout.row(align = False)
+        # material_slot_options.use_property_split = True
+        # material_slot_options.use_property_decorate = False
+        material_slot_options.alignment = "CENTER"
         material_slot_options.prop(file_data, 'case_sensitive_matching')

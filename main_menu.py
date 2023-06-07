@@ -30,6 +30,27 @@ class PAK_UL_TextureList(UIList):
         export_item.alignment = 'RIGHT'
         export_item.prop(item, "enable_export", text = "")
 
+    def filter_items(self, context, data, property):
+        attributes = getattr(data, property)
+        flags = []
+        indices = [i for i in range(len(attributes))]
+        bundles = [item for item in attributes]
+        helper_funcs = bpy.types.UI_UL_list
+
+        # Filtering by name
+        if self.filter_name:
+            flags = helper_funcs.filter_items_by_name(
+                self.filter_name, self.bitflag_filter_item, bundles, "name", 
+                reverse = self.use_filter_sort_reverse)
+        if not flags:
+            flags = [self.bitflag_filter_item] * len(attributes)
+
+        # Sorting by alphanumerics
+        if self.use_filter_sort_alpha:
+            indices = helper_funcs.sort_items_by_name(bundles, "name")
+
+        return flags, indices
+
 
 class PAK_UL_MainMenu(bpy.types.Panel):
     """Creates a Panel in the Object properties window"""
@@ -67,9 +88,9 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
         list_options = layout.row(align = True)
         list_options.alignment = 'EXPAND'
-        list_options.operator("scene.pak_multiselect_toggle", 
+        list_options.operator("pak.toggle_multiselect", 
                               icon = ops_checkbox(file_data.enable_multiselect))
-        list_options.operator("scene.pak_bundles_toggle", 
+        list_options.operator("pak.toggle_bundles", 
                               icon = ops_checkbox(file_data.enable_bundles))
         # list_options.prop(file_data, "enable_multiselect", emboss = True)
         # list_options.prop(file_data, "enable_bundles", emboss = True)
@@ -79,11 +100,12 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         texture_ops.use_property_split = True
         texture_ops.use_property_decorate = False
         # texture_ops.separator()
-        texture_ops.operator("scene.pak_refresh", icon = 'FILE_REFRESH')
-        texture_ops.operator("scene.pak_export", icon = 'EXPORT')
+        texture_ops.operator("pak.refresh_images", icon = 'FILE_REFRESH')
+        texture_ops.operator("pak.export_images", icon = 'EXPORT')
         texture_ops.separator()
-        # texture_ops.operator("scene.pak_show_preferences", icon = "PREFERENCES")
-        # texture_ops.separator()
+        texture_ops.operator("wm.url_open", text = "Donate", icon = "FUND").url = "ko-fi.com/takanu"
+        # texture_ops.operator("pak.show_preferences", icon = "PREFERENCES")
+        texture_ops.separator()
 
         # //////////////////////////////////
         # SELECTION MENU

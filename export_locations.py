@@ -143,8 +143,8 @@ class PAK_OT_DeletePath(Operator):
         # The index needs increasing by one as it doesnt include 'None'
         images = bpy.data.images
         for img in images:
-            if img.PAK_Tex.export_location == str(sel_index + 1):
-                img.PAK_Tex.export_location = '0'
+            if img.PAK_Img.export_location == str(sel_index + 1):
+                img.PAK_Img.export_location = '0'
 
         
         # TODO: Ensure the selection interface is updated so it gets the new value!

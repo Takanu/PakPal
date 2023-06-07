@@ -35,7 +35,7 @@ def GetLocationPresets(scene, context):
 
 
 
-class PAK_Texture(PropertyGroup):
+class PAK_Image(PropertyGroup):
     """
     Define an object as a list property, for use when displaying objects 
     in the user interface.
@@ -54,9 +54,9 @@ class PAK_Texture(PropertyGroup):
     )
     
 
-class PAK_TextureItem(PropertyGroup):
+class PAK_ImageItem(PropertyGroup):
     """
-    Defines a single texture within a PAK_TextureListItem.
+    Defines a single texture within a PAK_ImageListItem.
     It just wraps an image type in a PropertyGroup as Blender is a bit dumb with collections.
     """
 
@@ -67,12 +67,12 @@ class PAK_TextureItem(PropertyGroup):
     )
 
 
-class PAK_TextureListItem(PropertyGroup):
+class PAK_ImageListItem(PropertyGroup):
     """
     Define an object as a list property, for use when displaying objects in the user interface
     """
 
-    bundle_items: CollectionProperty(type = PAK_TextureItem)
+    bundle_items: CollectionProperty(type = PAK_ImageItem)
 
     name: StringProperty(
         name = "Texture/Bundle Name",
@@ -125,7 +125,7 @@ class PAK_FileData(PropertyGroup):
     is_file_data: BoolProperty(default = False)
 
     # the available baking presets
-    bundles: CollectionProperty(type = PAK_TextureListItem)
+    bundles: CollectionProperty(type = PAK_ImageListItem)
 
     ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
     bundles_list_index: IntProperty(default = 0)

@@ -24,7 +24,7 @@ def PAK_Update_EnableExport(self, context):
     else:
         bundle = file_data.bundles[file_data.bundles_list_index].bundle_items
         for tex in bundle:
-            tex.PAK_Tex.enable_export = value
+            tex.PAK_Img.enable_export = value
 
     return None
 
@@ -52,7 +52,7 @@ def PAK_Update_ExportLocation(self, context):
     else:
         bundle = file_data.bundles[file_data.bundles_list_index].bundle_items
         for tex in bundle:
-            tex.PAK_Tex.export_location = value
+            tex.PAK_Img.export_location = value
 
     return None
 
@@ -62,7 +62,7 @@ def PAK_Update_EnableBundles(self, context):
     in order to provide the right data.
     """
 
-    bpy.ops.scene.pak_refresh()
+    bpy.ops.pak.refresh_images()
 
 
 
@@ -119,7 +119,7 @@ def PAK_Update_TextureListItem_EnableExport(self, context):
     value = self.enable_export
 
     for bundle_item in self.bundle_items:
-        bundle_item.tex.PAK_Tex.enable_export = value
+        bundle_item.tex.PAK_Img.enable_export = value
         
 
 def PAK_Update_TextureListItem_ExportLocation(self, context):
@@ -140,4 +140,4 @@ def PAK_Update_TextureListItem_ExportLocation(self, context):
     value = self.export_location
 
     for bundle_item in self.bundle_items:
-        bundle_item.tex.PAK_Tex.export_location = value
+        bundle_item.tex.PAK_Img.export_location = value
