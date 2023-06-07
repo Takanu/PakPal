@@ -414,7 +414,7 @@ class PAK_OT_CreateImagePack(Operator):
         
         for bundle in valid_bundles:
 
-            file_name = bundle.name + file_data.packed_image_suffix
+            file_name = bundle.name + file_data.packed_image_suffix + ".png"
             file_directory = CreateFilePath(file_data.temp_bake_path, None, True)
             file_path = file_directory + file_name + ".png"
 
@@ -498,6 +498,8 @@ class PAK_OT_CreateImagePack(Operator):
         failed_image_info = ""
         not_overwritten_image_info = ""
 
+        print(report_info)
+
         if report_info['new_images'] == 1:
             new_image_info = str(report_info['new_images']) + " new image"
         elif report_info['new_images'] > 1:
@@ -518,7 +520,7 @@ class PAK_OT_CreateImagePack(Operator):
         elif report_info['not_overwritten'] > 1:
             not_overwritten_image_info += str(report_info['not_overwritten']) + " images"
         
-        if new_image_info and failed_image_info == "" and not_overwritten_image_info == "":
+        if new_image_info == "" and failed_image_info == "" and not_overwritten_image_info == "":
             info = "PakPal couldn't find material slots to pack any selected bundle."
             self.report({'WARNING'}, info)
 
