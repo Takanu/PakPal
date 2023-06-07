@@ -75,32 +75,79 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
         # //////////////////////////////////
         # LIST MENU
-        textures = layout.column(align = True)
-        # ui_list_area.label(text = "Hey!")
-        textures.template_list("PAK_UL_TextureList", "default", file_data, "bundles", 
-                                    file_data, "bundles_list_index", rows = 3, maxrows = 6)
+        texture_list_area = layout.row(align = False)
+        texture_list_ui = texture_list_area.column(align = True)
+        texture_list_ui.template_list("PAK_UL_TextureList", "default", file_data, "bundles", 
+                                    file_data, "bundles_list_index", rows = 7, maxrows = 12)
 
         def ops_checkbox(boolean):
             if boolean:
                 return 'CHECKBOX_HLT'
             else:
                 return 'CHECKBOX_DEHLT'
+        
+        def ops_img(boolean):
+            if boolean:
+                return 'RENDERLAYERS'
+            else:
+                return 'IMAGE_DATA'
+            
+        # TODO: Try making this look like an expanded enum?
 
-        list_options = layout.row(align = True)
-        list_options.alignment = 'EXPAND'
-        list_options.operator("pak.toggle_multiselect", 
-                              icon = ops_checkbox(file_data.enable_multiselect))
-        list_options.operator("pak.toggle_bundles", 
-                              icon = ops_checkbox(file_data.enable_bundles))
-        # list_options.prop(file_data, "enable_multiselect", emboss = True)
-        # list_options.prop(file_data, "enable_bundles", emboss = True)
+        list_options = texture_list_area.column(align = True)
+
+        list_multiselect_off = list_options.column(align = True)
+        list_multiselect_off.active = (file_data.enable_multiselect is False)
+        list_multiselect_off.operator("pak.toggle_multiselect", 
+                              icon = 'CHECKBOX_DEHLT',
+                              text = "",
+                              depress = (file_data.enable_multiselect is False))
+        
+        list_multiselect_on = list_options.column(align = True)
+        list_multiselect_on.active = file_data.enable_multiselect
+        list_multiselect_on.operator("pak.toggle_multiselect", 
+                              icon = 'CHECKBOX_HLT',
+                              text = "",
+                              depress = file_data.enable_multiselect)
+        
+        list_options.separator()
+
+        list_bundles_off = list_options.row(align = True)
+        list_bundles_off.active = (file_data.enable_bundles is False)
+        list_bundles_off.operator("pak.toggle_bundles", 
+                              icon = 'IMAGE_DATA',
+                              text = "",
+                              depress = (file_data.enable_bundles is False))
+        list_bundles_on = list_options.row(align = True)
+        list_bundles_on.active = file_data.enable_bundles
+        list_bundles_on.operator("pak.toggle_bundles", 
+                              icon = 'RENDERLAYERS',
+                              text = "",
+                              depress = file_data.enable_bundles)
+        
+        list_options.separator()
+        list_options.separator()
+
+        list_refresh = list_options.column(align = True)
+        list_refresh.operator("pak.refresh_images", 
+                              icon = 'FILE_REFRESH',
+                              text = "")
+        
+        list_options.separator()
+        list_options.separator()
+
+        list_delete = list_options.column(align = True)
+        list_delete.operator("pak.delete_selected_images", 
+                              icon = "TRASH",
+                              text = "")
+                              
 
 
         texture_ops = layout.column(align = True)
         texture_ops.use_property_split = True
         texture_ops.use_property_decorate = False
         # texture_ops.separator()
-        texture_ops.operator("pak.refresh_images", icon = 'FILE_REFRESH')
+        
         texture_ops.operator("pak.export_images", icon = 'EXPORT')
         texture_ops.separator()
         texture_ops.operator("wm.url_open", text = "Donate", icon = "FUND").url = "ko-fi.com/takanu"

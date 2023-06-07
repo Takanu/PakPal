@@ -231,9 +231,11 @@ class PAK_PT_ImagePackMenu(Panel):
         PAK_UI_CreateSelectionHeader(bake_menu, file_data)
         bake_menu.prop(file_data, "overwrite_image_pack")
         bake_menu.prop(file_data, "add_fake_user")
+        bake_menu.separator()
         bake_menu.prop(file_data, "temp_bake_path")
         bake_menu.separator()
-        bake_menu.operator("pak.create_image_pack")
+        bake_menu.separator()
+        bake_menu.operator("pak.create_image_pack", icon = "NODE_COMPOSITING")
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////

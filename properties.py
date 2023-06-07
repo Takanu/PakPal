@@ -56,7 +56,7 @@ class PAK_Image(PropertyGroup):
 
 class PAK_ImageItem(PropertyGroup):
     """
-    Defines a single texture within a PAK_ImageListItem.
+    Defines a single texture within a PAK_ImageBundle.
     It just wraps an image type in a PropertyGroup as Blender is a bit dumb with collections.
     """
 
@@ -67,7 +67,7 @@ class PAK_ImageItem(PropertyGroup):
     )
 
 
-class PAK_ImageListItem(PropertyGroup):
+class PAK_ImageBundle(PropertyGroup):
     """
     Define an object as a list property, for use when displaying objects in the user interface
     """
@@ -125,7 +125,7 @@ class PAK_FileData(PropertyGroup):
     is_file_data: BoolProperty(default = False)
 
     # the available baking presets
-    bundles: CollectionProperty(type = PAK_ImageListItem)
+    bundles: CollectionProperty(type = PAK_ImageBundle)
 
     ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
     bundles_list_index: IntProperty(default = 0)
@@ -156,9 +156,10 @@ class PAK_FileData(PropertyGroup):
         update = PAK_Update_EnableBundles,
     )
 
-    
+    # ////////////////////////////////////////////////////////////////////
+    # ////////////////////////////////////////////////////////////////////
     ## PROXIES
-    # These are used for multi-select operations.
+    # These are used for multi-select operations and UI enhancements.
 
     # Used during a refresh to prevent unnecessary update function triggers.
     is_internal_update: BoolProperty(default = False)
@@ -177,7 +178,9 @@ class PAK_FileData(PropertyGroup):
         update = PAK_Update_ExportLocation,
     )
 
-    # CHANNEL MIXING
+    # ////////////////////////////////////////////////////////////////////
+    # ////////////////////////////////////////////////////////////////////
+    # IMAGE PACKING
     # These options are used when performing a channel mix operation
     pack_r_source: StringProperty(
         name = "R Source Slots",
@@ -287,7 +290,7 @@ class PAK_FileData(PropertyGroup):
     )
 
     temp_bake_path: StringProperty(
-        name = "Temporary Save Location",
+        name = "Temp Save Location",
         description = "A temporary location used to save packed images.  PakPal needs to save images somewhere before reloading and saving them in the blend file",
         default = "//Pak_Cache\\",
         subtype = "FILE_PATH"

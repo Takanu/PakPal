@@ -129,7 +129,7 @@ class PAK_PT_MaterialSlotMenu(Panel):
         texture_slot_names_list.template_list("PAK_UL_MaterialSlotList", "default", 
                                               addon_prefs, "material_slot_names", 
                                               addon_prefs, "material_slot_names_list_index", 
-                                              rows = 3, maxrows = 6)
+                                              rows = 6, maxrows = 12)
         texture_slot_names_list.separator()
 
         texture_slot_names_ops = texture_slot_names_area.column(align = True)

@@ -93,9 +93,7 @@ class PAK_OT_CreateFileData(Operator):
         return {'FINISHED'}
 
 class PAK_OT_MultiSelect_Toggle(Operator):
-    """
-    A psuedo-operator for styling purposes, enables and disables multi-select toggle.
-    """
+    """Enables and disables multi-select in the main image list, letting you edit many different images or bundles at the same time"""
     bl_idname = "pak.toggle_multiselect"
     bl_label = "Enable Multiselect"
 
@@ -111,9 +109,7 @@ class PAK_OT_MultiSelect_Toggle(Operator):
         return {'FINISHED'}
 
 class PAK_OT_Bundles_Toggle(Operator):
-    """
-    A psuedo-operator for styling purposes, enables and disables multi-select toggle.
-    """
+    """Enable or disable Bundles.  This feature bundles together images that share the same base name but use material slot names so you can edit material images together, as well as perform image packing operations"""
     bl_idname = "pak.toggle_bundles"
     bl_label = "Enable Bundles"
 
@@ -129,9 +125,7 @@ class PAK_OT_Bundles_Toggle(Operator):
         return {'FINISHED'}
 
 class PAK_OT_Refresh(Operator):
-    """
-    Refreshes the list of textures used in the current scene.
-    """
+    """Refresh the list of textures used in the current scene.  You'll need to do this every time images are loaded or deleted"""
 
     bl_idname = "pak.refresh_images"
     bl_label = "Refresh List"
@@ -189,6 +183,86 @@ class PAK_OT_Refresh(Operator):
         
         return {'FINISHED'}
 
+class PAK_OT_Delete_Images(Operator):
+    """Deletes the selected images and purges them from the .blend file"""
+    bl_idname = "pak.delete_selected_images"
+    bl_label = "Delete Selected Images"
+    bl_options = {'REGISTER', 'INTERNAL'}
+
+    # https://blender.stackexchange.com/questions/73286/how-to-call-a-confirmation-dialog-box
+
+    @classmethod
+    def poll(cls, context):
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            return GetSelectionCount(file_data)
+        except:
+            return False
+        # return True
+
+    def execute(self, context):
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+        
+        image_count = GetSelectionCount(file_data)
+
+        if image_count == 0:
+            self.report({'WARNING'}, "No images were selected.")
+            return {'FINISHED'}
+        
+        
+        # Get the selected bundles and remove them from the collection
+        selected_bundles = GetSelection(file_data)
+        selected_images = [[bundle_items.tex for bundle_items in bundle.bundle_items]
+                            for bundle in selected_bundles]
+        selected_images = set(i for j in selected_images for i in j)
+
+        # Used to decrease the selected bundle.
+        index_subtract = 0
+
+        for bundle in selected_bundles:
+            print(bundle)
+            index = file_data.bundles.find(bundle.name)
+            file_data.bundles.remove(index)
+
+            if index <= file_data.bundles_list_index:
+                index_subtract += 1
+
+        # Now purge the data
+        bpy.data.batch_remove(selected_images)
+        self.report({'INFO'}, str(image_count) + " image(s) were deleted.")
+
+        # Decrement the index unless it would be less than zero
+        file_data.bundles_list_index = max(0, (file_data.bundles_list_index - index_subtract))
+        return {'FINISHED'}
+    
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+
+        layout = self.layout
+
+        selected_images = GetSelectionCount(file_data)
+        count = selected_images
+
+        if selected_images == 0:
+            layout.label(text = "At least one image/bundle must be selected.")
+
+        else:
+            layout.label(text = "This will delete and purge " + str(count) + " image(s) from the Blend file.")
+            layout.label(text = "Any images selected with a Fake User will also be deleted.")
+            layout.label(text = "Click OK to continue, or anywhere else to cancel.")
 
 class PAK_OT_Show_Preferences(Operator):
     """Open a window to the PakPal Addon Preferences Menu"""
@@ -224,3 +298,23 @@ class PAK_OT_Reset_Properties(Operator):
             image.PAK_Img.export_location = '0'
         
         return {'FINISHED'}
+
+def GetSelection(file_data):
+    # Used to return the bundles selected.
+    if file_data.enable_multiselect is True:
+        return [bundle for bundle in file_data.bundles 
+                if bundle.is_selected]
+    else:
+        return [file_data.bundles[file_data.bundles_list_index]]
+
+def GetSelectionCount(file_data):
+    # Used to return the number of selected bundles.
+    i = 0
+    if file_data.enable_multiselect is True:
+        bundle_list = [bundle.bundle_items for bundle in file_data.bundles 
+                        if bundle.is_selected]
+        bundle_items = set(i for j in bundle_list for i in j)
+        return len(bundle_items)
+
+    elif len(file_data.bundles) > 0:
+        return len(file_data.bundles[file_data.bundles_list_index].bundle_items)
