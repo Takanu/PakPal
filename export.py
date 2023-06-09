@@ -1,7 +1,10 @@
+
 import bpy, os, platform
+
+from datetime import datetime
 from bpy.types import Operator
 
-from .export_locations import *
+from .export_locations import CreateFilePath, SubstituteNameCharacters, ReplacePathTags
 
 def FindImageContext():
     """
@@ -47,6 +50,7 @@ class PAK_OT_Export(Operator):
         # TODO: Verify Export Locations before export
 
         report_info = {'exported_images': 0}
+        export_time = datetime.now()
         
         for bundle in file_data.bundles:
             for item in bundle.bundle_items:
@@ -55,7 +59,9 @@ class PAK_OT_Export(Operator):
                     location_index = int(tex.PAK_Img.export_location) - 1
                     location = file_data.locations[file_data.locations_list_index]
 
-                    path = CreateFilePath(location.path, tex, True)
+                    path = ReplacePathTags(location.path, True, bundle, export_time)
+                    path = CreateFilePath(path)
+                    
                     name = SubstituteNameCharacters(tex.name)
 
                     tex.save(filepath = path + name)

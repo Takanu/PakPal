@@ -30,6 +30,7 @@ from bpy.types import AddonPreferences, PropertyGroup, UIList
 from bpy.props import PointerProperty,  StringProperty, CollectionProperty
 
 from .main_menu import PAK_UI_CreatePakData
+from .operators import CreateMaterialSlotNames
 
 auto_load.init()
 
@@ -57,23 +58,6 @@ class PAK_AddonPreferences(AddonPreferences):
         addon_options.operator("pak.reset_properties")
 
 
-# This creates a list of commonly used bundle strings when first registering PakPal.
-def CreateMaterialSlotNames():
-    addon_prefs = bpy.context.preferences.addons[__package__].preferences
-    
-    if len(addon_prefs.material_slot_names) > 0:
-        return
-
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "BaseColor"
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "Height"
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "Metallic"
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "Normal"
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "Roughness"
 
 
 def register():
@@ -93,6 +77,8 @@ def unregister():
 
     del bpy.types.Object.PAK_FileData
     del bpy.types.Image.PAK_Img
+
+    # TODO: Delete the PakPal Preview texture.
 
     auto_load.unregister()
 

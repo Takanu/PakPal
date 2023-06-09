@@ -128,7 +128,10 @@ class PAK_FileData(PropertyGroup):
     bundles: CollectionProperty(type = PAK_ImageBundle)
 
     ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
-    bundles_list_index: IntProperty(default = 0)
+    bundles_list_index: IntProperty(
+        default = 0,
+        update = PAK_Update_TextureList_Preview
+    )
 
     # the available baking presets
     locations: CollectionProperty(type = PAK_ExportLocations)
@@ -140,6 +143,9 @@ class PAK_FileData(PropertyGroup):
         name = "Case Sensitive Matching",
         description = "If enabled, operations that use material slot names such as image packing and material bundling will perform material slot comparisons in a case sensitive manner"
     )
+
+    ## HIDDEN PROPERTIES
+    # (these are activated with operators due to styling issues)
     
     # if true, images can be edited with a psuedo multiselect interface.
     enable_multiselect: BoolProperty(
@@ -154,6 +160,19 @@ class PAK_FileData(PropertyGroup):
         description = "When enabled, textures sharing the same name but using common suffixes (like BaseColor, Height, etc) will be represented as a single entry in the list, and can be edited as a set of images",
         default = False,
         update = PAK_Update_EnableBundles,
+    )
+
+    # if true, show hidden images in the list
+    enable_hidden: BoolProperty(
+        name = "Show Hidden Images",
+        description = "Enable or disable the ability to see hidden image blocks.  These might be used by other addons so be careful!",
+        default = False,
+    )
+
+    preview_tex: PointerProperty(
+        type = bpy.types.Texture,
+        name = "Preview Texture",
+        description = "Used to preview images in the interface"
     )
 
     # ////////////////////////////////////////////////////////////////////

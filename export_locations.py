@@ -4,100 +4,6 @@ import bpy, os, platform
 from bpy.types import Menu, Panel, Operator, UIList
 from bpy.props import EnumProperty
 
-def CreateFilePath(location_path, targets, replace_invalid_chars):
-    """
-    Extracts and calculates a final path with which to export the target to.
-    """
-
-
-    if location_path == "":
-        raise Exception('WARNING: This location preset has no path defined, please define it!')
-
-    elif location_path.find('//') != -1:
-        location_path = bpy.path.abspath(location_path)
-
-    # If Windows, split the drive indicator
-    drive_indicator = ""
-    if platform.system() == 'Windows':
-        drive_index = location_path.find("\\")
-
-        if drive_index != -1:
-            drive_split = location_path.split("\\", 1)
-            drive_indicator = drive_split[0]
-            location_path = drive_split[1]
-    
-
-    #print("Current Location Path - ", location_path)
-
-    # Now substitute any tags
-    # location_path = FillTags(location_path, targets, collection, replace_invalid_chars, export_task)
-
-    # directory failsafe
-    if platform.system() == 'Windows':
-        if location_path.endswith("\\") == False:
-            location_path += "\\"
-    else:
-        if location_path.endswith("/") == False:
-            location_path += "/"
-    
-    if replace_invalid_chars is True:
-        location_path = SubstitutePathCharacters(location_path)
-
-    # Windows drive indicator re-stitch
-    if drive_indicator != "":
-        location_path = drive_indicator + "\\" + location_path
-    
-    # Build the file path
-    if not os.path.exists(location_path):
-        os.makedirs(location_path)
-    
-    #print("Final Location Path - ", location_path)
-    
-    return location_path
-
-def SubstituteNameCharacters(path):
-  # Replaces invalid directory characters in names
-
-  #print("Checking Directory...", path)
-  result = path
-  if platform.system() == 'Windows':
-      invalid_characters = ["\\", "/", "*", "?", "\"", "<", ">", "|", ":"]
-      for char in invalid_characters:
-          result = result.replace(char, "_")
-
-  elif platform.system() == 'Darwin':
-      invalid_characters = [":", "/"]
-      for char in invalid_characters:
-          result = result.replace(char, "_")
-
-  elif platform.system() == 'linux' or platform.system() == 'linux2':
-      invalid_characters = [":", "/"]
-      for char in invalid_characters:
-          result = result.replace(char, "_")
-
-  return result
-
-def SubstitutePathCharacters(path):
-  # Replaces invalid directory characters in full export paths
-
-  #print("Checking Directory...", path)
-  result = path
-  if platform.system() == 'Windows':
-      invalid_characters = ["*", "?", "<", ">", "|", ":"]
-      for char in invalid_characters:
-          result = result.replace(char, "_")
-
-  elif platform.system() == 'Darwin':
-      invalid_characters = [":"]
-      for char in invalid_characters:
-          result = result.replace(char, "_")
-
-  elif platform.system() == 'linux' or platform.system() == 'linux2':
-      invalid_characters = [":"]
-      for char in invalid_characters:
-          result = result.replace(char, "_")
-
-  return result
 
 class PAK_OT_AddPath(Operator):
     """Create a new Export Location"""
@@ -170,9 +76,8 @@ class PAK_OT_AddExportLocTag(Operator):
         name = "Add Path Tag",
         description = "",
         items =  (
-        # ('tex_name', 'Image Name', 'Adds a folder with the name of the Image being exported.'),
+        ('bundle_name', 'Bundle Name', 'Adds a folder with the name of the image bundle being exported (NOTE - The bundle must have more than one image)'),
         ('blend_file_name', 'Blend File Name', 'Adds a folder with the blend file name.'),
-        # ('export_preset_name', 'Export Preset Name', 'Adds a folder with the Export Preset name used on export.'),
         ('export_date_ymd', 'Export Date (Year-Month-Day)', 'Adds a folder with the date of the export.'),
         ('export_date_dmy', 'Export Date (Day-Month-Year)', 'Adds a folder with the date of the export.'),
         ('export_date_mdy', 'Export Date (Month-Year-Day)', 'Adds a folder with the date of the export.'),
@@ -182,7 +87,6 @@ class PAK_OT_AddExportLocTag(Operator):
     )
 
     def execute(self, context):
-        #print(self)
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
@@ -262,3 +166,151 @@ class PAK_PT_Location(Panel):
             # location_info.separator()
             location_info.operator_menu_enum("scene.pak_add_export_loc_tag", "path_tags")
             
+
+
+def CreateFilePath(file_path, replace_invalid_chars = True):
+    """
+    Extracts and calculates a final path with which to export the target to.
+    """
+
+
+    if file_path == "":
+        raise Exception('WARNING: This location preset has no path defined, please define it!')
+
+    elif file_path.find('//') != -1:
+        file_path = bpy.path.abspath(file_path)
+
+    # If Windows, split the drive indicator
+    drive_indicator = ""
+    if platform.system() == 'Windows':
+        drive_index = file_path.find("\\")
+
+        if drive_index != -1:
+            drive_split = file_path.split("\\", 1)
+            drive_indicator = drive_split[0]
+            file_path = drive_split[1]
+
+    # directory failsafe
+    if platform.system() == 'Windows':
+        if file_path.endswith("\\") == False:
+            file_path += "\\"
+    else:
+        if file_path.endswith("/") == False:
+            file_path += "/"
+    
+    if replace_invalid_chars is True:
+        file_path = SubstitutePathCharacters(file_path)
+
+    # Windows drive indicator re-stitch
+    if drive_indicator != "":
+        file_path = drive_indicator + "\\" + file_path
+    
+    # Build the file path
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+    
+    #print("Final Location Path - ", file_path)
+    
+    return file_path
+
+def SubstituteNameCharacters(path):
+  # Replaces invalid directory characters in names
+
+  #print("Checking Directory...", path)
+  result = path
+  if platform.system() == 'Windows':
+      invalid_characters = ["\\", "/", "*", "?", "\"", "<", ">", "|", ":"]
+      for char in invalid_characters:
+          result = result.replace(char, "_")
+
+  elif platform.system() == 'Darwin':
+      invalid_characters = [":", "/"]
+      for char in invalid_characters:
+          result = result.replace(char, "_")
+
+  elif platform.system() == 'linux' or platform.system() == 'linux2':
+      invalid_characters = [":", "/"]
+      for char in invalid_characters:
+          result = result.replace(char, "_")
+
+  return result
+
+def SubstitutePathCharacters(path):
+  # Replaces invalid directory characters in full export paths
+
+  #print("Checking Directory...", path)
+  result = path
+  if platform.system() == 'Windows':
+      invalid_characters = ["*", "?", "<", ">", "|", ":"]
+      for char in invalid_characters:
+          result = result.replace(char, "_")
+
+  elif platform.system() == 'Darwin':
+      invalid_characters = [":"]
+      for char in invalid_characters:
+          result = result.replace(char, "_")
+
+  elif platform.system() == 'linux' or platform.system() == 'linux2':
+      invalid_characters = [":"]
+      for char in invalid_characters:
+          result = result.replace(char, "_")
+
+  return result
+
+def ReplacePathTags(file_path, replace_invalid_chars, bundle, export_time):
+    """
+    Searches for and substitutes the tags in a path name.  USE THIS AFTER CreateFilePath().
+    """
+
+
+    if file_path.find('^bundle_name^'):
+
+        bundle_name = ""
+        if len(bundle.bundle_items) > 0:
+            bundle_name = bundle.name
+
+        if replace_invalid_chars is True:
+            bundle_name = SubstituteNameCharacters(bundle_name)
+
+        file_path = file_path.replace('^bundle_name^', bundle_name)
+
+    
+    if file_path.find('^blend_file_name^'):
+
+        blend_name = bpy.path.basename(bpy.context.blend_data.filepath)
+        blend_name = blend_name.replace(".blend", "")
+
+        if replace_invalid_chars is True:
+            blend_name = SubstituteNameCharacters(blend_name)
+
+        file_path = file_path.replace('^blend_file_name^', blend_name)
+    
+    
+    # DATE AND TIME
+
+    if file_path.find('export_date_ymd'):
+        
+        time = export_time.strftime('%Y-%m-%d')
+        file_path = file_path.replace('^export_date_ymd^', time)
+
+    if file_path.find('export_date_dmy'):
+
+        time = export_time.strftime('%d-%m-%Y')
+        file_path = file_path.replace('^export_date_dmy^', time)
+
+    if file_path.find('export_date_mdy'):
+
+        time = export_time.strftime('%m-%d-%Y')
+        file_path = file_path.replace('^export_date_mdy^', time)
+    
+    if file_path.find('export_time_hm'):
+
+        time = export_time.strftime('%H.%M')
+        file_path = file_path.replace('^export_time_hm^', time)
+
+    if file_path.find('export_time_hms'):
+
+        time = export_time.strftime('%H.%M.%S')
+        file_path = file_path.replace('^export_time_hms^', time)
+    
+    return file_path    

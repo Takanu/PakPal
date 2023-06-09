@@ -96,67 +96,40 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
         list_options = texture_list_area.column(align = True)
 
-        list_multiselect_off = list_options.column(align = True)
-        list_multiselect_off.active = (file_data.enable_multiselect is False)
-        list_multiselect_off.operator("pak.toggle_multiselect", 
-                              icon = 'CHECKBOX_DEHLT',
-                              text = "",
-                              depress = (file_data.enable_multiselect is False))
-        
-        list_multiselect_on = list_options.column(align = True)
-        list_multiselect_on.active = file_data.enable_multiselect
-        list_multiselect_on.operator("pak.toggle_multiselect", 
-                              icon = 'CHECKBOX_HLT',
+        list_options.operator("pak.toggle_multiselect", 
+                              icon = 'RESTRICT_SELECT_OFF',
                               text = "",
                               depress = file_data.enable_multiselect)
-        
-        list_options.separator()
 
-        list_bundles_off = list_options.row(align = True)
-        list_bundles_off.active = (file_data.enable_bundles is False)
-        list_bundles_off.operator("pak.toggle_bundles", 
-                              icon = 'IMAGE_DATA',
-                              text = "",
-                              depress = (file_data.enable_bundles is False))
-        list_bundles_on = list_options.row(align = True)
-        list_bundles_on.active = file_data.enable_bundles
-        list_bundles_on.operator("pak.toggle_bundles", 
+        list_options.operator("pak.toggle_bundles", 
                               icon = 'RENDERLAYERS',
                               text = "",
                               depress = file_data.enable_bundles)
         
-        list_options.separator()
+        list_options.operator("pak.toggle_hidden", 
+                              icon = 'FILE_HIDDEN',
+                              text = "",
+                              depress = file_data.enable_hidden)
         list_options.separator()
 
-        list_refresh = list_options.column(align = True)
-        list_refresh.operator("pak.refresh_images", 
+        list_options.operator("pak.refresh_images", 
                               icon = 'FILE_REFRESH',
                               text = "")
+        list_options.separator()
         
-        list_options.separator()
-        list_options.separator()
-
-        list_delete = list_options.column(align = True)
-        list_delete.operator("pak.delete_selected_images", 
+        list_options.operator("pak.delete_selected_images", 
                               icon = "TRASH",
                               text = "")
                               
 
-
-        texture_ops = layout.column(align = True)
-        texture_ops.use_property_split = True
-        texture_ops.use_property_decorate = False
-        # texture_ops.separator()
-        
-        texture_ops.operator("pak.export_images", icon = 'EXPORT')
-        texture_ops.separator()
-        texture_ops.operator("wm.url_open", text = "Donate", icon = "FUND").url = "ko-fi.com/takanu"
-        # texture_ops.operator("pak.show_preferences", icon = "PREFERENCES")
-        texture_ops.separator()
-
         # //////////////////////////////////
         # SELECTION MENU
         
+        preview_box = layout.box()
+        if file_data.enable_multiselect is False:
+            if len(file_data.bundles) > 0:
+                preview_box.template_preview(file_data.preview_tex, show_buttons = True)
+
 
         selection_box = layout.box()
         selection_box_area = selection_box.column(align = True)
@@ -177,6 +150,17 @@ class PAK_UL_MainMenu(bpy.types.Panel):
                 selection_box_area.separator()
                 selection_box_area.prop(entry, "export_location")
                 selection_box_area.separator()
+        
+        texture_ops = layout.column(align = True)
+        texture_ops.use_property_split = True
+        texture_ops.use_property_decorate = False
+        # texture_ops.separator()
+        
+        texture_ops.operator("pak.export_images", icon = 'EXPORT')
+        texture_ops.separator()
+        texture_ops.operator("wm.url_open", text = "Donate", icon = "FUND").url = "ko-fi.com/takanu"
+        # texture_ops.operator("pak.show_preferences", icon = "PREFERENCES")
+        texture_ops.separator()
 
 
 def PAK_UI_CreatePakData(layout):
@@ -208,5 +192,7 @@ def PAK_UI_CreateSelectionHeader(layout, file_data):
     selection_header = layout.row(align = True)
     selection_header_split = selection_header.split(factor = 0.8, align = True)
     selection_header_split.label(text = sel_name, icon = "RESTRICT_SELECT_OFF")
-    selection_header.separator()
+    
+    padding = layout.column(align = True)
+    padding.separator()
     

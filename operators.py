@@ -95,7 +95,7 @@ class PAK_OT_CreateFileData(Operator):
 class PAK_OT_MultiSelect_Toggle(Operator):
     """Enables and disables multi-select in the main image list, letting you edit many different images or bundles at the same time"""
     bl_idname = "pak.toggle_multiselect"
-    bl_label = "Enable Multiselect"
+    bl_label = "Toggle Multiselect"
 
     def execute(self, context):
         
@@ -111,7 +111,7 @@ class PAK_OT_MultiSelect_Toggle(Operator):
 class PAK_OT_Bundles_Toggle(Operator):
     """Enable or disable Bundles.  This feature bundles together images that share the same base name but use material slot names so you can edit material images together, as well as perform image packing operations"""
     bl_idname = "pak.toggle_bundles"
-    bl_label = "Enable Bundles"
+    bl_label = "Toggle Bundles"
 
     def execute(self, context):
         
@@ -123,6 +123,24 @@ class PAK_OT_Bundles_Toggle(Operator):
         
         file_data.enable_bundles = not file_data.enable_bundles
         return {'FINISHED'}
+    
+class PAK_OT_Hidden_Toggle(Operator):
+    """Enable or disable the ability to see hidden image blocks.  These might be used by other addons so be careful!"""
+    bl_idname = "pak.toggle_hidden"
+    bl_label = "Toggle Hidden Images"
+
+    def execute(self, context):
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+        
+        file_data.enable_hidden = not file_data.enable_hidden
+        bpy.ops.pak.refresh_images()
+        return {'FINISHED'}
+    
 
 class PAK_OT_Refresh(Operator):
     """Refresh the list of textures used in the current scene.  You'll need to do this every time images are loaded or deleted"""
@@ -146,6 +164,10 @@ class PAK_OT_Refresh(Operator):
         if file_data.enable_bundles is False:
             
             for tex in bpy.data.images:
+
+                if tex.name.startswith(".") and file_data.enable_hidden is False:
+                    continue
+
                 bundle = bundles.add()
                 bundle.name = tex.name
                 bundle.enable_export = tex.PAK_Img.enable_export
@@ -157,6 +179,10 @@ class PAK_OT_Refresh(Operator):
             bundle_dict = {}
 
             for tex in bpy.data.images:
+                
+                if tex.name.startswith(".") and file_data.enable_hidden is False:
+                    continue
+
                 filename = os.path.splitext(tex.name)[0]
                 match = FindMaterialSlotInName(addon_prefs, filename)
 
@@ -280,9 +306,9 @@ class PAK_OT_Show_Preferences(Operator):
 
 
 class PAK_OT_Reset_Properties(Operator):
-    """Resets all Pak properties in the current .blend file."""
+    """Resets PakPal properties for all images and clears the bundles, export locations and material slot names lists"""
     bl_idname = "pak.reset_properties"
-    bl_label = "Reset All Properties"
+    bl_label = "Reset Main Properties"
 
     def execute(self, context):
 
@@ -291,11 +317,41 @@ class PAK_OT_Reset_Properties(Operator):
             file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
         except:
             return {'CANCELLED'}
-
                 
         for image in bpy.data.images:
             image.PAK_Img.enable_export = False
             image.PAK_Img.export_location = '0'
+        
+        file_data.bundles.clear()
+        file_data.bundles_list_index = 0
+        file_data.locations.clear()
+        file_data.locations_list_index = 0
+        addon_prefs.material_slot_names.clear()
+        addon_prefs.material_slot_names_list_index = 0
+
+        # TODO: Find a way to completely reset collection properties
+        file_data.preview_tex = None
+
+        CreateMaterialSlotNames()
+
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        except:
+            return {'CANCELLED'}
+
+        layout = self.layout
+
+        layout.label(text = "This will clear all PakPal data from all images.")
+        layout.label(text = "It will also empty export location and texture slot lists.")
+        layout.label(text = "Click OK to continue, or anywhere else to cancel.")
+
         
         return {'FINISHED'}
 
@@ -318,3 +374,21 @@ def GetSelectionCount(file_data):
 
     elif len(file_data.bundles) > 0:
         return len(file_data.bundles[file_data.bundles_list_index].bundle_items)
+
+# This creates a list of commonly used bundle strings when first registering PakPal.
+def CreateMaterialSlotNames():
+    addon_prefs = bpy.context.preferences.addons[__package__].preferences
+    
+    if len(addon_prefs.material_slot_names) > 0:
+        return
+
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "BaseColor"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Height"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Metallic"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Normal"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Roughness"

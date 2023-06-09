@@ -415,7 +415,7 @@ class PAK_OT_CreateImagePack(Operator):
         for bundle in valid_bundles:
 
             file_name = bundle.name + file_data.packed_image_suffix + ".png"
-            file_directory = CreateFilePath(file_data.temp_bake_path, None, True)
+            file_directory = CreateFilePath(file_data.temp_bake_path)
             file_path = file_directory + file_name + ".png"
 
             # Skip if we aren't allowed to overwrite an image.

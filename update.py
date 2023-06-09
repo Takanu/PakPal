@@ -141,3 +141,18 @@ def PAK_Update_TextureListItem_ExportLocation(self, context):
 
     for bundle_item in self.bundle_items:
         bundle_item.tex.PAK_Img.export_location = value
+
+def PAK_Update_TextureList_Preview(self, context):
+    """
+    Updates the texture preview when the selection is changed.
+    """
+
+    sel_bundle = self.bundles[self.bundles_list_index]
+    sel_texture = sel_bundle.bundle_items[0].tex
+
+    if self.preview_tex is None:
+        self.preview_tex = bpy.data.textures.new(name = ".PakPal Preview", type = 'IMAGE')
+        
+    self.preview_tex.image = sel_bundle.bundle_items[0].tex
+
+    pass
