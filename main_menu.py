@@ -124,11 +124,19 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
         # //////////////////////////////////
         # SELECTION MENU
-        
-        preview_box = layout.box()
-        if file_data.enable_multiselect is False:
-            if len(file_data.bundles) > 0:
-                preview_box.template_preview(file_data.preview_tex, show_buttons = True)
+        # if file_data.enable_multiselect is False and len(file_data.bundles) > 0:
+        preview_area = layout.row(align = False)
+        preview_area_image = preview_area.box()
+        preview_area_image.alignment = 'LEFT'
+        preview_area_image.template_preview(file_data.preview_tex, show_buttons = True)
+
+        preview_area_options = preview_area.column(align = True)
+        preview_area_options.ui_units_x = 1
+        preview_area_options.alignment = 'RIGHT'
+        preview_area_options.prop(file_data, 'preview_rgb')
+        # else:
+        #     preview_box = layout.box()
+        #     preview_box.label(text = "Preview not supported in multiselect mode.")
 
 
         selection_box = layout.box()

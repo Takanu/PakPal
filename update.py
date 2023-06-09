@@ -156,3 +156,26 @@ def PAK_Update_TextureList_Preview(self, context):
     self.preview_tex.image = sel_bundle.bundle_items[0].tex
 
     pass
+
+def PAK_Update_TextureList_PreviewColor(self, context):
+
+    sel_bundle = self.bundles[self.bundles_list_index]
+    sel_texture = sel_bundle.bundle_items[0].tex
+    preview_rgb = self.preview_rgb
+
+    if self.preview_tex is None:
+        return
+
+    print(preview_rgb)
+    if 'R' in preview_rgb:
+        self.preview_tex.factor_red = 1
+    else:
+        self.preview_tex.factor_red = 0
+    if 'G' in preview_rgb:
+        self.preview_tex.factor_green = 1
+    else:
+        self.preview_tex.factor_green = 0
+    if 'B' in preview_rgb:
+        self.preview_tex.factor_blue = 1
+    else:
+        self.preview_tex.factor_blue = 0

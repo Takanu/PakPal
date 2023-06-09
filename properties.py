@@ -175,6 +175,18 @@ class PAK_FileData(PropertyGroup):
         description = "Used to preview images in the interface"
     )
 
+    preview_rgb: EnumProperty(
+        name = "RGB Preview",
+        options = {'ENUM_FLAG'},
+        items = (('R', "", "", 'COLOR_RED', 1),
+                ('G', "", "", 'COLOR_GREEN', 2),
+                ('B', "", "", 'COLOR_BLUE', 100), # due to weird behaviour
+        ),
+        description = "Change how the preview displays different color channels (alpha currently unsupported)",
+        default = {'R', 'G', 'B'},
+        update = PAK_Update_TextureList_PreviewColor
+    )
+
     # ////////////////////////////////////////////////////////////////////
     # ////////////////////////////////////////////////////////////////////
     ## PROXIES
