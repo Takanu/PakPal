@@ -106,7 +106,7 @@ class PAK_PT_MaterialSlotMenu(Panel):
     bl_context = "scene"
     bl_label = "Material Slot Names"
     bl_parent_id = "PROPERTIES_PT_Pak"
-    bl_order = 3
+    bl_order = 4
 
     def draw_header_preset(self, _context):
         layout = self.layout

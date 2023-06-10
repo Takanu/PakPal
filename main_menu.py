@@ -126,49 +126,29 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         # SELECTION MENU
         # if file_data.enable_multiselect is False and len(file_data.bundles) > 0:
         preview_area = layout.row(align = False)
-        preview_area_image = preview_area.box()
-        preview_area_image.alignment = 'LEFT'
+        preview_area_column = preview_area.column(align = True)
+        preview_area_image = preview_area_column.box()
+        preview_area_image.alignment = 'EXPAND'
         preview_area_image.template_preview(file_data.preview_tex, show_buttons = True)
+        # if file_data.enable_bundles:
+        preview_area_image.label(text = file_data.preview_tex.image.name, 
+                                 icon = "HIDE_OFF")
 
         preview_area_options = preview_area.column(align = True)
-        preview_area_options.ui_units_x = 1
         preview_area_options.alignment = 'RIGHT'
         preview_area_options.prop(file_data, 'preview_rgb')
-        # else:
-        #     preview_box = layout.box()
-        #     preview_box.label(text = "Preview not supported in multiselect mode.")
-
-
-        selection_box = layout.box()
-        selection_box_area = selection_box.column(align = True)
-        selection_box_area.use_property_split = True
-        selection_box_area.use_property_decorate = False
-
-        PAK_UI_CreateSelectionHeader(selection_box_area, file_data)
-
-        if len(file_data.bundles) > 0:
-            if file_data.enable_multiselect:
-                selection_box_area.prop(file_data, "proxy_enable_export")
-                selection_box_area.separator()
-                selection_box_area.prop(file_data, "proxy_export_location")
-                selection_box_area.separator()
-            else:
-                entry = file_data.bundles[file_data.bundles_list_index]
-                selection_box_area.prop(entry, "enable_export")
-                selection_box_area.separator()
-                selection_box_area.prop(entry, "export_location")
-                selection_box_area.separator()
         
-        texture_ops = layout.column(align = True)
-        texture_ops.use_property_split = True
-        texture_ops.use_property_decorate = False
+        preview_area_buffer = layout.column()
+        # preview_area_buffer.separator()
+        donate = layout.row(align = True)
         # texture_ops.separator()
         
-        texture_ops.operator("pak.export_images", icon = 'EXPORT')
-        texture_ops.separator()
-        texture_ops.operator("wm.url_open", text = "Donate", icon = "FUND").url = "ko-fi.com/takanu"
-        # texture_ops.operator("pak.show_preferences", icon = "PREFERENCES")
-        texture_ops.separator()
+        donate.operator("wm.url_open", text = "Donate", icon = "FUND").url = "ko-fi.com/takanu"
+        donate.separator()
+        donate.separator()
+        donate.separator()
+        donate.separator()
+        donate.separator()
 
 
 def PAK_UI_CreatePakData(layout):
