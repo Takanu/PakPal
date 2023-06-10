@@ -2,7 +2,7 @@
 import bpy, platform, os
 
 from bpy.types import Operator
-from .texture_slots import FindMaterialSlotInName
+from .material_slots import FindMaterialSlotInName
 
 def Find3DViewContext():
     """

@@ -8,7 +8,7 @@ from bl_operators.presets import AddPresetBase
 
 from .main_menu import PAK_UI_CreateSelectionHeader
 from .export_locations import *
-from .texture_slots import FindMaterialSlotInName
+from .material_slots import FindMaterialSlotInName
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -136,6 +136,28 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
                 pass
         return {'FINISHED'}
 
+class PAK_OT_ImagePack_Tutorial(Operator):
+    """Open a message describing how material slot Names work"""
+    bl_idname = "pak.show_image_pack_tutorial"
+    bl_label = ""
+
+    def execute(self, context):
+
+        def tutorial_layout(self, context):
+            self.layout.label(text = "Image Packing lets you extract color channels from different")
+            self.layout.label(text = "images and recombine them into one new image.")
+            self.layout.label(text = "")
+            self.layout.label(text = "Enabling PakPal's Bundle feature is required to use this, as it")
+            self.layout.label(text = "needs to identify material slots within a set of images.")
+            self.layout.label(text = "")
+            self.layout.label(text = "To enable Bundles, click on the 'image stack' icon next to")
+            self.layout.label(text = "PakPal's image list interface.")
+
+        # Get the current export data
+        bpy.context.window_manager.popup_menu(tutorial_layout, title="Material Slot Name Info", icon='HELP')
+
+
+        return {'FINISHED'}
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -152,6 +174,8 @@ class PAK_PT_ImagePackMenu(Panel):
 
     def draw_header_preset(self, _context):
         PAK_PT_ImagePack_PresetsOps.draw_panel_header(self.layout)
+        self.layout.operator("pak.show_image_pack_tutorial", 
+                             text = "", icon = "HELP")
 
     def draw(self, context):
 
@@ -163,6 +187,11 @@ class PAK_PT_ImagePackMenu(Panel):
             file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
         except KeyError:
             return
+        
+        if file_data.enable_bundles is False:
+            warning_label = layout.box()
+            warning_label.label(text = "Enable Bundles in the PakPal image list view to use this.", 
+                                icon = "ERROR")
 
         pack_test = layout.column(align = False)
         pack_test.use_property_split = True

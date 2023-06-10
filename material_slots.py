@@ -75,7 +75,7 @@ class PAK_OT_DeleteMaterialSlot(Operator):
 
         return {'FINISHED'}
 
-class PAK_OT_Tutorial_StoredPresets(Operator):
+class PAK_OT_MeterialSlots_Tutorial(Operator):
     """Open a message describing how material slot Names work"""
     bl_idname = "pak.show_material_slot_tutorial"
     bl_label = ""
@@ -87,7 +87,8 @@ class PAK_OT_Tutorial_StoredPresets(Operator):
             self.layout.label(text = "material image sets together in the interface, as well as to")
             self.layout.label(text = "perform image packing operations on them.")
             self.layout.label(text = "")
-            self.layout.label(text = "Tick Enable Bundles under the image list to toggle this behaviour.")
+            self.layout.label(text = "To enable Bundles, click on the 'image stack' icon next to")
+            self.layout.label(text = "PakPal's image list interface.")
 
         # Get the current export data
         bpy.context.window_manager.popup_menu(tutorial_layout, title="Material Slot Name Info", icon='HELP')
@@ -109,9 +110,8 @@ class PAK_PT_MaterialSlotMenu(Panel):
     bl_order = 4
 
     def draw_header_preset(self, _context):
-        layout = self.layout
-        icon = layout.row(align = True)
-        icon.operator("pak.show_material_slot_tutorial", text = "", icon = "HELP")
+        self.layout.operator("pak.show_material_slot_tutorial", 
+                      text = "", icon = "HELP", emboss = False)
 
     def draw(self, context):
         
