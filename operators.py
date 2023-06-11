@@ -169,10 +169,13 @@ class PAK_OT_Refresh(Operator):
                 if tex.name.startswith(".") and file_data.enable_hidden is False:
                     continue
 
+                print(tex.PAK_Img.export_location)
+
                 bundle = bundles.add()
                 bundle.name = tex.name
                 bundle.enable_export = tex.PAK_Img.enable_export
-                bundle.export_location = tex.PAK_Img.export_location
+                if tex.PAK_Img.export_location != "": #workaround for a strange assignment issue
+                    bundle.export_location = tex.PAK_Img.export_location
                 bundle_item = bundle.bundle_items.add()
                 bundle_item.tex = tex
 

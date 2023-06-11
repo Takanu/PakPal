@@ -16,17 +16,15 @@ from bpy.props import (
 def GetLocationPresets(scene, context):
 
     items = [
-        ("0", "None",  "", 0),
+        ('0', "None", "", 0),
     ]
-
-    preferences = context.preferences
-    addon_prefs = preferences.addons['PakPal'].preferences
+    
     try:
+        addon_prefs = context.preferences.addons['PakPal'].preferences
         file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        
     except KeyError:
         return items
-
-    u = 1
 
     for i,x in enumerate(file_data.locations):
         items.append((str(i+1), x.name, x.name, i+1))
