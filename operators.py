@@ -3,6 +3,7 @@ import bpy, platform, os
 
 from bpy.types import Operator
 from .material_slots import FindMaterialSlotInName
+from .material_slots import CreateDefaultMaterialSlotNames
 
 def Find3DViewContext():
     """
@@ -336,7 +337,7 @@ class PAK_OT_Reset_Properties(Operator):
         # TODO: Find a way to completely reset collection properties
         file_data.preview_tex = None
 
-        CreateMaterialSlotNames()
+        CreateDefaultMaterialSlotNames()
 
         return {'FINISHED'}
 
@@ -379,20 +380,3 @@ def GetSelectionCount(file_data):
     elif len(file_data.bundles) > 0:
         return len(file_data.bundles[file_data.bundles_list_index].bundle_items)
 
-# This creates a list of commonly used bundle strings when first registering PakPal.
-def CreateMaterialSlotNames():
-    addon_prefs = bpy.context.preferences.addons[__package__].preferences
-    
-    if len(addon_prefs.material_slot_names) > 0:
-        return
-
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "BaseColor"
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "Height"
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "Metallic"
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "Normal"
-    new_string = addon_prefs.material_slot_names.add()
-    new_string.text = "Roughness"

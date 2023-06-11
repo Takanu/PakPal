@@ -30,7 +30,7 @@ from bpy.types import AddonPreferences, PropertyGroup, UIList
 from bpy.props import PointerProperty,  StringProperty, CollectionProperty
 
 from .main_menu import PAK_UI_CreatePakData
-from .operators import CreateMaterialSlotNames
+from .material_slots import CreateDefaultMaterialSlotNames
 
 auto_load.init()
 
@@ -70,7 +70,7 @@ def register():
                                                         type = PAK_FileData)
     
     bpy.utils.register_class(PAK_AddonPreferences)
-    CreateMaterialSlotNames()
+    CreateDefaultMaterialSlotNames()
 
 def unregister():
     bpy.utils.unregister_class(PAK_AddonPreferences)

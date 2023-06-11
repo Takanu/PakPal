@@ -106,7 +106,8 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
         items = (('R', "R", ""),
 			    ('G', "G", ""),
 			    ('B', "B", ""),
-                ('A', "A", "")),
+                ('A', "A", ""),
+                ('RESULT', "Result", "")),
 		description = "",
 		default = 'R',
     )
@@ -121,7 +122,8 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
         
         # This feels wrong, but I couldn't work out a nicer way D:
         slot_name = self.GetSlots(context)[int(self.slots)][1]
-        slot_name += ", "
+        if self.path_target != 'RESULT':
+            slot_name += ", "
 
         match self.path_target:
             case 'R':
@@ -132,6 +134,8 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
                 file_data.pack_b_source += slot_name
             case 'A':
                 file_data.pack_a_source += slot_name
+            case 'RESULT':
+                file_data.packed_image_suffix = slot_name
             case _:
                 pass
         return {'FINISHED'}
@@ -245,8 +249,12 @@ class PAK_PT_ImagePackMenu(Panel):
         pack_test.prop(file_data, "pack_a_invert")
         pack_test.separator()
         pack_test.separator()
-
-        pack_test.prop(file_data, "packed_image_suffix")
+        
+        pack_test_result = pack_test.row(align = True)
+        pack_test_result.prop(file_data, "packed_image_suffix")
+        pack_test_result.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
+                                             text = "",
+                                             icon = "TRIA_DOWN").path_target = 'RESULT'
         pack_test.separator()
         pack_test.separator()
 

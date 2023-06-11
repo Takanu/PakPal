@@ -1,5 +1,6 @@
 import bpy, os
 from bpy.types import Panel, Operator, UIList
+from bpy.props import EnumProperty
 
 from .main_menu import PAK_UI_CreatePakData
 
@@ -53,7 +54,7 @@ class PAK_OT_AddMaterialSlotName(Operator):
     
 
 class PAK_OT_DeleteMaterialSlot(Operator):
-    """Delete the selected material slot name from the list."""
+    """Delete the selected material slot name from the list"""
 
     bl_idname = "pak.del_material_slot_name"
     bl_label = "Remove"
@@ -76,6 +77,55 @@ class PAK_OT_DeleteMaterialSlot(Operator):
         
 
         return {'FINISHED'}
+
+## Thanks! - https://sinestesia.co/blog/tutorials/using-uilists-in-blender/
+class PAK_OT_MoveMaterialSlot(Operator):
+    """Move a Material Slot Name up or down in the list"""
+
+    bl_idname = "pak.move_material_slot_name"
+    bl_label = "Move Material Slots"
+
+    direction: EnumProperty(
+        name = "",
+        items = (('UP', 'Up', ""),
+                 ('DOWN', 'Down', "")),
+        description = "",
+        default = 'UP'
+    )
+
+    @classmethod
+    def poll(cls, context):
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+            return len(addon_prefs.material_slot_names)
+        except:
+            return False
+
+    def move_index(self, addon_prefs):
+        """ Move index of an item render queue while clamping it. """
+
+        index = addon_prefs.material_slot_names_list_index
+        list_length = len(addon_prefs.material_slot_names) - 1  # (index starts at 0)
+        new_index = index + (-1 if self.direction == 'UP' else 1)
+
+        addon_prefs.material_slot_names_list_index = max(0, min(new_index, list_length))
+
+    def execute(self, context):
+
+        try:
+            addon_prefs = context.preferences.addons[__package__].preferences
+        except:
+            return {'CANCELLED'}
+        
+        slots = addon_prefs.material_slot_names
+        index = addon_prefs.material_slot_names_list_index
+
+        neighbor = index + (-1 if self.direction == 'UP' else 1)
+        slots.move(neighbor, index)
+        self.move_index(addon_prefs)
+
+        return{'FINISHED'}
+
 
 class PAK_OT_MeterialSlots_Tutorial(Operator):
     """Open a message describing how material slot Names work"""
@@ -137,9 +187,44 @@ class PAK_PT_MaterialSlotMenu(Panel):
         texture_slot_names_ops = texture_slot_names_area.column(align = True)
         texture_slot_names_ops.operator("pak.add_material_slot_name", text= "", icon = "ADD")
         texture_slot_names_ops.operator("pak.del_material_slot_name", text= "", icon = "REMOVE")
+        texture_slot_names_ops.separator()
+        texture_slot_names_ops.operator("pak.move_material_slot_name",
+                                        text = "",
+                                        icon = "TRIA_UP").direction = 'UP'
+        texture_slot_names_ops.operator("pak.move_material_slot_name",
+                                        text = "", 
+                                        icon = "TRIA_DOWN").direction = 'DOWN'
         
         material_slot_options = layout.row(align = False)
         # material_slot_options.use_property_split = True
         # material_slot_options.use_property_decorate = False
         material_slot_options.alignment = "CENTER"
         material_slot_options.prop(file_data, 'case_sensitive_matching')
+    
+
+# This creates a list of commonly used bundle strings when first registering PakPal.
+def CreateDefaultMaterialSlotNames():
+    addon_prefs = bpy.context.preferences.addons[__package__].preferences
+    
+    if len(addon_prefs.material_slot_names) > 0:
+        return
+
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "BaseColor"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Albedo"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Height"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Specular"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Spec"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Metallic"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Normal"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Roughness"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Alpha"
+
