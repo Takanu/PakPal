@@ -112,6 +112,11 @@ class PAK_UL_MainMenu(bpy.types.Panel):
                               depress = file_data.enable_hidden)
         list_options.separator()
 
+        list_options.operator("image.open", 
+                              icon = 'FILEBROWSER',
+                              text = "")
+        list_options.separator()
+
         list_options.operator("pak.refresh_images", 
                               icon = 'FILE_REFRESH',
                               text = "")

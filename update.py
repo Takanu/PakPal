@@ -1,4 +1,6 @@
+
 import bpy, os
+from .material_slots import FindMaterialSlotInName
 
 def PAK_Update_EnableExport(self, context):
     """
@@ -71,7 +73,7 @@ def PAK_Update_TextureListItem_Name(self, context):
     Updates the name of a texture bundle from the list UI.
     """
 
-    # TODO: What is self in this context?
+    # self in this context is the bundle being interacted with
 
     try:
         addon_prefs = context.preferences.addons[__package__].preferences
@@ -89,15 +91,15 @@ def PAK_Update_TextureListItem_Name(self, context):
             bundle_item.tex.name = value
     
     else:
-        material_slot_names = [t.text for t in addon_prefs.material_slot_names]
-
         for bundle_item in self.bundle_items:
             tex = bundle_item.tex
             name = os.path.splitext(tex.name)
             filename = name[0]
+            extension = name[1]
 
-            match = next(filter(filename.endswith, material_slot_names), None)
-            new_name = value + match + name[1]
+            match = FindMaterialSlotInName(addon_prefs, filename)
+
+            new_name = value + match + extension
             tex.name = new_name
 
 

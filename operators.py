@@ -184,6 +184,7 @@ class PAK_OT_Refresh(Operator):
                     continue
 
                 filename = os.path.splitext(tex.name)[0]
+                extension = os.path.splitext(tex.name)[1]
                 match = FindMaterialSlotInName(addon_prefs, filename)
 
                 if match:
@@ -196,7 +197,10 @@ class PAK_OT_Refresh(Operator):
             for i, (name, textures) in enumerate(bundle_dict.items()):
 
                 bundle = bundles.add()
-                bundle.name = name
+                if len(textures) == 1:
+                    bundle.name = textures[0].name
+                else:
+                    bundle.name = name
                 bundle.enable_export = textures[0].PAK_Img.enable_export
                 bundle.export_location = textures[0].PAK_Img.export_location
                 
@@ -260,7 +264,7 @@ class PAK_OT_Delete_Images(Operator):
                 index_subtract += 1
 
         # Now purge the data
-        bpy.data.batch_remove(selected_images)
+        bpy.data.batch_remove([image for image in selected_images if image is not None])
         self.report({'INFO'}, str(image_count) + " image(s) were deleted.")
 
         # Decrement the index unless it would be less than zero

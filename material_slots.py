@@ -20,14 +20,16 @@ def FindMaterialSlotInName(addon_prefs, filename, custom_slots = None):
     filename = os.path.splitext(filename)[0]
     file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
 
-    if file_data.case_sensitive_matching is False:
+    if file_data.case_sensitive_matching is True:
         result = next(filter(filename.endswith, slots), None)
 
     else:
         for slot in slots:
-            if slot.casefold() in filename.casefold():
+            if slot in filename:
                 result = slot
-
+            elif slot.casefold() in filename.casefold():
+                result = slot.casefold()
+    
     return result
 
 
