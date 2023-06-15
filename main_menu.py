@@ -172,6 +172,24 @@ def PAK_UI_CreatePakData(layout):
     col_export.label(text= "No PakPal data for this .blend file has been found,")
     col_export.label(text= "Please press the button below to generate new data.")
     col_export.separator()
+
+    col_box_1 = layout.box()
+    col_box_1_contents = col_box_1.column(align = True)
+    col_box_1_contents.label(text = "PakPal creates two sets of information visible in the file.",
+                             icon = "INFO")
+    col_box_1_contents.label(text= "")
+    col_box_1_contents.label(text = "The first is an empty object that stores file data such as",
+                             icon = "RADIOBUT_ON")
+    col_box_1_contents.label(text = "         export locations and image pack settings.")
+    col_box_1_contents.label(text= "")
+    col_box_1_contents.label(text = "The second is two Compositor Output nodes, used to store",
+                             icon = "RADIOBUT_ON")
+    col_box_1_contents.label(text = "         Image Format information for exports and image packing.")
+    col_box_1_contents.label(text= "")
+    col_box_1_contents.label(text = "This is due to limitations with Blender's Python API,",
+                             icon = "ERROR")
+    col_box_1_contents.label(text = "        please don't delete them while using PakPal!")
+
     col_export.separator()
     col_export.operator("pak.create_file_data")
     col_export.separator()
