@@ -209,14 +209,11 @@ def CreateFilePath(file_path, replace_invalid_chars = True):
     if not os.path.exists(file_path):
         os.makedirs(file_path)
     
-    #print("Final Location Path - ", file_path)
-    
     return file_path
 
 def SubstituteNameCharacters(path):
   # Replaces invalid directory characters in names
 
-  #print("Checking Directory...", path)
   result = path
   if platform.system() == 'Windows':
       invalid_characters = ["\\", "/", "*", "?", "\"", "<", ">", "|", ":"]
@@ -238,7 +235,6 @@ def SubstituteNameCharacters(path):
 def SubstitutePathCharacters(path):
   # Replaces invalid directory characters in full export paths
 
-  #print("Checking Directory...", path)
   result = path
   if platform.system() == 'Windows':
       invalid_characters = ["*", "?", "<", ">", "|", ":"]

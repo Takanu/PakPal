@@ -149,6 +149,14 @@ def PAK_Update_TextureList_Preview(self, context):
     Updates the texture preview when the selection is changed.
     """
 
+    # If the list has no entries, the preview texture shouldn't have anything in it.
+    if len(self.bundles) == 0:
+        if self.preview_tex != None:
+            self.preview_tex.image = None
+        else:
+            self.preview_tex = None
+        return
+    
     sel_bundle = self.bundles[self.bundles_list_index]
     sel_texture = sel_bundle.bundle_items[0].tex
 
@@ -168,7 +176,6 @@ def PAK_Update_TextureList_PreviewColor(self, context):
     if self.preview_tex is None:
         return
 
-    print(preview_rgb)
     if 'R' in preview_rgb:
         self.preview_tex.factor_red = 1
     else:

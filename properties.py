@@ -31,7 +31,20 @@ def GetLocationPresets(scene, context):
 
     return items
 
+def GetImageFormats(scene, context):
 
+    items = [
+        ('0', "None", "", 0),
+    ]
+    
+    try:
+        addon_prefs = context.preferences.addons['PakPal'].preferences
+        file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        
+    except KeyError:
+        return items
+
+    return 
 
 class PAK_Image(PropertyGroup):
     """
@@ -301,9 +314,19 @@ class PAK_FileData(PropertyGroup):
     )
 
     packed_image_suffix: StringProperty(
-        name = "Result Image Suffix",
+        name = "Name Suffix",
         description = "Set the suffix the new image will be given.  The base name will be the same as the one for the Bundle",
         default = "",
+    )
+
+    packed_image_format: EnumProperty(
+        name = "Image Format",
+        description = "Define the image format the packed image will be saved as",
+        items = (('R', "R", ""),
+			    ('G', "G", ""),
+			    ('B', "B", ""),
+                ('A', "A", "")),
+        default = 'R'
     )
 
     overwrite_image_pack: BoolProperty(

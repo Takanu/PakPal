@@ -113,7 +113,7 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
     )
 
     def execute(self, context):
-        #print(self)
+
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
             file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
@@ -255,7 +255,10 @@ class PAK_PT_ImagePackMenu(Panel):
         pack_test_result.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                              text = "",
                                              icon = "TRIA_DOWN").path_target = 'RESULT'
-        pack_test.separator()
+        
+        pack_format = pack_test.column(align = True)
+        # pack_format.prop(file_data, "packed_image_format")
+
         pack_test.separator()
 
         # Image Pack Operators
@@ -289,7 +292,6 @@ class PAK_OT_CreateImagePack(Operator):
     # https://docs.blender.org/api/current/bpy.types.CompositorNode.html
     def create_compositor_packer(self):
         
-        print(bpy.context.scene)
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
         links = tree.links
@@ -534,8 +536,6 @@ class PAK_OT_CreateImagePack(Operator):
         updated_image_info = ""
         failed_image_info = ""
         not_overwritten_image_info = ""
-
-        print(report_info)
 
         if report_info['new_images'] == 1:
             new_image_info = str(report_info['new_images']) + " new image"

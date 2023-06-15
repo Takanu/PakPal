@@ -169,13 +169,14 @@ class PAK_OT_Refresh(Operator):
                 if tex.name.startswith(".") and file_data.enable_hidden is False:
                     continue
 
-                print(tex.PAK_Img.export_location)
-
                 bundle = bundles.add()
                 bundle.name = tex.name
                 bundle.enable_export = tex.PAK_Img.enable_export
-                if tex.PAK_Img.export_location != "": #workaround for a strange assignment issue
+                
+                #workaround for a strange assignment issue
+                if tex.PAK_Img.export_location != "": 
                     bundle.export_location = tex.PAK_Img.export_location
+
                 bundle_item = bundle.bundle_items.add()
                 bundle_item.tex = tex
 
@@ -206,13 +207,17 @@ class PAK_OT_Refresh(Operator):
                 else:
                     bundle.name = name
                 bundle.enable_export = textures[0].PAK_Img.enable_export
-                bundle.export_location = textures[0].PAK_Img.export_location
+
+                #workaround for a strange enum assignment issue
+                if textures[0].PAK_Img.export_location != "": 
+                    bundle.export_location = textures[0].PAK_Img.export_location
                 
                 for tex in textures:
                     bundle_item = bundle.bundle_items.add()
                     bundle_item.tex = tex
                 
-        file_data.bundles_list_index = 0
+        if len(file_data.bundles) <= (file_data.bundles_list_index - 1):
+            file_data.bundles_list_index = len(file_data.bundles) - 1
         file_data.is_internal_update = False
         
         return {'FINISHED'}
@@ -260,7 +265,6 @@ class PAK_OT_Delete_Images(Operator):
         index_subtract = 0
 
         for bundle in selected_bundles:
-            print(bundle)
             index = file_data.bundles.find(bundle.name)
             file_data.bundles.remove(index)
 

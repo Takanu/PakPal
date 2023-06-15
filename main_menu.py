@@ -129,25 +129,34 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
         # //////////////////////////////////
         # SELECTION MENU
-        # if file_data.enable_multiselect is False and len(file_data.bundles) > 0:
         preview_area = layout.row(align = False)
         preview_area_column = preview_area.column(align = True)
         preview_area_image = preview_area_column.box()
         preview_area_image.alignment = 'EXPAND'
-        preview_area_image.template_preview(file_data.preview_tex, show_buttons = True)
-        # if file_data.enable_bundles:
-        preview_area_image.label(text = file_data.preview_tex.image.name, 
-                                 icon = "HIDE_OFF")
+
+        # The template preview cannot be allowed to try and preview data that doesn't exist,
+        # otherwise it will crash
+        has_preview = False
+        if len(file_data.bundles) > 0 and file_data.preview_tex is not None:
+            if file_data.preview_tex.image is not None:
+                has_preview = True
+        
+        if has_preview:
+            preview_area_image.template_preview(file_data.preview_tex, show_buttons = True)
+            preview_area_image.label(text = file_data.preview_tex.image.name, 
+                                    icon = "HIDE_OFF")
+        else:
+            preview_area_image.label(text = "No images available",
+                                    icon = "HIDE_OFF")
 
         preview_area_options = preview_area.column(align = True)
         preview_area_options.alignment = 'RIGHT'
         preview_area_options.prop(file_data, 'preview_rgb')
         
+        # //////////////////////////////////
+        # DONATE
         preview_area_buffer = layout.column()
-        # preview_area_buffer.separator()
         donate = layout.row(align = True)
-        # texture_ops.separator()
-        
         donate.operator("wm.url_open", text = "Donate", icon = "FUND").url = "ko-fi.com/takanu"
         donate.separator()
         donate.separator()
