@@ -256,7 +256,7 @@ class PAK_PT_ImagePackMenu(Panel):
                                              text = "",
                                              icon = "TRIA_DOWN").path_target = 'RESULT'
         
-        pack_format = pack_test.column(align = True)
+        # pack_format = pack_test.column(align = True)
         # pack_format.prop(file_data, "packed_image_format")
 
         pack_test.separator()
@@ -452,6 +452,9 @@ class PAK_OT_CreateImagePack(Operator):
         
         
         for bundle in valid_bundles:
+            
+            # ///////////////////////////////////////////////////////////////////////////
+            # PREPARE PROPERTIES
 
             file_name = bundle.name + file_data.packed_image_suffix + ".png"
             file_directory = CreateFilePath(file_data.temp_bake_path)
@@ -469,7 +472,7 @@ class PAK_OT_CreateImagePack(Operator):
             self.source_a = get_image_for_slot(bundle, file_data.pack_a_source)
 
             if (self.source_r and self.source_g 
-                and self.source.b and self.source_a is None):
+                and self.source_b and self.source_a is None):
                 report_info['not_found'] += 1
                 continue
 
@@ -483,6 +486,8 @@ class PAK_OT_CreateImagePack(Operator):
             self.invert_b = file_data.pack_b_invert
             self.invert_a = file_data.pack_a_invert
 
+            # ///////////////////////////////////////////////////////////////////////////
+            # COMPOSITE AND RENDER
             
             self.create_compositor_packer()
 
@@ -492,7 +497,10 @@ class PAK_OT_CreateImagePack(Operator):
             # use save_render to avoid the viewer node datablock from becoming a FILE type.
             # TODO: Insert custom image paramaters with the scene somewhere.
             viewer.save_render(filepath = file_path)
-            
+
+            # ///////////////////////////////////////////////////////////////////////////
+            # LOAD NEW IMAGE
+
             new_image = None
             
             if file_name in bpy.data.images:
@@ -525,7 +533,7 @@ class PAK_OT_CreateImagePack(Operator):
         # TODO: Delete the saved image once it's been packed. (decided not to right now just in case)
         # TODO: Fully test info statements
 
-        # /////////////////////////
+        # ///////////////////////////////////////////////////////////////////////////
         # RESTORE SCENE
         # Delete the composite scene and change the area context back.
         bpy.data.scenes.remove(composite_scene, do_unlink = True)
