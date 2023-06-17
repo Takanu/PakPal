@@ -68,7 +68,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
         # UI Prompt for when the .blend PakPal data can no longer be found.
         try:
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except KeyError:
             PAK_UI_CreatePakData(layout)
             return
@@ -168,7 +168,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 def PAK_UI_CreatePakData(layout):
 
     # UI Prompt for when the PakPal file data can no longer be found.
-    col_export = layout.column(align= True)
+    col_export = layout.column(align = True)
     col_export.label(text= "No PakPal data for this .blend file has been found,")
     col_export.label(text= "Please press the button below to generate new data.")
     col_export.separator()
@@ -177,15 +177,15 @@ def PAK_UI_CreatePakData(layout):
     col_box_1_contents = col_box_1.column(align = True)
     col_box_1_contents.label(text = "PakPal creates two sets of information visible in the file.",
                              icon = "INFO")
-    col_box_1_contents.label(text= "")
+    col_box_1_contents.label(text = "")
     col_box_1_contents.label(text = "The first is an empty object that stores file data such as",
                              icon = "RADIOBUT_ON")
     col_box_1_contents.label(text = "         export locations and image pack settings.")
-    col_box_1_contents.label(text= "")
+    col_box_1_contents.label(text = "")
     col_box_1_contents.label(text = "The second is two Compositor Output nodes, used to store",
                              icon = "RADIOBUT_ON")
     col_box_1_contents.label(text = "         Image Format information for exports and image packing.")
-    col_box_1_contents.label(text= "")
+    col_box_1_contents.label(text = "")
     col_box_1_contents.label(text = "This is due to limitations with Blender's Python API,",
                              icon = "ERROR")
     col_box_1_contents.label(text = "        please don't delete them while using PakPal!")

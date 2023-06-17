@@ -9,6 +9,11 @@ from bl_operators.presets import AddPresetBase
 from .main_menu import PAK_UI_CreateSelectionHeader
 from .export_locations import *
 from .material_slots import FindMaterialSlotInName
+from .image_formats import (
+    TransferImageFormatSettings, 
+    UI_CreateFormatData,
+    GetImageFileExtension
+)
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -37,7 +42,10 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
     # Otherwise cryptic errors can occur.
     preset_defines = [
         "addon_prefs = bpy.context.preferences.addons['PakPal'].preferences",
-        "file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData",
+        "file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData",
+        "pack_node_tree = file_data.scene_data.node_tree",
+        "pack_image_node = pack_node_tree.nodes['>PakPal Image Format Data (Image Packer)<']",
+        "pack_image_format = pack_image_node.format",
     ]
 
     # the properties you want to have stored in the preset
@@ -58,6 +66,33 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
         'file_data.pack_a_invert',
 
         'file_data.packed_image_suffix',
+        
+        # MAINTENANCE : This will need to be checked regularly.
+        'pack_image_format.cineon_black',
+        'pack_image_format.cineon_gamma',
+        'pack_image_format.cineon_white',
+
+        'pack_image_format.color_depth',
+        'pack_image_format.color_management',
+        'pack_image_format.color_mode',
+
+        'pack_image_format.compression',
+
+        'pack_image_format.exr_codec',
+        'pack_image_format.file_format',
+
+        'pack_image_format.jpeg2k_codec',
+        'pack_image_format.quality',
+
+        'pack_image_format.tiff_codec',
+        'pack_image_format.use_cineon_log',
+
+        'pack_image_format.use_jpeg2k_cinema_48',
+        'pack_image_format.use_jpeg2k_cinema_preset',
+        'pack_image_format.use_jpeg2k_ycc',
+
+        'pack_image_format.use_preview',
+        'pack_image_format.use_zbuffer',
     ]
 
     preset_subdir = 'pakpal/image_packs'
@@ -116,7 +151,7 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -188,7 +223,7 @@ class PAK_PT_ImagePackMenu(Panel):
         layout = self.layout
 
         try:
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except KeyError:
             return
         
@@ -255,12 +290,25 @@ class PAK_PT_ImagePackMenu(Panel):
         pack_test_result.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                              text = "",
                                              icon = "TRIA_DOWN").path_target = 'RESULT'
-        
-        # pack_format = pack_test.column(align = True)
-        # pack_format.prop(file_data, "packed_image_format")
+
 
         pack_test.separator()
 
+        try:
+            node_tree = file_data.scene_data.node_tree
+            image_format_node = node_tree.nodes[addon_prefs.image_format_packer_node_name]
+
+            pack_format_box = pack_test.box()
+            pack_format = pack_format_box.column(align = True)
+            pack_format.label(text = "Image Format Settings", icon = "FILE_IMAGE")
+            pack_format.separator()
+            pack_format.template_image_settings(image_format_node.format,
+                                                color_management = False)
+            pack_format.separator()
+        except:
+            UI_CreateFormatData(layout)
+        
+        
         # Image Pack Operators
         bake_menu_box = layout.box()
         bake_menu = bake_menu_box.column(align = False)
@@ -409,7 +457,7 @@ class PAK_OT_CreateImagePack(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -434,7 +482,9 @@ class PAK_OT_CreateImagePack(Operator):
             self.report({'WARNING'}, "Image packing requires Bundles to be enabled.")
             return {'FINISHED'}
         
-        # Create a new scene to composite in
+        # /////////////////////////////////////////////////////////////////
+        # BUILD SCENE
+        
         # NOTE - The context won't actually change unless we escape the properties context.
         # Properties > Output has it's own scene context!
         # TODO: Potentially find a way to change the scene context for just the properties panel.
@@ -442,6 +492,24 @@ class PAK_OT_CreateImagePack(Operator):
         context.area.type = 'VIEW_3D'
         bpy.ops.scene.new(type = 'NEW')
         composite_scene = bpy.context.scene
+
+        
+        # /////////////////////////////////////////////////////////////////
+        # FETCH IMAGE FORMAT
+        try:
+            pack_node_tree = file_data.scene_data.node_tree
+            pack_image_node = pack_node_tree.nodes[addon_prefs.image_format_packer_node_name]
+            pack_image_format = pack_image_node.format
+
+            scene_image_format = composite_scene.render.image_settings
+            TransferImageFormatSettings(pack_image_format, scene_image_format)
+
+        except:
+            bpy.data.scenes.remove(composite_scene, do_unlink = True)
+            context.area.type = old_type
+
+            self.report({'WARNING'}, "whoops.")
+            return {'FINISHED'}
 
 
         report_info = {'new_images': 0, 'updated_images': 0, 'not_found': 0, 'not_overwritten': 0}
@@ -456,9 +524,11 @@ class PAK_OT_CreateImagePack(Operator):
             # ///////////////////////////////////////////////////////////////////////////
             # PREPARE PROPERTIES
 
-            file_name = bundle.name + file_data.packed_image_suffix + ".png"
+            file_ext = GetImageFileExtension(pack_image_format.file_format)
+
+            file_name = bundle.name + file_data.packed_image_suffix + file_ext
             file_directory = CreateFilePath(file_data.temp_bake_path)
-            file_path = file_directory + file_name + ".png"
+            file_path = file_directory + file_name + file_ext
 
             # Skip if we aren't allowed to overwrite an image.
             if file_name in bpy.data.images and file_data.overwrite_image_pack is False:
@@ -588,3 +658,5 @@ class PAK_OT_CreateImagePack(Operator):
         
 
         return {'FINISHED'}
+
+

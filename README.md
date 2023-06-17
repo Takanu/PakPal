@@ -8,13 +8,9 @@ This is a small tool I made to fill a specific workflow need when working on VR 
 - **Batch export any number of loaded images with one click**.
 - Visualize sets of material images as bundles grouped by their material slot names.  
 - Batch rename and delete image bundles with multiselection support.
-- **Automatically pack material slots into new images**, with support for custom presets and flexible material slot identification.
+- **Automatically pack material slots into new images**, with support for custom presets, image format options and flexible material slot identification.
 - Repack images from material image sets, includes batch repacking and flexible material slot name identification.
 - Define custom material slot names for PakPal's bundling and image repacking features.
-
-
-## Whats currently missing?
-- **Custom Image Formatting** - Image Packing currently defaults to .png and it shouldn't, but I need to figure out how best to implement custom image formatting before adding it.
 
 
 ## Why didn't you add this functionality to Capsule?

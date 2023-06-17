@@ -2,8 +2,7 @@
 import bpy, platform, os
 
 from bpy.types import Operator
-from .material_slots import FindMaterialSlotInName
-from .material_slots import CreateDefaultMaterialSlotNames
+from .material_slots import FindMaterialSlotInName, CreateDefaultMaterialSlotNames
 
 def Find3DViewContext():
     """
@@ -45,7 +44,7 @@ class PAK_OT_CreateFileData(Operator):
         addon_prefs = preferences.addons[__package__].preferences
 
         try:
-            file_data = bpy.data.objects[addon_prefs.default_datablock]
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object]
             return {'CANCELLED'}
         except:
             pass
@@ -70,12 +69,12 @@ class PAK_OT_CreateFileData(Operator):
             bpy.ops.object.select_all(action = 'DESELECT')
             bpy.ops.object.empty_add(type = 'CIRCLE') # apparently using plain axes causes a crash.
 
-            default_datablock = bpy.context.view_layer.objects.active
-            default_datablock.name = addon_prefs.default_datablock
-            default_datablock.hide_viewport = True
-            default_datablock.hide_render = True
-            default_datablock.hide_select = True
-            default_datablock.PAK_FileData.is_file_data = True
+            pakpal_data_object = bpy.context.view_layer.objects.active
+            pakpal_data_object.name = addon_prefs.pakpal_data_object
+            pakpal_data_object.hide_viewport = True
+            pakpal_data_object.hide_render = True
+            pakpal_data_object.hide_select = True
+            pakpal_data_object.PAK_FileData.is_file_data = True
 
             context.view_layer.objects.active = prev_active_object
             for obj in prev_selected_objects:
@@ -89,6 +88,9 @@ class PAK_OT_CreateFileData(Operator):
                     prev_mode = 'EDIT'
                 
                 bpy.ops.object.mode_set(mode=prev_mode, toggle=False)
+        
+        # Generate the compositor nodes.
+        bpy.ops.pak.create_image_format_data()
 
         self.report({'INFO'}, "PakPal data created.")
         return {'FINISHED'}
@@ -102,7 +104,7 @@ class PAK_OT_MultiSelect_Toggle(Operator):
         
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -118,7 +120,7 @@ class PAK_OT_Bundles_Toggle(Operator):
         
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -134,7 +136,7 @@ class PAK_OT_Hidden_Toggle(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -153,7 +155,7 @@ class PAK_OT_Refresh(Operator):
         
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -235,7 +237,7 @@ class PAK_OT_Delete_Images(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
             return GetSelectionCount(file_data)
         except:
             return False
@@ -244,7 +246,7 @@ class PAK_OT_Delete_Images(Operator):
     def execute(self, context):
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -285,7 +287,7 @@ class PAK_OT_Delete_Images(Operator):
     def draw(self, context):
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
 
@@ -326,7 +328,7 @@ class PAK_OT_Reset_Properties(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
                 
@@ -354,7 +356,7 @@ class PAK_OT_Reset_Properties(Operator):
     def draw(self, context):
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
 

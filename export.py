@@ -43,7 +43,7 @@ class PAK_OT_Export(Operator):
         
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except:
             return {'CANCELLED'}
         

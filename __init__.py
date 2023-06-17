@@ -40,10 +40,25 @@ class PAK_AddonPreferences(AddonPreferences):
     bl_idname = __name__
 
     # The name for the empty object that exists to store .blend file data
-    default_datablock: StringProperty(
+    # TODO : Change this to a pointer.
+    pakpal_data_object: StringProperty(
         name = "Dummy Datablock Name",
         description = "The dummy block being used to store file data, as Blender has no mechanism for adding blend data properties",
         default = ">PakPal Blend File Data<"
+    )
+    
+    # TODO: Is there a way to define globals better?
+    # WARNING: A string version is used in PAK_OT_AddImagePackPreset
+    image_format_packer_node_name: StringProperty(
+        name = "Image Packer Format Node Name",
+        description = "The name of the node in the NodeTree used to store image format settings for image packing",
+        default = ">PakPal Image Format Data (Image Packer)<"
+    )
+
+    image_format_slot_node_name: StringProperty(
+        name = "Material Slot Image Format Node Name",
+        description = "The name of the node in the NodeTree used to store image format settings for material slots",
+        default = ">PakPal Image Format Data (Material Slots)<"
     )
 
     # material slot names are used to bundle images together in the interface and for 
@@ -79,6 +94,7 @@ def unregister():
     del bpy.types.Image.PAK_Img
 
     # TODO: Delete the PakPal Preview texture.
+    # TODO: Delete the Compositor nodes.
 
     auto_load.unregister()
 

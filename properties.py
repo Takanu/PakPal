@@ -21,7 +21,7 @@ def GetLocationPresets(scene, context):
     
     try:
         addon_prefs = context.preferences.addons['PakPal'].preferences
-        file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         
     except KeyError:
         return items
@@ -39,7 +39,7 @@ def GetImageFormats(scene, context):
     
     try:
         addon_prefs = context.preferences.addons['PakPal'].preferences
-        file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+        file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         
     except KeyError:
         return items
@@ -155,6 +155,13 @@ class PAK_FileData(PropertyGroup):
         description = "If enabled, operations that use material slot names such as image packing and material bundling will perform material slot comparisons in a case sensitive manner"
     )
 
+    # The scene used to store Compositor nodes in.
+    scene_data: PointerProperty(
+        type = bpy.types.Scene,
+        name = "PakPal Scene Data Source",
+        description = "Defines the scene used to store Compositor nodes used for managing Image Format settings"
+    )
+
     ## HIDDEN PROPERTIES
     # (these are activated with operators due to styling issues)
     
@@ -193,10 +200,12 @@ class PAK_FileData(PropertyGroup):
                 ('G', "", "", 'COLOR_GREEN', 2),
                 ('B', "", "", 'COLOR_BLUE', 100), # due to weird behaviour
         ),
-        description = "Change how the preview displays different color channels (alpha currently unsupported)",
+        description = "Change how the preview displays different color channels (alpha display is currently unsupported due to inbuilt image preview limitations)",
         default = {'R', 'G', 'B'},
         update = PAK_Update_TextureList_PreviewColor
     )
+
+    
 
     # ////////////////////////////////////////////////////////////////////
     # ////////////////////////////////////////////////////////////////////
@@ -318,17 +327,6 @@ class PAK_FileData(PropertyGroup):
         description = "Set the suffix the new image will be given.  The base name will be the same as the one for the Bundle",
         default = "",
     )
-
-    packed_image_format: EnumProperty(
-        name = "Image Format",
-        description = "Define the image format the packed image will be saved as",
-        items = (('R', "R", ""),
-			    ('G', "G", ""),
-			    ('B', "B", ""),
-                ('A', "A", "")),
-        default = 'R'
-    )
-
     overwrite_image_pack: BoolProperty(
         name = "Overwrite Existing Image",
         description = "If an image is found with the same name in the Blend file, the new packed image will replace it",
@@ -356,3 +354,64 @@ class PAK_MaterialSlot(PropertyGroup):
         description = "",
         default = "",
     )
+
+
+# as of 3.5 PointerProperty types currently only apply to ID and PropertyGroup subclasses 
+# If this changes in a future version, replace this!
+# MAINTENANCE : This will need to be checked regularly.
+# https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html#bpy.types.ImageFormatSettings
+class PAK_ImageFormat(PropertyGroup):
+    
+    cineon_black: IntProperty()
+    cineon_gamma: FloatProperty()
+    cineon_white: IntProperty()
+
+    color_depth: EnumProperty(
+        items = (('8', "8", ""),
+			    ('10', "10", ""),
+			    ('12', "12", ""),
+                ('16', "16", ""),
+                ('32', "32", "")
+                ),
+    )
+
+    # can I just use a string property?  OwO
+    color_management: StringProperty()
+    color_mode: StringProperty()
+
+    compression: IntProperty()
+
+    # (readonly)
+    # display_settings - "Settings of devioce saved image would be displayed on"
+
+    # more fake enums
+    exr_codec: StringProperty()
+    file_format: StringProperty()
+
+    has_linear_colorspace: BoolProperty()
+
+    # fake enum
+    jpeg2k_codec: StringProperty()
+
+    # (readonly)
+    # linear_colorspace_settings -= "Output color space settings", opaque type.
+
+    quality: IntProperty()
+    # (readonly)
+    # stereo_3d_format - Another weird structure
+
+    tiff_codec: StringProperty() # fake enum
+
+    use_cineon_log: BoolProperty()
+
+    use_jpeg2k_cinema_48: BoolProperty()
+    use_jpeg2k_cinema_preset: BoolProperty()
+    use_jpeg2k_ycc: BoolProperty()
+
+    use_preview: BoolProperty() # saves JPG images of animations to the same directory
+    use_zbuffer: BoolProperty()
+
+    # (readonly)
+    # view_settings - appears to be the color management settings we're interested in
+    # (readonly)
+    # views_format - For stereo output, we don't care.

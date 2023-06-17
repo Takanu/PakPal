@@ -18,7 +18,7 @@ class PAK_PT_ExportOptionsMenu(Panel):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.default_datablock].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
         except KeyError:
             PAK_UI_CreatePakData(layout)
             return
