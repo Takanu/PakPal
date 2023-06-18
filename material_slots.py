@@ -19,7 +19,7 @@ def FindMaterialSlotInName(addon_prefs, filename, custom_slots = None):
         slots = custom_slots
 
     filename = os.path.splitext(filename)[0]
-    file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+    file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
 
     if file_data.case_sensitive_matching is True:
         result = next(filter(filename.endswith, slots), None)
@@ -171,7 +171,7 @@ class PAK_PT_MaterialSlotMenu(Panel):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except KeyError:
             PAK_UI_CreatePakData(layout)
             return

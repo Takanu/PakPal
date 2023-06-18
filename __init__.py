@@ -40,8 +40,7 @@ class PAK_AddonPreferences(AddonPreferences):
     bl_idname = __name__
 
     # The name for the empty object that exists to store .blend file data
-    # TODO : Change this to a pointer.
-    pakpal_data_object: StringProperty(
+    pak_filedata_name: StringProperty(
         name = "Dummy Datablock Name",
         description = "The dummy block being used to store file data, as Blender has no mechanism for adding blend data properties",
         default = ">PakPal Blend File Data<"
@@ -49,16 +48,16 @@ class PAK_AddonPreferences(AddonPreferences):
     
     # TODO: Is there a way to define globals better?
     # WARNING: A string version is used in PAK_OT_AddImagePackPreset
-    image_format_packer_node_name: StringProperty(
-        name = "Image Packer Format Node Name",
-        description = "The name of the node in the NodeTree used to store image format settings for image packing",
+    packer_node_name: StringProperty(
         default = ">PakPal Image Format Data (Image Packer)<"
     )
 
-    image_format_slot_node_name: StringProperty(
-        name = "Material Slot Image Format Node Name",
-        description = "The name of the node in the NodeTree used to store image format settings for material slots",
+    slots_node_name: StringProperty(
         default = ">PakPal Image Format Data (Material Slots)<"
+    )
+
+    frame_node_name: StringProperty(
+        default = ">PakPal Image Format Node Group<"
     )
 
     # material slot names are used to bundle images together in the interface and for 

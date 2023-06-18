@@ -42,7 +42,7 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
     # Otherwise cryptic errors can occur.
     preset_defines = [
         "addon_prefs = bpy.context.preferences.addons['PakPal'].preferences",
-        "file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData",
+        "file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData",
         "pack_node_tree = file_data.scene_data.node_tree",
         "pack_image_node = pack_node_tree.nodes['>PakPal Image Format Data (Image Packer)<']",
         "pack_image_format = pack_image_node.format",
@@ -151,7 +151,7 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -223,7 +223,7 @@ class PAK_PT_ImagePackMenu(Panel):
         layout = self.layout
 
         try:
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except KeyError:
             return
         
@@ -293,37 +293,51 @@ class PAK_PT_ImagePackMenu(Panel):
 
 
         pack_test.separator()
-
+        has_file_formats = True
         try:
             node_tree = file_data.scene_data.node_tree
-            image_format_node = node_tree.nodes[addon_prefs.image_format_packer_node_name]
+            image_format_node = node_tree.nodes[addon_prefs.packer_node_name]
 
             pack_format_box = pack_test.box()
             pack_format = pack_format_box.column(align = True)
             pack_format.label(text = "Image Format Settings", icon = "FILE_IMAGE")
-            pack_format.separator()
-            pack_format.template_image_settings(image_format_node.format,
+
+            pack_format_options = pack_test.column(align = True)
+            pack_format_options.use_property_split = True
+            pack_format_options.use_property_decorate = False
+            pack_format_options.separator()
+            pack_format_options.template_image_settings(image_format_node.format,
                                                 color_management = False)
-            pack_format.separator()
+            pack_format_options.separator()
+            pack_format_options.separator()
+
         except:
-            UI_CreateFormatData(layout)
+            has_file_formats = False
+            UI_CreateFormatData(pack_test)
+            pack_test.separator()
+            pack_test.separator()
         
         
         # Image Pack Operators
-        bake_menu_box = layout.box()
-        bake_menu = bake_menu_box.column(align = False)
-        bake_menu.use_property_split = True
-        bake_menu.use_property_decorate = False
-        bake_menu.active = file_data.enable_bundles
+        pack_select_box = pack_test.box()
+        pack_select_label = pack_select_box.column(align = False)
+        pack_select_label.active = file_data.enable_bundles or has_file_formats
         
-        PAK_UI_CreateSelectionHeader(bake_menu, file_data)
-        bake_menu.prop(file_data, "overwrite_image_pack")
-        bake_menu.prop(file_data, "add_fake_user")
-        bake_menu.separator()
-        bake_menu.prop(file_data, "temp_bake_path")
-        bake_menu.separator()
-        bake_menu.separator()
-        bake_menu.operator("pak.create_image_pack", icon = "NODE_COMPOSITING")
+        PAK_UI_CreateSelectionHeader(pack_select_label, file_data)
+
+        pack_select_options = pack_test.column(align = True)
+        pack_select_options.use_property_split = True
+        pack_select_options.use_property_decorate = False
+        pack_select_options.active = file_data.enable_bundles or has_file_formats
+        pack_select_options.separator()
+        pack_select_options.prop(file_data, "overwrite_image_pack")
+        pack_select_options.prop(file_data, "add_fake_user")
+        pack_select_options.separator()
+        pack_select_options.prop(file_data, "temp_bake_path")
+        # bake_menu.separator()
+        pack_select_options.separator()
+        pack_select_options.separator()
+        pack_select_options.operator("pak.create_image_pack", icon = "NODE_COMPOSITING")
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -333,7 +347,7 @@ class PAK_PT_ImagePackMenu(Panel):
 class PAK_OT_CreateImagePack(Operator):
     """Creates a new packed image based on channels from existing images found within a bundle"""
     bl_idname = "pak.create_image_pack"
-    bl_label = "Create Packed Images"
+    bl_label = "Create Image Pack From Selection"
 
     # Thanks!
     # https://blender.stackexchange.com/questions/19500/controling-compositor-by-python
@@ -457,7 +471,7 @@ class PAK_OT_CreateImagePack(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -498,7 +512,7 @@ class PAK_OT_CreateImagePack(Operator):
         # FETCH IMAGE FORMAT
         try:
             pack_node_tree = file_data.scene_data.node_tree
-            pack_image_node = pack_node_tree.nodes[addon_prefs.image_format_packer_node_name]
+            pack_image_node = pack_node_tree.nodes[addon_prefs.packer_node_name]
             pack_image_format = pack_image_node.format
 
             scene_image_format = composite_scene.render.image_settings
@@ -565,7 +579,6 @@ class PAK_OT_CreateImagePack(Operator):
             viewer = bpy.data.images['Viewer Node']
 
             # use save_render to avoid the viewer node datablock from becoming a FILE type.
-            # TODO: Insert custom image paramaters with the scene somewhere.
             viewer.save_render(filepath = file_path)
 
             # ///////////////////////////////////////////////////////////////////////////
@@ -599,7 +612,6 @@ class PAK_OT_CreateImagePack(Operator):
             new_image.pack()
             new_image.use_fake_user = file_data.add_fake_user
 
-        # TODO: (at some point) add file format selection, will likely require larger design implications in PakPal.
         # TODO: Delete the saved image once it's been packed. (decided not to right now just in case)
         # TODO: Fully test info statements
 

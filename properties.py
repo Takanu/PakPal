@@ -21,7 +21,7 @@ def GetLocationPresets(scene, context):
     
     try:
         addon_prefs = context.preferences.addons['PakPal'].preferences
-        file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+        file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         
     except KeyError:
         return items
@@ -39,7 +39,7 @@ def GetImageFormats(scene, context):
     
     try:
         addon_prefs = context.preferences.addons['PakPal'].preferences
-        file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+        file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         
     except KeyError:
         return items

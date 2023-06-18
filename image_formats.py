@@ -8,8 +8,9 @@ from bpy.types import Menu, Panel, Operator
 # //////////////////////////////////////////////////////////////
 # EXTRA IMAGE FUNCTIONS
 
+# TODO: Verify color management settings, or use a neutral default.
+
 # This is run when PakPal data is first created to make two unique nodes in the scene.
-# TODO - Check for existing nodes.
 class PAK_OT_CreateImageFormatData(Operator):
      """(INTERNAL OPERATOR) Creates image format data for PakPal if none exist"""
      bl_idname = "pak.create_image_format_data"
@@ -19,18 +20,12 @@ class PAK_OT_CreateImageFormatData(Operator):
 
         try:
             addon_prefs = bpy.context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except:
             return False
 
         file_data.scene_data = bpy.context.scene
         data_scene = file_data.scene_data
-
-        # CHECK IF NODES / DATA EXIST
-        if data_scene.node_tree.nodes[addon_prefs.image_format_packer_node_name]:
-            return False
-        if data_scene.node_tree.nodes[addon_prefs.image_format_slot_node_name]:
-            return False
 
         # BUILD DATA
         # build the nodes and place them away from the center of the graph.
@@ -38,27 +33,37 @@ class PAK_OT_CreateImageFormatData(Operator):
         tree = data_scene.node_tree
         links = tree.links
 
-        packer_node = tree.nodes.new(type = 'CompositorNodeOutputFile')
-        packer_node.name = addon_prefs.image_format_packer_node_name
-        packer_node.label = addon_prefs.image_format_packer_node_name
-        packer_node.location = -500,500
+        try:
+            frame = data_scene.node_tree.nodes[addon_prefs.frame_node_name]
+        except:
+            frame = tree.nodes.new(type = 'NodeFrame')
+            frame.name = addon_prefs.frame_node_name
+            frame.label = "PakPal File Format Storage"
+            frame.location = -500,500
+            frame.use_custom_color = True
+            frame.color = mathutils.Color((0.0, 0.3, 1.0))
 
-        slot_node = tree.nodes.new(type = 'CompositorNodeOutputFile')
-        slot_node.name = addon_prefs.image_format_packer_node_name
-        slot_node.label = addon_prefs.image_format_packer_node_name
-        slot_node.location = -200,500
-
-        frame = tree.nodes.new(type = 'NodeFrame')
-        frame.label = "PakPal File Format Storage"
-        frame.location = -500,500
-        frame.use_custom_color = True
-        frame.color = mathutils.Color((0.0, 0.3, 1.0))
-
-        packer_node.parent = frame
-        slot_node.parent = frame
+        try:
+            packer_node = data_scene.node_tree.nodes[addon_prefs.packer_node_name]
+        except:
+            packer_node = tree.nodes.new(type = 'CompositorNodeOutputFile')
+            packer_node.name = addon_prefs.packer_node_name
+            packer_node.label = addon_prefs.packer_node_name
+            packer_node.location = -500,500
+            packer_node.parent = frame
+        
+        try:
+            slot_node = data_scene.node_tree.nodes[addon_prefs.slots_node_name]
+        except:
+            slot_node = tree.nodes.new(type = 'CompositorNodeOutputFile')
+            slot_node.name = addon_prefs.packer_node_name
+            slot_node.label = addon_prefs.packer_node_name
+            slot_node.location = -200,500
+            slot_node.parent = frame
+        
 
         # Get node using:
-        # data_scene.node_tree.nodes[addon_prefs.image_format_packer_node_name]
+        # data_scene.node_tree.nodes[addon_prefs.packer_node_name]
 
         return {'FINISHED'}
                
@@ -172,13 +177,15 @@ def UI_CreateFormatData(layout):
     format_info = format_box.column(align = True)
     format_info.label(text = "PakPal image format settings cannot be found.",
                       icon = "ERROR")
-    format_info.separator()
-    format_info.label(text = "You might have deleted the scene it was stored in (thats fine!)")
-    format_info.label(text = "Press the button below to rebuild this data in the current scene.")
-    format_info.separator()
+    
+    format_desc = layout.column(align = True)
+    format_desc.separator()
+    format_desc.label(text = "You might have deleted the scene it was stored in (thats fine!)")
+    format_desc.label(text = "Press the button below to rebuild this data in the current scene.")
+    format_desc.separator()
 
-    format_info.separator()
-    format_info.operator("pak.create_image_format_data")
+    format_desc.separator()
+    format_desc.operator("pak.create_image_format_data")
 
     return
 

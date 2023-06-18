@@ -68,7 +68,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
         # UI Prompt for when the .blend PakPal data can no longer be found.
         try:
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except KeyError:
             PAK_UI_CreatePakData(layout)
             return
@@ -224,5 +224,5 @@ def PAK_UI_CreateSelectionHeader(layout, file_data):
     selection_header.label(text = header_text + sel_name, icon = "RESTRICT_SELECT_OFF")
     
     padding = layout.column(align = True)
-    padding.separator()
+    # padding.separator()
     

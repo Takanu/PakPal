@@ -15,7 +15,7 @@ class PAK_OT_AddPath(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except:
             return {'CANCELLED'}
 
@@ -39,7 +39,7 @@ class PAK_OT_DeletePath(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except:
             return {'CANCELLED'}
 
@@ -90,7 +90,7 @@ class PAK_OT_AddExportLocTag(Operator):
 
         try:
             addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except:
             return {'CANCELLED'}
         
@@ -138,7 +138,7 @@ class PAK_PT_Location(Panel):
         layout = self.layout
 
         try:
-            file_data = bpy.data.objects[addon_prefs.pakpal_data_object].PAK_FileData
+            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
         except KeyError:
             return
 
