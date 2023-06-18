@@ -209,7 +209,7 @@ class PAK_PT_ImagePackMenu(Panel):
     bl_context = "scene"
     bl_label = "Image Packer"
     bl_parent_id = "PROPERTIES_PT_Pak"
-    bl_order = 2
+    bl_order = 3
 
     def draw_header_preset(self, _context):
         PAK_PT_ImagePack_PresetsOps.draw_panel_header(self.layout)

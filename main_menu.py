@@ -199,19 +199,29 @@ def PAK_UI_CreateSelectionHeader(layout, file_data):
     # Used to create a consistent banner to express what the selected image
     # or bundle is.
 
+    header_text = "Selection - "
+
     sel_name = 'No Selected Images'
     if file_data.enable_multiselect is True:
         sel_list = [item for item in file_data.bundles if item.is_selected]
+        
         if file_data.enable_bundles:
-            sel_name = str(len(sel_list)) + " bundles selected"
+            if len(sel_list) > 1:
+                sel_name = str(len(sel_list)) + " bundles"
+            else:
+                sel_name = str(len(sel_list)) + " bundle"
+
         else:
-            sel_name = str(len(sel_list)) + " images selected"
+            if len(sel_list) > 1:
+                sel_name = str(len(sel_list)) + " images"
+            else:
+                sel_name = str(len(sel_list)) + " image"
+
     elif len(file_data.bundles) > 0:
         sel_name = file_data.bundles[file_data.bundles_list_index].name
     
-    selection_header = layout.row(align = True)
-    selection_header_split = selection_header.split(factor = 0.8, align = True)
-    selection_header_split.label(text = sel_name, icon = "RESTRICT_SELECT_OFF")
+    selection_header = layout.column(align = True)
+    selection_header.label(text = header_text + sel_name, icon = "RESTRICT_SELECT_OFF")
     
     padding = layout.column(align = True)
     padding.separator()

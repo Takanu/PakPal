@@ -129,7 +129,7 @@ class PAK_PT_Location(Panel):
     bl_context = "scene"
     bl_label = "Export Locations"
     bl_parent_id = "PROPERTIES_PT_Pak"
-    bl_order = 3
+    bl_order = 2
 
     def draw(self, context):
 
