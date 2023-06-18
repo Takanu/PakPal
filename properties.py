@@ -330,13 +330,13 @@ class PAK_FileData(PropertyGroup):
     overwrite_image_pack: BoolProperty(
         name = "Overwrite Existing Image",
         description = "If an image is found with the same name in the Blend file, the new packed image will replace it",
-        default = False,
+        default = True,
     )
 
     add_fake_user: BoolProperty(
         name = "Add Fake User",
         description = "Adds a fake user to any generated packed images to prevent them from disappearing when the blend file is closed",
-        default = False,
+        default = True,
     )
 
     temp_bake_path: StringProperty(

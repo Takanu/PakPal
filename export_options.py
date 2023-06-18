@@ -59,11 +59,11 @@ class PAK_PT_ExportOptionsMenu(Panel):
         selection_box_area.use_property_decorate = False
 
         PAK_UI_CreateSelectionHeader(selection_box_area, file_data)
-        # selection_box_area.separator()
 
         selection_options = layout.column(align = True)
         selection_options.use_property_split = True
         selection_options.use_property_decorate = False
+        selection_options.separator()
 
         if len(file_data.bundles) > 0:
             if file_data.enable_multiselect:
