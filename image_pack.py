@@ -525,15 +525,11 @@ class PAK_OT_CreateImagePack(Operator):
             self.report({'WARNING'}, "whoops.")
             return {'FINISHED'}
         
-        # TODO: Fix color management!
-        
         # Set the composite scene to ensure colors aren't edited
         # It's easier to set it in the fake scene :D
         composite_scene.render.image_settings.color_management = 'FOLLOW_SCENE'
         composite_scene.view_settings.view_transform = 'Standard'
         composite_scene.view_settings.look = 'None'
-
-
 
         report_info = {'new_images': 0, 'updated_images': 0, 'not_found': 0, 'not_overwritten': 0}
         valid_bundles = [file_data.bundles[file_data.bundles_list_index]]

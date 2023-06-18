@@ -144,6 +144,24 @@ def PAK_Update_TextureListItem_ExportLocation(self, context):
     for bundle_item in self.bundle_items:
         bundle_item.tex.PAK_Img.export_location = value
 
+def PAK_Update_TextureListItem_IsSelected(self, context):
+    """
+    Used to reset proxy export properties in the UI every time UI selection changes.
+    """
+    try:
+        addon_prefs = context.preferences.addons[__package__].preferences
+        file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
+    except KeyError:
+        return
+    
+    file_data.is_internal_update = True
+
+    file_data.proxy_enable_export = False
+    file_data.proxy_export_location = '0'
+    
+    file_data.is_internal_update = False
+
+
 def PAK_Update_TextureList_Preview(self, context):
     """
     Updates the texture preview when the selection is changed.

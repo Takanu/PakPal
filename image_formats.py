@@ -57,8 +57,8 @@ class PAK_OT_CreateImageFormatData(Operator):
             slot_node = data_scene.node_tree.nodes[addon_prefs.slots_node_name]
         except:
             slot_node = tree.nodes.new(type = 'CompositorNodeOutputFile')
-            slot_node.name = addon_prefs.packer_node_name
-            slot_node.label = addon_prefs.packer_node_name
+            slot_node.name = addon_prefs.slots_node_name
+            slot_node.label = addon_prefs.slots_node_name
             slot_node.location = -200,500
             slot_node.parent = frame
         

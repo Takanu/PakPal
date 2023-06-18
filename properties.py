@@ -108,7 +108,10 @@ class PAK_ImageBundle(PropertyGroup):
     )
 
     # Used for multi-select mode.
-    is_selected: BoolProperty(default = False)
+    is_selected: BoolProperty(
+        default = False,
+        update = PAK_Update_TextureListItem_IsSelected,
+    )
 
 
 class PAK_ExportLocations(PropertyGroup):

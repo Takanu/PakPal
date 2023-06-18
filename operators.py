@@ -109,6 +109,17 @@ class PAK_OT_MultiSelect_Toggle(Operator):
             return {'CANCELLED'}
         
         file_data.enable_multiselect = not file_data.enable_multiselect
+
+        # Ensure export options for the UI proxy is reset to help communicate
+        # that it is not reading the state of any individual item.
+        file_data.is_internal_update = True
+        
+        if file_data.enable_multiselect is True:
+            file_data.proxy_enable_export = False
+            file_data.proxy_export_location = '0'
+        
+        file_data.is_internal_update = False
+
         return {'FINISHED'}
 
 class PAK_OT_Bundles_Toggle(Operator):
