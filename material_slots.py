@@ -1,4 +1,4 @@
-import bpy, os
+import bpy, os, re
 from bpy.types import Panel, Operator, UIList
 from bpy.props import EnumProperty
 
@@ -9,8 +9,8 @@ def GetMaterialSlotStrings(addon_prefs):
     return [t.text for t in addon_prefs.material_slot_names]
 
 # This ensures the search is done in a way that ignores cases.
-def FindMaterialSlotInName(addon_prefs, filename, custom_slots = None):
-    
+def FindMaterialSlotInName(addon_prefs, filename, custom_slots = None, case_sensitive = False):
+
     result = None
     slots = None
     if custom_slots is None:
@@ -26,11 +26,18 @@ def FindMaterialSlotInName(addon_prefs, filename, custom_slots = None):
 
     else:
         for slot in slots:
+
             if slot in filename:
                 result = slot
-            elif slot.casefold() in filename.casefold():
-                result = slot.casefold()
-    
+                return result
+            
+            # doesn't return the string area from the original
+            if not case_sensitive:
+                pos = filename.casefold().find(slot.casefold())
+                if pos != -1:
+                    result = filename[pos:]
+                    return result
+
     return result
 
 
@@ -212,6 +219,8 @@ def CreateDefaultMaterialSlotNames():
     new_string = addon_prefs.material_slot_names.add()
     new_string.text = "BaseColor"
     new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Base_Color"
+    new_string = addon_prefs.material_slot_names.add()
     new_string.text = "Albedo"
     new_string = addon_prefs.material_slot_names.add()
     new_string.text = "Height"
@@ -227,4 +236,10 @@ def CreateDefaultMaterialSlotNames():
     new_string.text = "Roughness"
     new_string = addon_prefs.material_slot_names.add()
     new_string.text = "Alpha"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "AmbientOcclusion"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "AO"
+    new_string = addon_prefs.material_slot_names.add()
+    new_string.text = "Displacement"
 

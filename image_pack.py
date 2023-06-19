@@ -484,7 +484,8 @@ class PAK_OT_CreateImagePack(Operator):
 
             for bundle_item in bundle.bundle_items:
                 filename = os.path.splitext(bundle_item.tex.name)[0]
-                match = FindMaterialSlotInName(addon_prefs, filename, slot_strings)
+                match = FindMaterialSlotInName(addon_prefs, filename, slot_strings,
+                                               file_data.case_sensitive_matching)
 
                 if match:
                     return bundle_item.tex

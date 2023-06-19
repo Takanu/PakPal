@@ -200,10 +200,15 @@ class PAK_OT_Refresh(Operator):
                 
                 if tex.name.startswith(".") and file_data.enable_hidden is False:
                     continue
+                
+                name_parts = [n for n in os.path.splitext(tex.name)]
+                filename = name_parts.pop(0)
+                extension = ""
+                for text in name_parts:
+                    extension += text
 
-                filename = os.path.splitext(tex.name)[0]
-                extension = os.path.splitext(tex.name)[1]
-                match = FindMaterialSlotInName(addon_prefs, filename)
+                match = FindMaterialSlotInName(addon_prefs, filename, None,
+                                               file_data.case_sensitive_matching)
 
                 if match:
                     filename = filename.replace(match, "")

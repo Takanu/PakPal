@@ -103,6 +103,7 @@ class PAK_OT_Export(Operator):
         report_info = {'exported_images': 0}
         export_time = datetime.now()
 
+        # TODO: Add report info for images that weren't exported due to missing data.
         exportable = [[item for item in bundle.bundle_items 
                        if item.tex.PAK_Img.enable_export and item.tex.PAK_Img.export_location != '0']
                       for bundle in file_data.bundles]

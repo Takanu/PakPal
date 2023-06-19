@@ -93,14 +93,21 @@ def PAK_Update_TextureListItem_Name(self, context):
     else:
         for bundle_item in self.bundle_items:
             tex = bundle_item.tex
-            name = os.path.splitext(tex.name)
-            filename = name[0]
-            extension = name[1]
 
-            match = FindMaterialSlotInName(addon_prefs, filename)
+            name_parts = [n for n in os.path.splitext(tex.name)]
+            filename = name_parts.pop(0)
+            extension = ""
 
-            new_name = value + match + extension
-            tex.name = new_name
+            for text in name_parts:
+                extension += text
+
+            match = FindMaterialSlotInName(addon_prefs, filename, None,
+                                           file_data.case_sensitive_matching)
+            if match is not None:
+                new_name = value + match + extension
+                tex.name = new_name
+            else:
+                tex.name = value
 
 
 
