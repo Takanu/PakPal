@@ -41,8 +41,7 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
     # WARNING: You need to be careful to keep property requests in context here!
     # Otherwise cryptic errors can occur.
     preset_defines = [
-        "addon_prefs = bpy.context.preferences.addons['PakPal'].preferences",
-        "file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData",
+        "file_data = bpy.data.objects['>PakPal Blend File Data<'].PAK_FileData",
         "pack_node_tree = file_data.scene_data.node_tree",
         "pack_image_node = pack_node_tree.nodes['>PakPal Image Format Data (Image Packer)<']",
         "pack_image_format = pack_image_node.format",
@@ -120,7 +119,7 @@ class PAK_OT_ImagePack_AddSlotName(Operator):
         ]
         
         try:
-            addon_prefs = context.preferences.addons['PakPal'].preferences
+            addon_prefs = context.preferences.addons[__package__].preferences
         except KeyError:
             return items
         
@@ -522,7 +521,7 @@ class PAK_OT_CreateImagePack(Operator):
             bpy.data.scenes.remove(composite_scene, do_unlink = True)
             context.area.type = old_type
 
-            self.report({'WARNING'}, "whoops.")
+            self.report({'WARNING'}, "Something went wrong with Image Format Settings, check that all properties have something selected.")
             return {'FINISHED'}
         
         # Set the composite scene to ensure colors aren't edited

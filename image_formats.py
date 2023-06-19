@@ -9,7 +9,8 @@ from bpy.types import Menu, Panel, Operator
 # NOTE: Color management has been disabled for now, color alteration
 # is removed when creating and rendering new images.
 
-
+# NOTE: Setting transfers must be verified before use, as switching formats
+# can make some options invalid and the user might not realize it.
 
 # This is run when PakPal data is first created to make two unique nodes in the scene.
 class PAK_OT_CreateImageFormatData(Operator):

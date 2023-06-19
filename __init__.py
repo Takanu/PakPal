@@ -40,6 +40,7 @@ class PAK_AddonPreferences(AddonPreferences):
     bl_idname = __name__
 
     # The name for the empty object that exists to store .blend file data
+    # WARNING: A string version is used for Image Pack Presets
     pak_filedata_name: StringProperty(
         name = "Dummy Datablock Name",
         description = "The dummy block being used to store file data, as Blender has no mechanism for adding blend data properties",
@@ -65,13 +66,12 @@ class PAK_AddonPreferences(AddonPreferences):
     material_slot_names: CollectionProperty(type = PAK_MaterialSlot)
     material_slot_names_list_index: IntProperty(default = 0)
 
+
     def draw(self, context):
         layout = self.layout
         
         addon_options = layout.column(align = True)
         addon_options.operator("pak.reset_properties")
-
-
 
 
 def register():
@@ -85,6 +85,8 @@ def register():
     
     bpy.utils.register_class(PAK_AddonPreferences)
     CreateDefaultMaterialSlotNames()
+
+    
 
 def unregister():
     bpy.utils.unregister_class(PAK_AddonPreferences)
