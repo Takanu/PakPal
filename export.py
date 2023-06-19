@@ -102,13 +102,27 @@ class PAK_OT_Export(Operator):
 
         report_info = {'exported_images': 0}
         export_time = datetime.now()
+
+        exportable = [[item for item in bundle.bundle_items 
+                       if item.tex.PAK_Img.enable_export and item.tex.PAK_Img.export_location != '0']
+                      for bundle in file_data.bundles]
         
+        # TODO: Im sure this could be streamlined.
+        exportable = set(i for j in exportable for i in j)
+        exportable = [e for e in exportable]
+        print(exportable)
+
+        if len(exportable) == 0:
+            self.report({'WARNING'}, "No exportable images found.  Make sure all images marked for export have a valid Export Location.")
+            return {'FINISHED'}
+        
+        # TODO: Find a way to nicely merge verification with this iterator
         for bundle in file_data.bundles:
             for item in bundle.bundle_items:
-                if item.tex.PAK_Img.enable_export:
+                if item.tex.PAK_Img.enable_export and item.tex.PAK_Img.export_location != '0':
                     tex = item.tex
                     location_index = int(tex.PAK_Img.export_location) - 1
-                    location = file_data.locations[file_data.locations_list_index]
+                    location = file_data.locations[location_index]
 
                     path = ReplacePathTags(location.path, True, bundle, export_time)
                     path = CreateFilePath(path)
