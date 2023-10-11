@@ -230,12 +230,40 @@ class PAK_PT_ImagePackMenu(Panel):
             warning_label = layout.box()
             warning_label.label(text = "Enable Bundles in the PakPal image list view to use this.", 
                                 icon = "ERROR")
-
+            
         pack_test = layout.column(align = False)
         pack_test.use_property_split = True
         pack_test.use_property_decorate = False
         pack_test.active = file_data.enable_bundles
+            
+        # ////////////////////////////////
+        # IMAGE PACK OPERATOR
+        pack_select_box = pack_test.box()
+        pack_select_label = pack_select_box.column(align = False)
+        pack_select_label.active = file_data.enable_bundles or has_file_formats
+        
+        PAK_UI_CreateSelectionHeader(pack_select_label, file_data)
 
+        pack_select_options = pack_select_box.column(align = True)
+        pack_select_options.use_property_split = True
+        pack_select_options.use_property_decorate = False
+        pack_select_options.active = file_data.enable_bundles or has_file_formats
+        pack_select_options.separator()
+        pack_select_options.prop(file_data, "overwrite_image_pack")
+        pack_select_options.prop(file_data, "add_fake_user")
+        pack_select_options.separator()
+        pack_select_options.prop(file_data, "temp_bake_path")
+        # bake_menu.separator()
+        pack_select_options.separator()
+        pack_select_options.separator()
+
+        pack_operator = pack_select_options.column(align = False)
+        pack_operator.operator("pak.create_image_pack", icon = "NODE_COMPOSITING")
+        pack_test.separator()
+
+
+        # ////////////////////////////////
+        # PACK SLOTS
         pack_test_r_source = pack_test.row(align = True)
         pack_test_r_source.prop(file_data, "pack_r_source")
         pack_test_r_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
@@ -290,7 +318,8 @@ class PAK_PT_ImagePackMenu(Panel):
                                              text = "",
                                              icon = "TRIA_DOWN").path_target = 'RESULT'
 
-
+        # ////////////////////////////////
+        # PACK FORMATS
         pack_test.separator()
         has_file_formats = True
         try:
@@ -317,26 +346,6 @@ class PAK_PT_ImagePackMenu(Panel):
             pack_test.separator()
         
         
-        # Image Pack Operators
-        pack_select_box = pack_test.box()
-        pack_select_label = pack_select_box.column(align = False)
-        pack_select_label.active = file_data.enable_bundles or has_file_formats
-        
-        PAK_UI_CreateSelectionHeader(pack_select_label, file_data)
-
-        pack_select_options = pack_test.column(align = True)
-        pack_select_options.use_property_split = True
-        pack_select_options.use_property_decorate = False
-        pack_select_options.active = file_data.enable_bundles or has_file_formats
-        pack_select_options.separator()
-        pack_select_options.prop(file_data, "overwrite_image_pack")
-        pack_select_options.prop(file_data, "add_fake_user")
-        pack_select_options.separator()
-        pack_select_options.prop(file_data, "temp_bake_path")
-        # bake_menu.separator()
-        pack_select_options.separator()
-        pack_select_options.separator()
-        pack_select_options.operator("pak.create_image_pack", icon = "NODE_COMPOSITING")
 
 # //////////////////////////////////////////////////////////////
 # //////////////////////////////////////////////////////////////
@@ -344,7 +353,10 @@ class PAK_PT_ImagePackMenu(Panel):
 
 
 class PAK_OT_CreateImagePack(Operator):
-    """Creates a new packed image based on channels from existing images found within a bundle"""
+    """Creates a new packed image based on channels from existing images found within a bundle.
+
+    NOTE - You'll need to select at least one bundle from the PakPal image list in order to create a packed image"""
+
     bl_idname = "pak.create_image_pack"
     bl_label = "Create Image Pack From Selection"
 
@@ -522,7 +534,7 @@ class PAK_OT_CreateImagePack(Operator):
             bpy.data.scenes.remove(composite_scene, do_unlink = True)
             context.area.type = old_type
 
-            self.report({'WARNING'}, "Something went wrong with Image Format Settings, check that all properties have something selected.")
+            self.report({'WARNING'}, "Something went wrong with Image Format Settings, check that all properties have been set")
             return {'FINISHED'}
         
         # Set the composite scene to ensure colors aren't edited

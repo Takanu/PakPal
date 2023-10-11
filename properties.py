@@ -138,7 +138,7 @@ class PAK_FileData(PropertyGroup):
     # if true, this object is the empty created for the purposes of storing preset data.
     is_file_data: BoolProperty(default = False)
 
-    # the available baking presets
+    # the available images for export
     bundles: CollectionProperty(type = PAK_ImageBundle)
 
     ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
@@ -326,8 +326,8 @@ class PAK_FileData(PropertyGroup):
     )
 
     packed_image_suffix: StringProperty(
-        name = "Name Suffix",
-        description = "Set the suffix the new image will be given.  The base name will be the same as the one for the Bundle",
+        name = "Packed Image Suffix",
+        description = "Set the suffix the new image will be given.  The base name of the new image will be the same as the base name for the Bundle",
         default = "",
     )
     overwrite_image_pack: BoolProperty(

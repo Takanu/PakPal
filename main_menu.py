@@ -5,9 +5,6 @@ class PAK_UL_TextureList(UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
         
-        if data.enable_multiselect is True:
-            layout.prop(item, "is_selected", text = "", icon = "RESTRICT_SELECT_OFF")
-        
         if data.enable_bundles is True:
             row = layout.row(align = False)
             row.alignment = 'LEFT'
@@ -25,10 +22,23 @@ class PAK_UL_TextureList(UIList):
         name = layout.row(align = False)
         name.alignment = 'EXPAND'
         name.prop(item, "name", text = "", emboss = False)
-
+        
         export_item = layout.row(align = False)
         export_item.alignment = 'RIGHT'
-        export_item.prop(item, "enable_export", text = "")
+
+        # ENABLE EXPORT
+        export_icon = "RESTRICT_RENDER_ON"
+        if item.enable_export == True:
+            export_icon = "RESTRICT_RENDER_OFF"
+
+        export_item.prop(item, "enable_export", text = "", icon = export_icon, emboss = False)
+
+        # MULTISELECT
+        if data.enable_multiselect is True:
+            select_icon = "RESTRICT_SELECT_ON"
+            if item.is_selected == True:
+                select_icon = "RESTRICT_SELECT_OFF"
+            layout.prop(item, "is_selected", text = "", icon = select_icon, emboss = False)
 
     def filter_items(self, context, data, property):
         attributes = getattr(data, property)
@@ -202,6 +212,7 @@ def PAK_UI_CreateSelectionHeader(layout, file_data):
     header_text = "Selection - "
 
     sel_name = 'No Selected Images'
+    sel_list = []
     if file_data.enable_multiselect is True:
         sel_list = [item for item in file_data.bundles if item.is_selected]
         
@@ -222,7 +233,7 @@ def PAK_UI_CreateSelectionHeader(layout, file_data):
     
     selection_header = layout.column(align = True)
     selection_header.label(text = header_text + sel_name, icon = "RESTRICT_SELECT_OFF")
-    
-    padding = layout.column(align = True)
-    # padding.separator()
+
+    # Added this so operators have a quick way to check whether or not the selection conditions are valid
+    return {"selection_count": len(sel_list), "is_bundle": file_data.enable_bundles}
     

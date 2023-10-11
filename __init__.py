@@ -16,7 +16,7 @@ bl_info = {
     "name": "PakPal",
     "author": "Takanu Kyriako.",
     "version": (0, 9, 9),
-    "blender": (3, 5, 0),
+    "blender": (4, 0, 0),
     "location": "Properties > Output",
     "wiki_url": "https://github.com/Takanu/PakPal",
     "description": "Helps you prepare and batch export images loaded in Blender",
