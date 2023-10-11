@@ -359,7 +359,7 @@ class PAK_MaterialSlot(PropertyGroup):
     )
 
 
-# as of 3.5 PointerProperty types currently only apply to ID and PropertyGroup subclasses 
+# As of 3.5 PointerProperty types currently only apply to ID and PropertyGroup subclasses 
 # If this changes in a future version, replace this!
 # MAINTENANCE : This will need to be checked regularly.
 # https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html#bpy.types.ImageFormatSettings
@@ -412,7 +412,6 @@ class PAK_ImageFormat(PropertyGroup):
     use_jpeg2k_ycc: BoolProperty()
 
     use_preview: BoolProperty() # saves JPG images of animations to the same directory
-    use_zbuffer: BoolProperty()
 
     # (readonly)
     # view_settings - appears to be the color management settings we're interested in

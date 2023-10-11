@@ -91,7 +91,6 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
         'pack_image_format.use_jpeg2k_ycc',
 
         'pack_image_format.use_preview',
-        'pack_image_format.use_zbuffer',
     ]
 
     preset_subdir = 'pakpal/image_packs'
@@ -238,6 +237,7 @@ class PAK_PT_ImagePackMenu(Panel):
             
         # ////////////////////////////////
         # IMAGE PACK OPERATOR
+        has_file_formats = True
         pack_select_box = pack_test.box()
         pack_select_label = pack_select_box.column(align = False)
         pack_select_label.active = file_data.enable_bundles or has_file_formats
@@ -321,7 +321,7 @@ class PAK_PT_ImagePackMenu(Panel):
         # ////////////////////////////////
         # PACK FORMATS
         pack_test.separator()
-        has_file_formats = True
+        
         try:
             node_tree = file_data.scene_data.node_tree
             image_format_node = node_tree.nodes[addon_prefs.packer_node_name]
@@ -522,20 +522,20 @@ class PAK_OT_CreateImagePack(Operator):
         
         # /////////////////////////////////////////////////////////////////
         # TRANSFER IMAGE FORMAT SETTINGS
-        try:
-            pack_node_tree = file_data.scene_data.node_tree
-            pack_image_node = pack_node_tree.nodes[addon_prefs.packer_node_name]
-            pack_image_format = pack_image_node.format
+        # try:
+        pack_node_tree = file_data.scene_data.node_tree
+        pack_image_node = pack_node_tree.nodes[addon_prefs.packer_node_name]
+        pack_image_format = pack_image_node.format
 
-            scene_image_format = composite_scene.render.image_settings
-            TransferImageFormatSettings(pack_image_format, scene_image_format)
+        scene_image_format = composite_scene.render.image_settings
+        TransferImageFormatSettings(pack_image_format, scene_image_format)
 
-        except:
-            bpy.data.scenes.remove(composite_scene, do_unlink = True)
-            context.area.type = old_type
+        # except:
+        #     bpy.data.scenes.remove(composite_scene, do_unlink = True)
+        #     context.area.type = old_type
 
-            self.report({'WARNING'}, "Something went wrong with Image Format Settings, check that all properties have been set")
-            return {'FINISHED'}
+        #     self.report({'WARNING'}, "Something went wrong with Image Format Settings, check that all properties have been set")
+        #     return {'FINISHED'}
         
         # Set the composite scene to ensure colors aren't edited
         # It's easier to set it in the fake scene :D

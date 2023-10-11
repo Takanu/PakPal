@@ -60,7 +60,7 @@ class PAK_PT_ExportOptionsMenu(Panel):
 
         PAK_UI_CreateSelectionHeader(selection_box_area, file_data)
 
-        selection_options = layout.column(align = True)
+        selection_options = selection_box.column(align = True)
         selection_options.use_property_split = True
         selection_options.use_property_decorate = False
         selection_options.separator()
