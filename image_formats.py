@@ -114,7 +114,6 @@ def SaveImageFormat(image_format_prop, image_format_type):
     image_format_prop.use_jpeg2k_ycc = image_format_type.use_jpeg2k_ycc
 
     image_format_prop.use_preview = image_format_type.use_preview
-    image_format_prop.use_zbuffer = image_format_type.use_zbuffer
 
     # image_format_prop.view_settings = image_format_type.view_settings
     # image_format_prop.views_format = image_format_type.views_format
@@ -165,7 +164,6 @@ def TransferImageFormatSettings(source, target):
     target.use_jpeg2k_ycc = source.use_jpeg2k_ycc
 
     target.use_preview = source.use_preview
-    target.use_zbuffer = source.use_zbuffer
 
     # image_format_prop.view_settings = image_format_type.view_settings
     # image_format_prop.views_format = image_format_type.views_format

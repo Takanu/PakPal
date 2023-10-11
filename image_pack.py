@@ -182,10 +182,9 @@ class PAK_OT_ImagePack_Tutorial(Operator):
 
         def tutorial_layout(self, context):
             self.layout.label(text = "Image Packing lets you extract color channels from different")
-            self.layout.label(text = "images and recombine them into one new image.")
+            self.layout.label(text = "material slots and recombine them into a new image.")
             self.layout.label(text = "")
-            self.layout.label(text = "Enabling PakPal's Bundle feature is required to use this, as it")
-            self.layout.label(text = "needs to identify material slots within a set of images.")
+            self.layout.label(text = "To use this feature you'll need to enable tne Bundles feature.")
             self.layout.label(text = "")
             self.layout.label(text = "To enable Bundles, click on the 'image stack' icon next to")
             self.layout.label(text = "PakPal's image list interface.")
@@ -227,7 +226,7 @@ class PAK_PT_ImagePackMenu(Panel):
         
         if file_data.enable_bundles is False:
             warning_label = layout.box()
-            warning_label.label(text = "Enable Bundles in the PakPal image list view to use this.", 
+            warning_label.label(text = "Enable Bundles in the PakPal image list view.", 
                                 icon = "ERROR")
             
         pack_test = layout.column(align = False)
@@ -264,51 +263,56 @@ class PAK_PT_ImagePackMenu(Panel):
 
         # ////////////////////////////////
         # PACK SLOTS
+        pack_slots_box = pack_test.box()
+        pack_slots_title = pack_slots_box.column(align = True)
+        pack_slots_title.label(text = "Image Packer Sources", icon = "NODE_COMPOSITING")
+        pack_test.separator()
+
         pack_test_r_source = pack_test.row(align = True)
-        pack_test_r_source.prop(file_data, "pack_r_source")
+        pack_test_r_source.prop(file_data, "pack_r_source", text = "Red Source")
         pack_test_r_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                               text = "",
                                               icon = "ADD").path_target = 'R'
         
         pack_test_r_channel = pack_test.row(align = False)
         pack_test_r_channel.prop(file_data, "pack_r_channel", expand = True)
-        pack_test.prop(file_data, "pack_r_invert")
+        pack_test.prop(file_data, "pack_r_invert", text = "Invert")
         pack_test.separator()
         pack_test.separator()
 
         pack_test_g_source = pack_test.row(align = True)
-        pack_test_g_source.prop(file_data, "pack_g_source")
+        pack_test_g_source.prop(file_data, "pack_g_source", text = "Green Source")
         pack_test_g_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                               text = "",
                                               icon = "ADD").path_target = 'G'
         
         pack_test_g_source = pack_test.row(align = False)
         pack_test_g_source.prop(file_data, "pack_g_channel", expand = True)
-        pack_test.prop(file_data, "pack_g_invert")
+        pack_test.prop(file_data, "pack_g_invert", text = "Invert")
         pack_test.separator()
         pack_test.separator()
 
         pack_test_b_source = pack_test.row(align = True)
-        pack_test_b_source.prop(file_data, "pack_b_source")
+        pack_test_b_source.prop(file_data, "pack_b_source", text = "Blue Source")
         pack_test_b_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                               text = "",
                                               icon = "ADD").path_target = 'B'
         
         pack_test_b_source = pack_test.row(align = False)
         pack_test_b_source.prop(file_data, "pack_b_channel", expand = True)
-        pack_test.prop(file_data, "pack_b_invert")
+        pack_test.prop(file_data, "pack_b_invert", text = "Invert")
         pack_test.separator()
         pack_test.separator()
 
         pack_test_a_source = pack_test.row(align = True)
-        pack_test_a_source.prop(file_data, "pack_a_source")
+        pack_test_a_source.prop(file_data, "pack_a_source", text = "Alpha Source")
         pack_test_a_source.operator_menu_enum('pak.add_image_pack_slot_name', "slots",
                                               text = "",
                                               icon = "ADD").path_target = 'A'
         
         pack_test_a_source = pack_test.row(align = False)
         pack_test_a_source.prop(file_data, "pack_a_channel", expand = True)
-        pack_test.prop(file_data, "pack_a_invert")
+        pack_test.prop(file_data, "pack_a_invert", text = "Invert")
         pack_test.separator()
         pack_test.separator()
         

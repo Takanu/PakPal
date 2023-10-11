@@ -237,91 +237,91 @@ class PAK_FileData(PropertyGroup):
     # IMAGE PACKING
     # These options are used when performing a channel mix operation
     pack_r_source: StringProperty(
-        name = "R Source Slots",
-        description = "Set the material slot that will be used as a source for the packed image's red channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        name = "Red Source Slot Name",
+        description = "Set the name of the material slot that will be used as a source for the new image's red channel (if it can be found within a bundle).  Multiple slot names can be defined but only the first one found in a image bundle will be used",
         default = ""
     )
 
     pack_g_source: StringProperty(
-        name = "G Source Slots",
-        description = "Set the material slot that will be used as a source for the packed image's green channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        name = "Green Source Slot Name",
+        description = "Set the name of the material slot that will be used as a source for the new image's green channel (if it can be found within a bundle).  Multiple slot names can be defined but only the first one found in a image bundle will be used",
         default = ""
     )
 
     pack_b_source: StringProperty(
-        name = "B Source Slots",
-        description = "Set the material slot that will be used as a source for the packed image's blue channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        name = "Blue Source Slot Name",
+        description = "Set the name of the material slot that will be used as a source for the new image's blue channel (if it can be found within a bundle).  Multiple slot names can be defined but only the first one found in a image bundle will be used",
         default = ""
     )
 
     pack_a_source: StringProperty(
-        name = "A Source Slots",
-        description = "Set the material slot that will be used as a source for the packed image's alpha channel if it can be found within a bundle.  Multiple slot names can be defined but only the first one found in a image bundle will be used",
+        name = "Alpha Source Slot Name",
+        description = "Set the name of the material slot that will be used as a source for the new image's alpha channel (if it can be found within a bundle).  Multiple slot names can be defined but only the first one found in a image bundle will be used",
         default = ""
     )
 
 
     pack_r_channel: EnumProperty(
 		name = " ",
-		items = (('R', "R", ""),
-			    ('G', "G", ""),
-			    ('B', "B", ""),
-                ('A', "A", "")),
+		items = (('R', "R", "Use the red channel from the source material slot as the new packed image's red channel"),
+			    ('G', "G", "Use the green channel from the source material slot as the new packed image's red channel"),
+			    ('B', "B", "Use the blue channel from the source material slot as the new packed image's red channel"),
+                ('A', "A", "Use the alpha channel from the source material slot as the new packed image's red channel")),
 		description = "",
 		default = 'R',
 	)
 
     pack_g_channel: EnumProperty(
 		name = " ",
-		items = (('R', "R", ""),
-			    ('G', "G", ""),
-			    ('B', "B", ""),
-                ('A', "A", "")),
+		items = (('R', "R", "Use the red channel from the source material slot as the new packed image's green channel"),
+			    ('G', "G", "Use the green channel from the source material slot as the new packed image's green channel"),
+			    ('B', "B", "Use the blue channel from the source material slot as the new packed image's green channel"),
+                ('A', "A", "Use the alpha channel from the source material slot as the new packed image's green channel")),
 		description = "",
 		default = 'R',
 	)
 
     pack_b_channel: EnumProperty(
 		name = " ",
-		items = (('R', "R", ""),
-			    ('G', "G", ""),
-			    ('B', "B", ""),
-                ('A', "A", "")),
+		items = (('R', "R", "Use the red channel from the source material slot as the new packed image's blue channel"),
+			    ('G', "G", "Use the green channel from the source material slot as the new packed image's blue channel"),
+			    ('B', "B", "Use the blue channel from the source material slot as the new packed image's blue channel"),
+                ('A', "A", "Use the alpha channel from the source material slot as the new packed image's blue channel")),
 		description = "",
 		default = 'R',
 	)
 
     pack_a_channel: EnumProperty(
 		name = " ",
-		items = (('R', "R", ""),
-			    ('G', "G", ""),
-			    ('B', "B", ""),
-                ('A', "A", "")),
+		items = (('R', "R", "Use the red channel from the source material slot as the new packed image's alpha channel"),
+			    ('G', "G", "Use the green channel from the source material slot as the new packed image's alpha channel"),
+			    ('B', "B", "Use the blue channel from the source material slot as the new packed image's alpha channel"),
+                ('A', "A", "Use the alpha channel from the source material slot as the new packed image's alpha channel")),
 		description = "",
 		default = 'R',
 	)
 
     pack_r_invert: BoolProperty(
         name = "Invert R Source",
-        description = "Invert the source image channel input",
+        description = "Invert the source image output",
         default = False,
     )
 
     pack_g_invert: BoolProperty(
         name = "Invert G Source",
-        description = "Invert the source image channel input",
+        description = "Invert the source image output",
         default = False,
     )
 
     pack_b_invert: BoolProperty(
         name = "Invert B Source",
-        description = "Invert the source image channel input",
+        description = "Invert the source image output",
         default = False,
     )
 
     pack_a_invert: BoolProperty(
         name = "Invert A Source",
-        description = "Invert the source image channel input",
+        description = "Invert the source image output",
         default = False,
     )
 
@@ -344,7 +344,7 @@ class PAK_FileData(PropertyGroup):
 
     temp_bake_path: StringProperty(
         name = "Temp Save Location",
-        description = "A temporary location used to save packed images.  PakPal needs to save images somewhere before reloading and saving them in the blend file",
+        description = "A temporary location used to save packed images.  Either due to Blender limitations or a skill issue, PakPal needs to save images somewhere before reloading and saving them in the blend file",
         default = "//Pak_Cache\\",
         subtype = "FILE_PATH"
     )
