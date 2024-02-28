@@ -58,6 +58,34 @@ def PAK_Update_ExportLocation(self, context):
 
     return None
 
+def PAK_Update_ExportFormat(self, context):
+    """
+    Updates the "Export Format" property for all selected images
+    """
+
+    try:
+        addon_prefs = context.preferences.addons[__package__].preferences
+        file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
+    except KeyError:
+        return
+    
+    if file_data.is_internal_update:
+        return
+    
+    value = file_data.proxy_export_format
+
+    if file_data.enable_multiselect:
+        for bundle in file_data.bundles:
+            if bundle.is_selected:
+                bundle.export_format = value
+
+    else:
+        bundle = file_data.bundles[file_data.bundles_list_index].bundle_items
+        for tex in bundle:
+            tex.PAK_Img.export_format = value
+
+    return None
+
 def PAK_Update_EnableBundles(self, context):
     """
     Automatically refreshes the list when the Enable Bundles is toggled 
@@ -133,7 +161,7 @@ def PAK_Update_TextureListItem_EnableExport(self, context):
 
 def PAK_Update_TextureListItem_ExportLocation(self, context):
     """
-    Updates the Enable Export property of a texture bundle from the list UI.
+    Updates the Export Location property of a texture bundle from the list UI.
     """
 
     try:
@@ -150,6 +178,26 @@ def PAK_Update_TextureListItem_ExportLocation(self, context):
 
     for bundle_item in self.bundle_items:
         bundle_item.tex.PAK_Img.export_location = value
+
+def PAK_Update_TextureListItem_ExportFormat(self, context):
+    """
+    Updates the Export Format property of a texture bundle from the list UI.
+    """
+
+    try:
+        addon_prefs = context.preferences.addons[__package__].preferences
+        file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
+    except KeyError:
+        return
+
+    if file_data.is_internal_update:
+        return
+    
+    
+    value = self.export_format
+
+    for bundle_item in self.bundle_items:
+        bundle_item.tex.PAK_Img.export_format = value
 
 def PAK_Update_TextureListItem_IsSelected(self, context):
     """

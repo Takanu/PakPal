@@ -18,11 +18,14 @@ def FindMaterialSlotInName(addon_prefs, filename, custom_slots = None, case_sens
     else:
         slots = custom_slots
 
+    # print(filename)
+    # print(slots)
+
     filename = os.path.splitext(filename)[0]
     file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
 
     if file_data.case_sensitive_matching is True:
-        result = next(filter(filename.endswith, slots), None)
+        result = next(filter(filename.endswith, slots), None)    
 
     else:
         for slot in slots:
@@ -166,7 +169,7 @@ class PAK_PT_MaterialSlotMenu(Panel):
     bl_context = "scene"
     bl_label = "Material Slot Names"
     bl_parent_id = "PROPERTIES_PT_Pak"
-    bl_order = 4
+    bl_order = 5
 
     def draw_header_preset(self, _context):
         self.layout.operator("pak.show_material_slot_tutorial", 

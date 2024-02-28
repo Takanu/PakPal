@@ -157,7 +157,7 @@ class PAK_OT_Hidden_Toggle(Operator):
     
 
 class PAK_OT_Refresh(Operator):
-    """Refresh the list of textures used in the current scene.  You'll need to do this every time images are loaded or deleted"""
+    """Refresh the list of textures used in the current scene.  You'll need to do this every time images are loaded or deleted outside of PakPal"""
 
     bl_idname = "pak.refresh_images"
     bl_label = "Refresh List"

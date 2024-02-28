@@ -46,20 +46,6 @@ class PAK_AddonPreferences(AddonPreferences):
         description = "The dummy block being used to store file data, as Blender has no mechanism for adding blend data properties",
         default = ">PakPal Blend File Data<"
     )
-    
-    # TODO: Is there a way to define globals better?
-    # WARNING: A string version is used in PAK_OT_AddImagePackPreset
-    packer_node_name: StringProperty(
-        default = ">PakPal Image Format Data (Image Packer)<"
-    )
-
-    slots_node_name: StringProperty(
-        default = ">PakPal Image Format Data (Material Slots)<"
-    )
-
-    frame_node_name: StringProperty(
-        default = ">PakPal Image Format Node Group<"
-    )
 
     # material slot names are used to bundle images together in the interface and for 
     # operations like image packing

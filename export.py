@@ -3,6 +3,7 @@ import bpy, os, platform
 
 from datetime import datetime
 from bpy.types import Operator, Panel, UIList
+from bpy.props import EnumProperty
 
 from .main_menu import PAK_UI_CreatePakData, PAK_UI_CreateSelectionHeader
 from .export_locations import CreateFilePath, SubstituteNameCharacters, ReplacePathTags
@@ -71,26 +72,43 @@ class PAK_PT_ExportOptionsMenu(Panel):
                 selection_options.separator()
                 selection_options.prop(file_data, "proxy_export_location")
                 selection_options.separator()
+                selection_options.prop(file_data, "proxy_export_format")
+                selection_options.separator()
             else:
                 entry = file_data.bundles[file_data.bundles_list_index]
                 selection_options.prop(entry, "enable_export")
                 selection_options.separator()
                 selection_options.prop(entry, "export_location")
                 selection_options.separator()
+                selection_options.prop(entry, "export_format")
+                selection_options.separator()
         
         selection_options.separator()
         # texture_ops = layout.column(align = True)
         # texture_ops.use_property_split = True
         # texture_ops.use_property_decorate = False
-        selection_options.operator("pak.export_images", icon = 'EXPORT')
+        selection_options.operator("pak.export_images", icon = 'EXPORT', text = 'Export Selected').set_mode = 'SELECTED'
+        selection_options.operator("pak.export_images", icon = 'EXPORT', text = 'Export All Active').set_mode = 'ALL'
         # selection_box_area.separator()
 
 
 class PAK_OT_Export(Operator):
-    """Exports all images marked for export."""
+    """Exports images marked for export"""
 
     bl_idname = "pak.export_images"
-    bl_label = "Export Selected"
+    bl_label = "Export"
+
+    # This is important, pay attention :eyes:
+    set_mode: EnumProperty(
+        name = "Export Mode",
+        items = [
+            ('ALL', "All Active", "Exports all images in the Blend file that have been marked for export"),
+            ('SELECTED', "Selected", "Exports the currently selected images.  This will include any images that HAVE NOT been marked for export"),
+            ],
+        default = 'ALL',
+        description = "Execution mode", 
+        options = {'HIDDEN'},
+    )
 
     def execute(self, context):
         
@@ -103,6 +121,11 @@ class PAK_OT_Export(Operator):
         report_info = {'exported_images': 0}
         export_time = datetime.now()
 
+        if self.set_mode == "ALL":
+            pass
+        else:
+            pass
+
         # TODO: Add report info for images that weren't exported due to missing data.
         exportable = [[item for item in bundle.bundle_items 
                        if item.tex.PAK_Img.enable_export and item.tex.PAK_Img.export_location != '0']
@@ -111,7 +134,6 @@ class PAK_OT_Export(Operator):
         # TODO: Im sure this could be streamlined.
         exportable = set(i for j in exportable for i in j)
         exportable = [e for e in exportable]
-        print(exportable)
 
         if len(exportable) == 0:
             self.report({'WARNING'}, "No exportable images found.  Make sure all images marked for export have a valid Export Location.")
@@ -129,8 +151,10 @@ class PAK_OT_Export(Operator):
                     path = CreateFilePath(path)
                     
                     name = SubstituteNameCharacters(tex.name)
+                    original_format = tex.file_format
 
                     tex.save(filepath = path + name)
+
                     report_info['exported_images'] += 1
         
         if report_info['exported_images'] == 0:

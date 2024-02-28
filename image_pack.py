@@ -9,10 +9,10 @@ from bl_operators.presets import AddPresetBase
 from .main_menu import PAK_UI_CreateSelectionHeader
 from .export_locations import *
 from .material_slots import FindMaterialSlotInName
-from .image_formats import (
-    TransferImageFormatSettings, 
-    UI_CreateFormatData,
-    GetImageFileExtension
+from .image_format_properties import (
+    LoadImageFormat, 
+    GetImageFileExtension,
+    UI_CreateFormatSettings
 )
 
 # //////////////////////////////////////////////////////////////
@@ -42,9 +42,7 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
     # Otherwise cryptic errors can occur.
     preset_defines = [
         "file_data = bpy.data.objects['>PakPal Blend File Data<'].PAK_FileData",
-        "pack_node_tree = file_data.scene_data.node_tree",
-        "pack_image_node = pack_node_tree.nodes['>PakPal Image Format Data (Image Packer)<']",
-        "pack_image_format = pack_image_node.format",
+        "pack_format = file_data.pack_format"
     ]
 
     # the properties you want to have stored in the preset
@@ -67,18 +65,18 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
         'file_data.packed_image_suffix',
         
         # MAINTENANCE : This will need to be checked regularly.
+        'pack_image_format.file_format', # this goes first as it can replace enums
+
         'pack_image_format.cineon_black',
         'pack_image_format.cineon_gamma',
         'pack_image_format.cineon_white',
 
-        'pack_image_format.color_depth',
         'pack_image_format.color_management',
         'pack_image_format.color_mode',
 
         'pack_image_format.compression',
 
         'pack_image_format.exr_codec',
-        'pack_image_format.file_format',
 
         'pack_image_format.jpeg2k_codec',
         'pack_image_format.quality',
@@ -91,9 +89,11 @@ class PAK_OT_AddImagePackPreset(AddPresetBase, Operator):
         'pack_image_format.use_jpeg2k_ycc',
 
         'pack_image_format.use_preview',
+
+        'pack_image_format.color_depth', # this goes last
     ]
 
-    preset_subdir = 'pakpal/image_packs'
+    preset_subdir = 'pakpal/image_pack_presets'
 
 class PAK_PT_ImagePack_PresetsOps(PresetPanel, Panel):
     bl_label = "Image Pack Format Presets"
@@ -206,7 +206,7 @@ class PAK_PT_ImagePackMenu(Panel):
     bl_context = "scene"
     bl_label = "Image Packer"
     bl_parent_id = "PROPERTIES_PT_Pak"
-    bl_order = 3
+    bl_order = 4
 
     def draw_header_preset(self, _context):
         PAK_PT_ImagePack_PresetsOps.draw_panel_header(self.layout)
@@ -327,25 +327,23 @@ class PAK_PT_ImagePackMenu(Panel):
         pack_test.separator()
         
         try:
-            node_tree = file_data.scene_data.node_tree
-            image_format_node = node_tree.nodes[addon_prefs.packer_node_name]
-
             pack_format_box = pack_test.box()
             pack_format = pack_format_box.column(align = True)
             pack_format.label(text = "Image Format Settings", icon = "FILE_IMAGE")
 
-            pack_format_options = pack_test.column(align = True)
+            pack_format_options = pack_test.column(align = False)
             pack_format_options.use_property_split = True
             pack_format_options.use_property_decorate = False
             pack_format_options.separator()
-            pack_format_options.template_image_settings(image_format_node.format,
-                                                color_management = False)
+            # TODO: Add color management
+            pack_format = file_data.pack_format
+            UI_CreateFormatSettings(pack_format_options, pack_format)
             pack_format_options.separator()
             pack_format_options.separator()
 
         except:
             has_file_formats = False
-            UI_CreateFormatData(pack_test)
+            UI_CreateFormatSettings(pack_test)
             pack_test.separator()
             pack_test.separator()
         
@@ -490,17 +488,17 @@ class PAK_OT_CreateImagePack(Operator):
         except:
             return {'CANCELLED'}
         
-        def get_image_for_slot(bundle, sources):
-            if sources == "":
+        def get_image_for_slot(bundle, source_slots):
+            if source_slots == "":
                 return None
             
-            sources = sources.replace(",", "")
-            slot_strings = sources.split()
-            slot_strings = [s for s in slot_strings]
+            source_slots = source_slots.replace(",", "")
+            source_slot_strings = source_slots.split()
+            source_slot_strings = [s for s in source_slot_strings]
 
             for bundle_item in bundle.bundle_items:
                 filename = os.path.splitext(bundle_item.tex.name)[0]
-                match = FindMaterialSlotInName(addon_prefs, filename, slot_strings,
+                match = FindMaterialSlotInName(addon_prefs, filename, source_slot_strings,
                                                file_data.case_sensitive_matching)
 
                 if match:
@@ -527,12 +525,9 @@ class PAK_OT_CreateImagePack(Operator):
         # /////////////////////////////////////////////////////////////////
         # TRANSFER IMAGE FORMAT SETTINGS
         # try:
-        pack_node_tree = file_data.scene_data.node_tree
-        pack_image_node = pack_node_tree.nodes[addon_prefs.packer_node_name]
-        pack_image_format = pack_image_node.format
-
-        scene_image_format = composite_scene.render.image_settings
-        TransferImageFormatSettings(pack_image_format, scene_image_format)
+        pack_format = file_data.pack_format
+        composite_format = composite_scene.render.image_settings
+        LoadImageFormat(pack_format, composite_format)
 
         # except:
         #     bpy.data.scenes.remove(composite_scene, do_unlink = True)
@@ -559,9 +554,9 @@ class PAK_OT_CreateImagePack(Operator):
             # ///////////////////////////////////////////////////////////////////////////
             # PREPARE PROPERTIES
 
-            file_ext = GetImageFileExtension(pack_image_format.file_format)
+            file_ext = GetImageFileExtension(pack_format.file_format)
 
-            file_name = bundle.name + file_data.packed_image_suffix + file_ext
+            file_name = bundle.name + file_data.packed_image_suffix
             file_directory = CreateFilePath(file_data.temp_bake_path)
             file_path = file_directory + file_name + file_ext
 
@@ -648,6 +643,8 @@ class PAK_OT_CreateImagePack(Operator):
         failed_image_info = ""
         not_overwritten_image_info = ""
 
+        print(report_info)
+
         if report_info['new_images'] == 1:
             new_image_info = str(report_info['new_images']) + " new image"
         elif report_info['new_images'] > 1:
@@ -668,7 +665,8 @@ class PAK_OT_CreateImagePack(Operator):
         elif report_info['not_overwritten'] > 1:
             not_overwritten_image_info += str(report_info['not_overwritten']) + " images"
         
-        if new_image_info == "" and failed_image_info == "" and not_overwritten_image_info == "":
+        if (new_image_info == "" and updated_image_info == "" and 
+             failed_image_info == "" and not_overwritten_image_info == ""):
             info = "PakPal couldn't find material slots to pack any selected bundle."
             self.report({'WARNING'}, info)
 

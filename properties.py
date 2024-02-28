@@ -2,6 +2,7 @@
 import bpy
 from bpy.types import AddonPreferences, PropertyGroup
 from .update import *
+from .image_format_properties import PAK_ImageFormat
 
 from bpy.props import (
     IntProperty, 
@@ -13,10 +14,10 @@ from bpy.props import (
     EnumProperty,
 )
 
-def GetLocationPresets(scene, context):
+def GetExportLocations(scene, context):
 
     items = [
-        ('0', "None", "", 0),
+        ('0', "None", "No export location has been set", 0),
     ]
     
     try:
@@ -34,7 +35,7 @@ def GetLocationPresets(scene, context):
 def GetImageFormats(scene, context):
 
     items = [
-        ('0', "None", "", 0),
+        ('0', "Original Format", "The image will be saved with the same format and settings as the original image", 0),
     ]
     
     try:
@@ -44,7 +45,11 @@ def GetImageFormats(scene, context):
     except KeyError:
         return items
 
-    return 
+    for i,x in enumerate(file_data.formats):
+        items.append((str(i+1), x.name, x.name, i+1))
+
+    return items
+
 
 class PAK_Image(PropertyGroup):
     """
@@ -61,7 +66,13 @@ class PAK_Image(PropertyGroup):
     export_location: EnumProperty(
         name = "Export Location",
         description = "Set the file path that the texture will be exported to",
-        items = GetLocationPresets,
+        items = GetExportLocations,
+    )
+
+    export_format: EnumProperty(
+        name = "Export Format",
+        description = "Set the export format that will be used when exporting a texture.  This will NOT change the file format of the image as it is currently stored",
+        items = GetImageFormats,
     )
     
 
@@ -103,8 +114,14 @@ class PAK_ImageBundle(PropertyGroup):
         name = "Export Location",
         description = "Set the file path that the texture will be exported to",
         update = PAK_Update_TextureListItem_ExportLocation,
-        items = GetLocationPresets,
-        
+        items = GetExportLocations,
+    )
+
+    export_format: EnumProperty(
+        name = "Export Format",
+        description = "Set the export format that will be used when exporting a texture.  This will NOT change the file format of the image as it is currently stored",
+        update = PAK_Update_TextureListItem_ExportFormat,        
+        items = GetImageFormats,
     )
 
     # Used for multi-select mode.
@@ -129,7 +146,6 @@ class PAK_ExportLocations(PropertyGroup):
         subtype = "FILE_PATH"
     )
 
-
 class PAK_FileData(PropertyGroup):
     """
     Everything PakPal needs to preserve as part of the file.
@@ -147,11 +163,14 @@ class PAK_FileData(PropertyGroup):
         update = PAK_Update_TextureList_Preview
     )
 
-    # the available baking presets
+    # the available export locations
     locations: CollectionProperty(type = PAK_ExportLocations)
-
-    ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
+    ## The index of the currently selected export collection from the UI list.  Will be -1 if not selected.
     locations_list_index: IntProperty(default = 0)
+
+    # the available export formats
+    formats: CollectionProperty(type = PAK_ImageFormat)
+    formats_list_index: IntProperty(default = 0)
 
     case_sensitive_matching: BoolProperty(
         name = "Case Sensitive Matching",
@@ -228,14 +247,24 @@ class PAK_FileData(PropertyGroup):
     proxy_export_location: EnumProperty(
         name = "Export Location",
         description = "Set the file path that the texture will be exported to",
-        items = GetLocationPresets,
+        items = GetExportLocations,
         update = PAK_Update_ExportLocation,
+    )
+
+    proxy_export_format: EnumProperty(
+        name = "Export Format",
+        description = "Set the export format that will be used when exporting a texture.  This will NOT change the file format of the image as it is currently stored",
+        items = GetImageFormats,
+        update = PAK_Update_ExportFormat,
     )
 
     # ////////////////////////////////////////////////////////////////////
     # ////////////////////////////////////////////////////////////////////
     # IMAGE PACKING
     # These options are used when performing a channel mix operation
+
+    pack_format: PointerProperty(type=PAK_ImageFormat)
+
     pack_r_source: StringProperty(
         name = "Red Source Slot Name",
         description = "Set the name of the material slot that will be used as a source for the new image's red channel (if it can be found within a bundle).  Multiple slot names can be defined but only the first one found in a image bundle will be used",
@@ -359,61 +388,4 @@ class PAK_MaterialSlot(PropertyGroup):
     )
 
 
-# As of 3.5 PointerProperty types currently only apply to ID and PropertyGroup subclasses 
-# If this changes in a future version, replace this!
-# MAINTENANCE : This will need to be checked regularly.
-# https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html#bpy.types.ImageFormatSettings
-class PAK_ImageFormat(PropertyGroup):
-    
-    cineon_black: IntProperty()
-    cineon_gamma: FloatProperty()
-    cineon_white: IntProperty()
 
-    color_depth: EnumProperty(
-        items = (('8', "8", ""),
-			    ('10', "10", ""),
-			    ('12', "12", ""),
-                ('16', "16", ""),
-                ('32', "32", "")
-                ),
-    )
-
-    # can I just use a string property?  OwO
-    color_management: StringProperty()
-    color_mode: StringProperty()
-
-    compression: IntProperty()
-
-    # (readonly)
-    # display_settings - "Settings of devioce saved image would be displayed on"
-
-    # more fake enums
-    exr_codec: StringProperty()
-    file_format: StringProperty()
-
-    has_linear_colorspace: BoolProperty()
-
-    # fake enum
-    jpeg2k_codec: StringProperty()
-
-    # (readonly)
-    # linear_colorspace_settings -= "Output color space settings", opaque type.
-
-    quality: IntProperty()
-    # (readonly)
-    # stereo_3d_format - Another weird structure
-
-    tiff_codec: StringProperty() # fake enum
-
-    use_cineon_log: BoolProperty()
-
-    use_jpeg2k_cinema_48: BoolProperty()
-    use_jpeg2k_cinema_preset: BoolProperty()
-    use_jpeg2k_ycc: BoolProperty()
-
-    use_preview: BoolProperty() # saves JPG images of animations to the same directory
-
-    # (readonly)
-    # view_settings - appears to be the color management settings we're interested in
-    # (readonly)
-    # views_format - For stereo output, we don't care.

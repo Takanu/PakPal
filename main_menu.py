@@ -152,9 +152,19 @@ class PAK_UL_MainMenu(bpy.types.Panel):
                 has_preview = True
         
         if has_preview:
+            preview_img = file_data.preview_tex.image
             preview_area_image.template_preview(file_data.preview_tex, show_buttons = True)
-            preview_area_image.label(text = file_data.preview_tex.image.name, 
+            preview_area_image.label(text = preview_img.name, 
                                     icon = "HIDE_OFF")
+            # print(preview_img)
+            image_info = str(preview_img.size[0])
+            image_info += " x "
+            image_info += str(preview_img.size[1]) + ", "
+            image_info += str(preview_img.file_format)
+
+            # TODO - Add additional image details
+            # image_info += str(preview_img.depth)
+            preview_area_image.label(text = image_info)
         else:
             preview_area_image.label(text = "No images available",
                                     icon = "HIDE_OFF")
