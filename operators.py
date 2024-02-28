@@ -190,7 +190,7 @@ class PAK_OT_Refresh(Operator):
                 if tex.PAK_Img.export_location != "": 
                     bundle.export_location = tex.PAK_Img.export_location
 
-                bundle_item = bundle.bundle_items.add()
+                bundle_item = bundle.pak_items.add()
                 bundle_item.tex = tex
 
         else:
@@ -231,7 +231,7 @@ class PAK_OT_Refresh(Operator):
                     bundle.export_location = textures[0].PAK_Img.export_location
                 
                 for tex in textures:
-                    bundle_item = bundle.bundle_items.add()
+                    bundle_item = bundle.pak_items.add()
                     bundle_item.tex = tex
                 
         if len(file_data.bundles) <= (file_data.bundles_list_index - 1):
@@ -275,7 +275,7 @@ class PAK_OT_Delete_Images(Operator):
         
         # Get the selected bundles and remove them from the collection
         selected_bundles = GetSelection(file_data)
-        selected_images = [[bundle_items.tex for bundle_items in bundle.bundle_items]
+        selected_images = [[pak_items.tex for pak_items in bundle.pak_items]
                             for bundle in selected_bundles]
         selected_images = set(i for j in selected_images for i in j)
 
@@ -397,11 +397,11 @@ def GetSelectionCount(file_data):
     # Used to return the number of selected bundles.
     i = 0
     if file_data.enable_multiselect is True:
-        bundle_list = [bundle.bundle_items for bundle in file_data.bundles 
+        bundle_list = [bundle.pak_items for bundle in file_data.bundles 
                         if bundle.is_selected]
-        bundle_items = set(i for j in bundle_list for i in j)
-        return len(bundle_items)
+        selected_images = set(i for j in bundle_list for i in j)
+        return len(selected_images)
 
     elif len(file_data.bundles) > 0:
-        return len(file_data.bundles[file_data.bundles_list_index].bundle_items)
+        return len(file_data.bundles[file_data.bundles_list_index].pak_items)
 

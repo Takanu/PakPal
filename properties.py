@@ -94,7 +94,7 @@ class PAK_ImageBundle(PropertyGroup):
     Define an object as a list property, for use when displaying objects in the user interface
     """
 
-    bundle_items: CollectionProperty(type = PAK_ImageItem)
+    pak_items: CollectionProperty(type = PAK_ImageItem)
 
     name: StringProperty(
         name = "Texture/Bundle Name",

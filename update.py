@@ -24,7 +24,7 @@ def PAK_Update_EnableExport(self, context):
                 bundle.enable_export = value
 
     else:
-        bundle = file_data.bundles[file_data.bundles_list_index].bundle_items
+        bundle = file_data.bundles[file_data.bundles_list_index].pak_items
         for tex in bundle:
             tex.PAK_Img.enable_export = value
 
@@ -52,7 +52,7 @@ def PAK_Update_ExportLocation(self, context):
                 bundle.export_location = value
 
     else:
-        bundle = file_data.bundles[file_data.bundles_list_index].bundle_items
+        bundle = file_data.bundles[file_data.bundles_list_index].pak_items
         for tex in bundle:
             tex.PAK_Img.export_location = value
 
@@ -80,7 +80,7 @@ def PAK_Update_ExportFormat(self, context):
                 bundle.export_format = value
 
     else:
-        bundle = file_data.bundles[file_data.bundles_list_index].bundle_items
+        bundle = file_data.bundles[file_data.bundles_list_index].pak_items
         for tex in bundle:
             tex.PAK_Img.export_format = value
 
@@ -115,11 +115,11 @@ def PAK_Update_TextureListItem_Name(self, context):
     value = self.name
 
     if file_data.enable_bundles is not True:
-        for bundle_item in self.bundle_items:
+        for bundle_item in self.pak_items:
             bundle_item.tex.name = value
     
     else:
-        for bundle_item in self.bundle_items:
+        for bundle_item in self.pak_items:
             tex = bundle_item.tex
 
             name_parts = [n for n in os.path.splitext(tex.name)]
@@ -155,7 +155,7 @@ def PAK_Update_TextureListItem_EnableExport(self, context):
     
     value = self.enable_export
 
-    for bundle_item in self.bundle_items:
+    for bundle_item in self.pak_items:
         bundle_item.tex.PAK_Img.enable_export = value
         
 
@@ -176,7 +176,7 @@ def PAK_Update_TextureListItem_ExportLocation(self, context):
     
     value = self.export_location
 
-    for bundle_item in self.bundle_items:
+    for bundle_item in self.pak_items:
         bundle_item.tex.PAK_Img.export_location = value
 
 def PAK_Update_TextureListItem_ExportFormat(self, context):
@@ -196,7 +196,7 @@ def PAK_Update_TextureListItem_ExportFormat(self, context):
     
     value = self.export_format
 
-    for bundle_item in self.bundle_items:
+    for bundle_item in self.pak_items:
         bundle_item.tex.PAK_Img.export_format = value
 
 def PAK_Update_TextureListItem_IsSelected(self, context):
@@ -231,19 +231,19 @@ def PAK_Update_TextureList_Preview(self, context):
         return
     
     sel_bundle = self.bundles[self.bundles_list_index]
-    sel_texture = sel_bundle.bundle_items[0].tex
+    sel_texture = sel_bundle.pak_items[0].tex
 
     if self.preview_tex is None:
         self.preview_tex = bpy.data.textures.new(name = ".PakPal Preview", type = 'IMAGE')
         
-    self.preview_tex.image = sel_bundle.bundle_items[0].tex
+    self.preview_tex.image = sel_bundle.pak_items[0].tex
 
     pass
 
 def PAK_Update_TextureList_PreviewColor(self, context):
 
     sel_bundle = self.bundles[self.bundles_list_index]
-    sel_texture = sel_bundle.bundle_items[0].tex
+    sel_texture = sel_bundle.pak_items[0].tex
     preview_rgb = self.preview_rgb
 
     if self.preview_tex is None:

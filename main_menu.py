@@ -11,9 +11,9 @@ class PAK_UL_TextureList(UIList):
             row.emboss = 'NORMAL'
             row.enabled = False
             row.separator(factor = 0.05)
-            row.label(text = str(len(item.bundle_items)))
+            row.label(text = str(len(item.pak_items)))
 
-            if len(item.bundle_items) > 1:
+            if len(item.pak_items) > 1:
                 row.label(text = "", icon = "RENDERLAYERS")
             else:
                 row.label(text = "", icon = "IMAGE_DATA")
@@ -227,19 +227,24 @@ def PAK_UI_CreateSelectionHeader(layout, file_data):
         sel_list = [item for item in file_data.bundles if item.is_selected]
         
         if file_data.enable_bundles:
-            if len(sel_list) > 1:
+            if len(sel_list) > 1 or len(sel_list) == 0:
                 sel_name = str(len(sel_list)) + " bundles"
             else:
                 sel_name = str(len(sel_list)) + " bundle"
 
         else:
-            if len(sel_list) > 1:
+            if len(sel_list) > 1 or len(sel_list) == 0:
                 sel_name = str(len(sel_list)) + " images"
             else:
                 sel_name = str(len(sel_list)) + " image"
 
     elif len(file_data.bundles) > 0:
         sel_name = file_data.bundles[file_data.bundles_list_index].name
+
+        if file_data.enable_bundles:
+            bundle = file_data.bundles[file_data.bundles_list_index]
+
+            sel_name += "  (" + str(len(bundle.pak_items)) + ")"
     
     selection_header = layout.column(align = True)
     selection_header.label(text = header_text + sel_name, icon = "RESTRICT_SELECT_OFF")

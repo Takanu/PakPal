@@ -262,7 +262,7 @@ def ReplacePathTags(file_path, replace_invalid_chars, bundle, export_time):
     if file_path.find('^bundle_name^'):
 
         bundle_name = ""
-        if len(bundle.bundle_items) > 0:
+        if len(bundle.pak_items) > 0:
             bundle_name = bundle.name
 
         if replace_invalid_chars is True:

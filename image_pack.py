@@ -496,7 +496,7 @@ class PAK_OT_CreateImagePack(Operator):
             source_slot_strings = source_slots.split()
             source_slot_strings = [s for s in source_slot_strings]
 
-            for bundle_item in bundle.bundle_items:
+            for bundle_item in bundle.pak_items:
                 filename = os.path.splitext(bundle_item.tex.name)[0]
                 match = FindMaterialSlotInName(addon_prefs, filename, source_slot_strings,
                                                file_data.case_sensitive_matching)
@@ -615,10 +615,10 @@ class PAK_OT_CreateImagePack(Operator):
                 new_image.filepath = file_path
                 new_image.name = file_name
 
-                bundle_proxy = bundle.bundle_items[0].tex.PAK_Img
+                bundle_proxy = bundle.pak_items[0].tex.PAK_Img
 
                 # add the new image to the bundle!
-                new_bundle_item = bundle.bundle_items.add()
+                new_bundle_item = bundle.pak_items.add()
                 new_bundle_item.tex = new_image
                 new_bundle_item.tex.PAK_Img.enable_export = bundle_proxy.enable_export
                 new_bundle_item.tex.PAK_Img.export_location = bundle_proxy.export_location

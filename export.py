@@ -8,6 +8,7 @@ from bpy.props import EnumProperty
 from .main_menu import PAK_UI_CreatePakData, PAK_UI_CreateSelectionHeader
 from .export_locations import CreateFilePath, SubstituteNameCharacters, ReplacePathTags
 from .image_format_properties import LoadImageFormat, GetImageFileExtension
+from .operators import GetSelection
 
 def FindImageContext():
     """
@@ -105,6 +106,7 @@ class PAK_OT_Export(Operator):
         items = [
             ('ALL', "All Active", "Exports all images in the Blend file that have been marked for export"),
             ('SELECTED', "Selected", "Exports the currently selected images.  This will include any images that HAVE NOT been marked for export"),
+            # ('CAPSULE_SELECTED', "Capsule Selected", "This exports all images associated with an object selection.")
             ],
         default = 'ALL',
         description = "Execution mode", 
@@ -145,25 +147,58 @@ class PAK_OT_Export(Operator):
         except:
             return {'CANCELLED'}
 
-        report_info = {'exported_images': 0}
+        report_info = {'exported_images': 0, 'no_export_location': 0}
         export_time = datetime.now()
-
-        if self.set_mode == "ALL":
-            pass
-        else:
-            pass
+        
 
         # /////////////////////////////////////////////////////////////////
         # FIND EXPORTABLE IMAGES
+        # Because of bundles we have to separate the export options from the PAK
+        # image data.
 
-        # TODO: Add report info for images that weren't exported due to missing data.
-        exportable = [[item for item in bundle.bundle_items 
-                       if item.tex.PAK_Img.enable_export and item.tex.PAK_Img.export_location != '0']
-                      for bundle in file_data.bundles]
-        
-        # TODO: Im sure this could be streamlined.
-        exportable = set(i for j in exportable for i in j)
-        exportable = [e for e in exportable]
+        # NOTE NOTE: Make sure you don't include hidden images unless enabled.
+        exportable = []
+        selected_bundles = []
+
+        # Figure out candidates
+        if self.set_mode == "ALL":
+            selected_bundles = [bundle for bundle in file_data.bundles]
+
+        else:
+            selected_bundles = GetSelection(file_data)
+
+        # Filter based on eligibility
+        for bundle in selected_bundles:
+
+            if (file_data.enable_bundles == True
+                and bundle.enable_export == False):
+                continue
+
+            for item in bundle.pak_items:
+                image = item.tex
+                pak_data = None
+
+                if file_data.enable_bundles == True:
+                    pak_data = bundle
+                else:
+                    pak_data = item.tex.PAK_Img
+                    
+                if (pak_data.enable_export == False):
+                    continue
+                
+                if pak_data.export_location == '0':
+                    report_info['no_export_location'] += 1
+                    continue
+
+                export_target = {}
+                export_target['image'] = image
+                export_target['settings'] = pak_data
+
+                exportable.append(export_target)
+
+
+        print(selected_bundles)
+        print(exportable)
 
         if len(exportable) == 0:
             self.report({'WARNING'}, "No exportable images found.  Make sure all images marked for export have a valid Export Location.")
@@ -192,51 +227,49 @@ class PAK_OT_Export(Operator):
         # ITERATE AND EXPORT TARGETS
 
         # TODO: Find a way to nicely merge verification with this iterator
-        for bundle in file_data.bundles:
-            for item in bundle.bundle_items:
-                if item.tex.PAK_Img.enable_export and item.tex.PAK_Img.export_location != '0':
-                    tex = item.tex
-                    location_index = int(tex.PAK_Img.export_location) - 1
-                    location = file_data.locations[location_index]
+        for export_item in exportable:
+            image = export_item['image']
+            pak_data = export_item['settings']
 
-                    format_index = int(tex.PAK_Img.export_format) - 1
-                    self.source_image = item.tex
+            location_index = int(pak_data.export_location) - 1
+            location = file_data.locations[location_index]
 
-                    path = ReplacePathTags(location.path, True, bundle, export_time)
-                    path = CreateFilePath(path)
-                    name = SubstituteNameCharacters(tex.name)
+            format_index = int(pak_data.export_format) - 1
+            self.source_image = image
 
-                    print(format_index)
+            path = ReplacePathTags(location.path, True, bundle, export_time)
+            path = CreateFilePath(path)
+            name = SubstituteNameCharacters(image.name)
 
-                    if format_index != -1:
-                        format = file_data.formats[format_index]
-                        file_ext = GetImageFileExtension(format.file_format)
+            print(format_index)
 
-                        # TODO: Provide the right image to the right node instead of doing this every export.
-                        self.create_export_nodes()
+            if format_index != -1:
+                format = file_data.formats[format_index]
+                file_ext = GetImageFileExtension(format.file_format)
 
-                        # This 'should' load the format associated with the image into the compositor.
-                        LoadImageFormat(format, composite_scene.render.image_settings)
+                # TODO: Provide the right image to the right node instead of doing this every export.
+                self.create_export_nodes()
 
-                        # This renders whatever is on the compositor.
-                        # When using a File Output node it will forcefully add a frame number
-                        # to the end, so we do this instead.
-                        bpy.ops.render.render(animation=False, write_still=False, 
-                                            use_viewport=False, layer="", scene="")
-                        
-                        # Store the output image in it's own buffer and datablock.
-                        viewer = bpy.data.images['Viewer Node']
+                # This 'should' load the format associated with the image into the compositor.
+                LoadImageFormat(format, composite_scene.render.image_settings)
 
-                        # use save_render to avoid the viewer node datablock from becoming a FILE type.
-                        viewer.save_render(filepath = path + name + file_ext)
+                # This renders whatever is on the compositor.
+                # When using a File Output node it will forcefully add a frame number
+                # to the end, so we do this instead.
+                bpy.ops.render.render(animation=False, write_still=False, 
+                                    use_viewport=False, layer="", scene="")
+                
+                # Store the output image in it's own buffer and datablock.
+                viewer = bpy.data.images['Viewer Node']
+
+                # use save_render to avoid the viewer node datablock from becoming a FILE type.
+                viewer.save_render(filepath = path + name + file_ext)
 
 
-                    else:
-                        tex.save(filepath = path + name)
-                    
-
-                    
-                    report_info['exported_images'] += 1
+            else:
+                image.save(filepath = path + name)
+            
+            report_info['exported_images'] += 1
 
         # TODO: Delete the saved image once it's been packed. (decided not to right now just in case)
         # TODO: Fully test info statements
@@ -259,6 +292,16 @@ class PAK_OT_Export(Operator):
             else:
                 info += str(report_info['exported_images']) + ' images.'
 
+            if report_info['no_export_location'] > 0:
+                info += "  " + str(report_info['no_export_location'])
+                
+                if report_info['no_export_location'] == 1:
+                    info += ' image '
+                else:
+                    info += ' images '
+                
+                info += 'have no Export Location set.'
+            
             self.report({'INFO'}, info)
         
 
