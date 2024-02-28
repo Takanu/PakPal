@@ -369,6 +369,7 @@ def UI_CreateFormatSettings(layout, format_settings : PAK_ImageFormat):
             color_mode_ui.prop(format_settings, 'color_mode', expand = True)
             color_depth_ui = layout.row(align = True)
             color_depth_ui.prop(format_settings, 'proxy_color_8_16', expand = True)
+            layout.prop(format_settings, 'compression')
         case 'JPEG':
             color_mode_ui = layout.row(align = True)
             color_mode_ui.prop(format_settings, 'proxy_color_bw_rgb', expand = True)
