@@ -192,7 +192,8 @@ class PAK_OT_Export(Operator):
 
                 export_target = {}
                 export_target['image'] = image
-                export_target['settings'] = pak_data
+                export_target['export_location'] = pak_data.export_location
+                export_target['export_format'] = pak_data.export_format
 
                 exportable.append(export_target)
 
@@ -229,23 +230,23 @@ class PAK_OT_Export(Operator):
         # TODO: Find a way to nicely merge verification with this iterator
         for export_item in exportable:
             image = export_item['image']
-            pak_data = export_item['settings']
 
-            location_index = int(pak_data.export_location) - 1
+            location_index = int(export_item['export_location']) - 1
             location = file_data.locations[location_index]
 
-            format_index = int(pak_data.export_format) - 1
+            format_index = int(export_item['export_format']) - 1
             self.source_image = image
 
-            path = ReplacePathTags(location.path, True, bundle, export_time)
-            path = CreateFilePath(path)
-            name = SubstituteNameCharacters(image.name)
-
-            print(format_index)
+            # TODO: Add file tag support
+            # path = ReplacePathTags(location.path, True, bundle, export_time)
+            path = CreateFilePath(location.path)
+            filename = SubstituteNameCharacters(image.name)
+            filename = filename.rsplit( ".", 1 )[ 0 ]
 
             if format_index != -1:
                 format = file_data.formats[format_index]
                 file_ext = GetImageFileExtension(format.file_format)
+                filename = filename + file_ext
 
                 # TODO: Provide the right image to the right node instead of doing this every export.
                 self.create_export_nodes()
@@ -263,11 +264,13 @@ class PAK_OT_Export(Operator):
                 viewer = bpy.data.images['Viewer Node']
 
                 # use save_render to avoid the viewer node datablock from becoming a FILE type.
-                viewer.save_render(filepath = path + name + file_ext)
+                viewer.save_render(filepath = path + filename)
 
 
             else:
-                image.save(filepath = path + name)
+                file_ext = GetImageFileExtension(image.file_format)
+                filename = filename + file_ext
+                image.save(filepath = path + filename)
             
             report_info['exported_images'] += 1
 
