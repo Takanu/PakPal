@@ -89,6 +89,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         texture_list_ui = texture_list_area.column(align = True)
         texture_list_ui.template_list("PAK_UL_TextureList", "default", file_data, "bundles", 
                                     file_data, "bundles_list_index", rows = 7, maxrows = 12)
+        texture_list_ui.separator()
 
         def ops_checkbox(boolean):
             if boolean:
@@ -136,13 +137,13 @@ class PAK_UL_MainMenu(bpy.types.Panel):
                               icon = "TRASH",
                               text = "")
                               
+                              
 
         # //////////////////////////////////
         # SELECTION MENU
         preview_area = layout.row(align = False)
-        preview_area_column = preview_area.column(align = True)
-        preview_area_image = preview_area_column.box()
-        preview_area_image.alignment = 'EXPAND'
+        preview_area_image = preview_area.column(align = True)
+        
 
         # The template preview cannot be allowed to try and preview data that doesn't exist,
         # otherwise it will crash
@@ -153,8 +154,12 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         
         if has_preview:
             preview_img = file_data.preview_tex.image
-            preview_area_image.template_preview(file_data.preview_tex, show_buttons = True)
-            preview_area_image.label(text = preview_img.name, 
+            preview_area_image.template_preview(file_data.preview_tex)
+
+            # BUG: If you contain a texture preview in a box, the preview becomes darker.  Report to Blender?
+            preview_area_info = preview_area_image.box()
+            preview_area_info.alignment = 'EXPAND'
+            preview_area_info.label(text = preview_img.name, 
                                     icon = "HIDE_OFF")
             # print(preview_img)
             image_info = str(preview_img.size[0])
@@ -164,9 +169,9 @@ class PAK_UL_MainMenu(bpy.types.Panel):
 
             # TODO - Add additional image details
             # image_info += str(preview_img.depth)
-            preview_area_image.label(text = image_info)
+            preview_area_info.label(text = image_info)
         else:
-            preview_area_image.label(text = "No images available",
+            preview_area_info.label(text = "No images available",
                                     icon = "HIDE_OFF")
 
         preview_area_options = preview_area.column(align = True)
@@ -252,3 +257,29 @@ def PAK_UI_CreateSelectionHeader(layout, file_data):
     # Added this so operators have a quick way to check whether or not the selection conditions are valid
     return {"selection_count": len(sel_list), "is_bundle": file_data.enable_bundles}
     
+def CreatePakPreviewTexture():
+
+    try:
+        addon_prefs = bpy.context.preferences.addons[__package__].preferences
+        file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
+    except:
+        print('No PakPal file data found, cannot create preview texture.')
+        return
+
+    if 'PakPal Preview' in bpy.data.textures: 
+        bpy.data.batch_remove(bpy.data.textures['PakPal Preview'])
+
+    file_data.preview_tex = None
+
+    file_data.preview_tex = bpy.data.textures.new(name = "PakPal Preview", type = 'IMAGE')
+    tex = file_data.preview_tex
+
+    tex.intensity = 1.0
+    tex.contrast = 1.0
+    tex.saturation = 1.0
+
+    tex.factor_red = 1.0
+    tex.factor_green = 1.0
+    tex.factor_blue = 1.0
+
+    tex.use_color_ramp = False

@@ -219,7 +219,7 @@ class PAK_OT_Export(Operator):
 
         # TODO: Add custom color management settings
         # These will prevent color alteration.
-        composite_scene.render.image_settings.color_management = 'FOLLOW_SCENE'
+        composite_scene.render.image_settings.color_management = 'OVERRIDE'
         composite_scene.view_settings.view_transform = 'Standard'
         composite_scene.view_settings.look = 'None'
 
@@ -227,7 +227,6 @@ class PAK_OT_Export(Operator):
         # /////////////////////////////////////////////////////////////////
         # ITERATE AND EXPORT TARGETS
 
-        # TODO: Find a way to nicely merge verification with this iterator
         for export_item in exportable:
             image = export_item['image']
 
@@ -273,8 +272,7 @@ class PAK_OT_Export(Operator):
                 image.save(filepath = path + filename)
             
             report_info['exported_images'] += 1
-
-        # TODO: Delete the saved image once it's been packed. (decided not to right now just in case)
+            
         # TODO: Fully test info statements
 
         # ///////////////////////////////////////////////////////////////////////////

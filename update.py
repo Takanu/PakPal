@@ -1,6 +1,7 @@
 
 import bpy, os
 from .material_slots import FindMaterialSlotInName
+from .main_menu import CreatePakPreviewTexture
 
 def PAK_Update_EnableExport(self, context):
     """
@@ -234,7 +235,7 @@ def PAK_Update_TextureList_Preview(self, context):
     sel_texture = sel_bundle.pak_items[0].tex
 
     if self.preview_tex is None:
-        self.preview_tex = bpy.data.textures.new(name = ".PakPal Preview", type = 'IMAGE')
+        CreatePakPreviewTexture()
         
     self.preview_tex.image = sel_bundle.pak_items[0].tex
 

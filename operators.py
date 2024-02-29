@@ -3,6 +3,7 @@ import bpy, platform, os
 
 from bpy.types import Operator
 from .material_slots import FindMaterialSlotInName, CreateDefaultMaterialSlotNames
+from .main_menu import CreatePakPreviewTexture
 
 def Find3DViewContext():
     """
@@ -361,8 +362,10 @@ class PAK_OT_Reset_Properties(Operator):
 
         # TODO: Find a way to completely reset collection properties
         file_data.preview_tex = None
+        bpy.data.batch_remove(bpy.data.textures['PakPal Preview'])
 
         CreateDefaultMaterialSlotNames()
+        CreatePakPreviewTexture()
 
         return {'FINISHED'}
 
