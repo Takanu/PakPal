@@ -31,6 +31,10 @@ class PAK_UL_TextureList(UIList):
         if item.enable_export == True:
             export_icon = "RESTRICT_RENDER_OFF"
 
+        if data.enable_bundles is False:
+            user_count = str(item.pak_items[0].tex.users)
+            export_item.label(text = user_count)
+
         export_item.prop(item, "enable_export", text = "", icon = export_icon, emboss = False)
 
         # MULTISELECT

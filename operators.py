@@ -90,8 +90,6 @@ class PAK_OT_CreateFileData(Operator):
                 
                 bpy.ops.object.mode_set(mode=prev_mode, toggle=False)
         
-        # Generate the compositor nodes.
-        bpy.ops.pak.create_image_format_data()
 
         self.report({'INFO'}, "PakPal data created.")
         return {'FINISHED'}
