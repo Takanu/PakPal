@@ -170,7 +170,9 @@ class PAK_UL_MainMenu(bpy.types.Panel):
             # TODO - Add additional image details
             # image_info += str(preview_img.depth)
             preview_area_info.label(text = image_info)
+            
         else:
+            preview_area_info = preview_area_image.box()
             preview_area_info.label(text = "No images available",
                                     icon = "HIDE_OFF")
 

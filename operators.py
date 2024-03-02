@@ -282,17 +282,32 @@ class PAK_OT_Delete_Images(Operator):
 
         # Used to decrease the selected bundle.
         index_subtract = 0
+        
+        ## BUG - Removing by index doesn't appear to properly work, the items removed
+        ## be at random rather than the correct index, I can't find a replicatable pattern.
+        ##
+        ## The bundle list will be regenerated instead.
 
-        for bundle in selected_bundles:
-            index = file_data.bundles.find(bundle.name)
-            file_data.bundles.remove(index)
+        # for bundle in selected_bundles:
+        #     for bundle in selected_bundles:
+        #         print(file_data.bundles.find(bundle.name))
+        #     print('-'*10)
+            
+        #     index = file_data.bundles.find(bundle.name)
+        #     file_data.bundles.remove(index - index_subtract)
 
-            if index <= file_data.bundles_list_index:
-                index_subtract += 1
+        #     if index <= file_data.bundles_list_index:
+        #         index_subtract += 1
+        
+        # return {'FINISHED'}
 
         # Now purge the data
         bpy.data.batch_remove([image for image in selected_images if image is not None])
         self.report({'INFO'}, str(image_count) + " image(s) were deleted.")
+
+        # TODO - Get the original solution working again to prevent potential slowdown in
+        # large projects.
+        bpy.ops.pak.refresh_images()
 
         # Decrement the index unless it would be less than zero
         file_data.bundles_list_index = max(0, (file_data.bundles_list_index - index_subtract))

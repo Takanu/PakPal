@@ -89,8 +89,8 @@ class PAK_PT_ExportOptionsMenu(Panel):
         # texture_ops = layout.column(align = True)
         # texture_ops.use_property_split = True
         # texture_ops.use_property_decorate = False
+        selection_options.operator("pak.export_images", icon = 'EXPORT', text = 'Export All').set_mode = 'ALL'
         selection_options.operator("pak.export_images", icon = 'EXPORT', text = 'Export Selected').set_mode = 'SELECTED'
-        selection_options.operator("pak.export_images", icon = 'EXPORT', text = 'Export All Active').set_mode = 'ALL'
         # selection_box_area.separator()
 
 

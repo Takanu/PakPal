@@ -17,12 +17,16 @@ def PAK_Update_ImageFormatProxies(self, context):
     file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
     current_format = file_data.formats[file_data.formats_list_index]
 
+    # TODO: Different formats MUST have certain color depths or modes set when
+    # no options are available.
+
     match current_format.file_format:
         case 'BMP':
             current_format.color_mode = current_format.proxy_color_bw_rgb
         case 'PNG':
             current_format.color_depth = current_format.proxy_color_8_16
         case 'JPEG':
+            current_format.color_depth = '8'
             current_format.color_mode = current_format.proxy_color_bw_rgb
         case 'JPEG2000':
             current_format.color_depth = current_format.proxy_color_8_16
@@ -76,6 +80,7 @@ class PAK_ImageFormat(PropertyGroup):
             ('WEBP', 'WebP', ''),
         ),
         default = 'PNG',
+        update = PAK_Update_ImageFormatProxies,
     )
 
     

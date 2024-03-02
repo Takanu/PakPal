@@ -538,7 +538,7 @@ class PAK_OT_CreateImagePack(Operator):
         
         # Set the composite scene to ensure colors aren't edited
         # It's easier to set it in the fake scene :D
-        composite_scene.render.image_settings.color_management = 'FOLLOW_SCENE'
+        composite_scene.render.image_settings.color_management = 'OVERRIDE'
         composite_scene.view_settings.view_transform = 'Standard'
         composite_scene.view_settings.look = 'None'
 
