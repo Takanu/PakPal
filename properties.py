@@ -207,6 +207,12 @@ class PAK_FileData(PropertyGroup):
     ## TEXTURE LIST OPTIONS
     # These appear in the dropdown
 
+    show_file_format: BoolProperty(
+        name = "Show Format Type",
+        description = "Shows the format of the image",
+        default = False,
+    )
+
     show_material_count: BoolProperty(
         name = "Show Material Count",
         description = "Shows the number of materials an image uses",
@@ -222,12 +228,6 @@ class PAK_FileData(PropertyGroup):
     show_fake_user: BoolProperty(
         name = "Show Fake Users",
         description = "Shows if an image has a fake user",
-        default = False,
-    )
-
-    show_file_format: BoolProperty(
-        name = "Show Format Type",
-        description = "Shows the format of the image",
         default = False,
     )
 

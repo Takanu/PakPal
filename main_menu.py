@@ -25,41 +25,41 @@ class PAK_UL_TextureList(bpy.types.UIList):
 
         # EXTRA INFO
         # //////////////
-        
+        if data.enable_bundles is False:
 
-        # MATERIAL COUNT
-        if data.enable_bundles is False and data.show_material_count is True:
-            material_count = len([m for m in bpy.data.materials if m.user_of_id(item.pak_items[0].tex)])
-            mat_box = layout.box()
-            mat_box.alignment = 'RIGHT'
-            mat_box.scale_y = 0.5
-            mat_box.label(text = str(material_count), icon = 'MATERIAL')
+            # FORMAT TYPE
+            if data.show_file_format is True:
+                format_type = str(item.pak_items[0].tex.file_format)
+                user_box = layout.box()
+                user_box.alignment = 'RIGHT'
+                user_box.scale_y = 0.5
+                user_box.label(text = format_type + " ")
 
-        # USER COUNT
-        if data.enable_bundles is False and data.show_user_count is True:
-            user_count = str(item.pak_items[0].tex.users)
-            user_box = layout.box()
-            user_box.alignment = 'RIGHT'
-            user_box.scale_y = 0.5
-            user_box.label(text = user_count, icon = 'USER')
+            # MATERIAL COUNT
+            if data.show_material_count is True:
+                material_count = len([m for m in bpy.data.materials if m.user_of_id(item.pak_items[0].tex)])
+                mat_box = layout.box()
+                mat_box.alignment = 'RIGHT'
+                mat_box.scale_y = 0.5
+                mat_box.label(text = str(material_count), icon = 'MATERIAL')
 
-        # FAKE USER
-        if data.enable_bundles is False and data.show_fake_user is True:
-            fake_box = layout.box()
-            fake_box.alignment = 'RIGHT'
-            fake_box.scale_y = 0.5
-            if item.pak_items[0].tex.use_fake_user is True:
-                fake_box.label(text = '', icon = 'FAKE_USER_ON')
-            else:
-                fake_box.label(text = '', icon = 'FAKE_USER_OFF')
-        
-        # FORMAT TYPE
-        if data.enable_bundles is False and data.show_file_format is True:
-            format_type = str(item.pak_items[0].tex.file_format)
-            user_box = layout.box()
-            user_box.alignment = 'RIGHT'
-            user_box.scale_y = 0.5
-            user_box.label(text = format_type + " ")
+            # USER COUNT
+            if data.show_user_count is True:
+                user_count = str(item.pak_items[0].tex.users)
+                user_box = layout.box()
+                user_box.alignment = 'RIGHT'
+                user_box.scale_y = 0.5
+                user_box.label(text = user_count, icon = 'USER')
+
+            # FAKE USER
+            if data.show_fake_user is True:
+                fake_box = layout.box()
+                fake_box.alignment = 'RIGHT'
+                fake_box.scale_y = 0.5
+                if item.pak_items[0].tex.use_fake_user is True:
+                    fake_box.label(text = '', icon = 'FAKE_USER_ON')
+                else:
+                    fake_box.label(text = '', icon = 'FAKE_USER_OFF')
         
         # ENABLE EXPORT
         # //////////////
@@ -118,10 +118,10 @@ class PAK_PT_TextureListOptions(bpy.types.Panel):
         options.separator()
 
         display_options = options.column(align = True)
+        display_options.prop(file_data, 'show_file_format')
         display_options.prop(file_data, 'show_material_count')
         display_options.prop(file_data, 'show_user_count')
         display_options.prop(file_data, 'show_fake_user')
-        display_options.prop(file_data, 'show_file_format')
         display_options.separator()
         display_options.separator()
         display_options.prop(file_data, 'show_hidden')
