@@ -60,6 +60,7 @@ class PAK_AddonPreferences(AddonPreferences):
         addon_options.operator("pak.reset_properties")
 
 
+
 def register():
     auto_load.register()
 

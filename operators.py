@@ -137,23 +137,6 @@ class PAK_OT_Bundles_Toggle(Operator):
         file_data.enable_bundles = not file_data.enable_bundles
         return {'FINISHED'}
     
-class PAK_OT_Hidden_Toggle(Operator):
-    """Enable or disable the ability to see hidden image blocks.  These might be used by other addons so be careful!"""
-    bl_idname = "pak.toggle_hidden"
-    bl_label = "Toggle Hidden Images"
-
-    def execute(self, context):
-
-        try:
-            addon_prefs = context.preferences.addons[__package__].preferences
-            file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
-        except:
-            return {'CANCELLED'}
-        
-        file_data.enable_hidden = not file_data.enable_hidden
-        bpy.ops.pak.refresh_images()
-        return {'FINISHED'}
-    
 
 class PAK_OT_Refresh(Operator):
     """Refresh the list of textures used in the current scene.  You'll need to do this every time images are loaded or deleted outside of PakPal"""
@@ -178,7 +161,7 @@ class PAK_OT_Refresh(Operator):
             
             for tex in bpy.data.images:
 
-                if tex.name.startswith(".") and file_data.enable_hidden is False:
+                if tex.name.startswith(".") and file_data.show_hidden is False:
                     continue
 
                 bundle = bundles.add()
@@ -197,7 +180,7 @@ class PAK_OT_Refresh(Operator):
 
             for tex in bpy.data.images:
                 
-                if tex.name.startswith(".") and file_data.enable_hidden is False:
+                if tex.name.startswith(".") and file_data.show_hidden is False:
                     continue
                 
                 name_parts = [n for n in os.path.splitext(tex.name)]

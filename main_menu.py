@@ -1,7 +1,6 @@
 import bpy
-from bpy.types import Menu, Panel, Operator, UIList
 
-class PAK_UL_TextureList(UIList):
+class PAK_UL_TextureList(bpy.types.UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
         
@@ -23,17 +22,45 @@ class PAK_UL_TextureList(UIList):
         name.alignment = 'EXPAND'
         name.prop(item, "name", text = "", emboss = False)
         
+
+        # EXTRA INFO
+        # //////////////
+        
+
+        # MATERIAL COUNT
+        if data.enable_bundles is False and data.show_material_count is True:
+            material_count = len([m for m in bpy.data.materials if m.user_of_id(item.pak_items[0].tex)])
+            mat_box = layout.box()
+            mat_box.alignment = 'RIGHT'
+            mat_box.scale_y = 0.5
+            mat_box.label(text = str(material_count), icon = 'MATERIAL')
+
+        # USER COUNT
+        if data.enable_bundles is False and data.show_user_count is True:
+            user_count = str(item.pak_items[0].tex.users)
+            user_box = layout.box()
+            user_box.alignment = 'RIGHT'
+            user_box.scale_y = 0.5
+            user_box.label(text = user_count, icon = 'USER')
+
+        # FAKE USER
+        if data.enable_bundles is False and data.show_fake_user is True:
+            fake_box = layout.box()
+            fake_box.alignment = 'RIGHT'
+            fake_box.scale_y = 0.5
+            if item.pak_items[0].tex.use_fake_user is True:
+                fake_box.label(text = '', icon = 'FAKE_USER_ON')
+            else:
+                fake_box.label(text = '', icon = 'FAKE_USER_OFF')
+        
+        # ENABLE EXPORT
+        # //////////////
         export_item = layout.row(align = False)
         export_item.alignment = 'RIGHT'
-
-        # ENABLE EXPORT
+        
         export_icon = "RESTRICT_RENDER_ON"
         if item.enable_export == True:
             export_icon = "RESTRICT_RENDER_OFF"
-
-        if data.enable_bundles is False:
-            user_count = str(item.pak_items[0].tex.users)
-            export_item.label(text = user_count)
 
         export_item.prop(item, "enable_export", text = "", icon = export_icon, emboss = False)
 
@@ -64,6 +91,33 @@ class PAK_UL_TextureList(UIList):
             indices = helper_funcs.sort_items_by_name(bundles, "name")
 
         return flags, indices
+
+class PAK_PT_TextureListOptions(bpy.types.Panel):
+    """Creates a Panel in the Object properties window"""
+
+    bl_label = "Image List Options"
+    bl_idname = "PROPERTIES_PT_pak_texture_options"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'HEADER'
+
+    def draw(self, context):
+        layout = self.layout
+        addon_prefs = context.preferences.addons[__package__].preferences
+        file_data = bpy.data.objects[addon_prefs.pak_filedata_name].PAK_FileData
+
+        options = layout.column(align = True)
+        options.label(text = "Display Options")
+        options.separator()
+
+        display_options = options.column(align = True)
+        display_options.prop(file_data, 'show_material_count')
+        display_options.prop(file_data, 'show_user_count')
+        display_options.prop(file_data, 'show_fake_user')
+        display_options.separator()
+        display_options.separator()
+        display_options.prop(file_data, 'show_hidden')
+        display_options.separator()
+
 
 
 class PAK_UL_MainMenu(bpy.types.Panel):
@@ -120,27 +174,27 @@ class PAK_UL_MainMenu(bpy.types.Panel):
                               icon = 'RENDERLAYERS',
                               text = "",
                               depress = file_data.enable_bundles)
+        list_options.separator()
         
-        list_options.operator("pak.toggle_hidden", 
-                              icon = 'FILE_HIDDEN',
-                              text = "",
-                              depress = file_data.enable_hidden)
+        list_options.operator("pak.refresh_images", 
+                              icon = 'FILE_REFRESH',
+                              text = "")
         list_options.separator()
 
         list_options.operator("image.open", 
                               icon = 'FILEBROWSER',
                               text = "")
-        list_options.separator()
-
-        list_options.operator("pak.refresh_images", 
-                              icon = 'FILE_REFRESH',
-                              text = "")
-        list_options.separator()
         
         list_options.operator("pak.delete_selected_images", 
                               icon = "TRASH",
                               text = "")
-                              
+        list_options.separator()
+        
+        list_options.popover(panel = "PROPERTIES_PT_pak_texture_options",
+                             icon = 'DOWNARROW_HLT',
+                             text = "")
+        
+        
                               
 
         # //////////////////////////////////
@@ -194,6 +248,7 @@ class PAK_UL_MainMenu(bpy.types.Panel):
         donate.separator()
         donate.separator()
         donate.separator()
+
 
 
 def PAK_UI_CreatePakData(layout):

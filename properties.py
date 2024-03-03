@@ -202,12 +202,37 @@ class PAK_FileData(PropertyGroup):
         update = PAK_Update_EnableBundles,
     )
 
+    ## TEXTURE LIST OPTIONS
+    # These appear in the dropdown
+
+    show_material_count: BoolProperty(
+        name = "Show Material Count",
+        description = "Shows the number of materials an image uses",
+        default = False,
+    )
+
+    show_user_count: BoolProperty(
+        name = "Show User Count",
+        description = "Shows the number of users an image has, including fake users",
+        default = False,
+    )
+
+    show_fake_user: BoolProperty(
+        name = "Show Fake Users",
+        description = "Shows if an image has a fake user",
+        default = False,
+    )
+
     # if true, show hidden images in the list
-    enable_hidden: BoolProperty(
+    show_hidden: BoolProperty(
         name = "Show Hidden Images",
         description = "Enable or disable the ability to see hidden image blocks.  These might be used by other addons so be careful!",
         default = False,
+        update = PAK_Update_RefreshList,
     )
+
+    ## TEXTURE PREVIEW
+    # (these are activated with operators due to styling issues)
 
     preview_tex: PointerProperty(
         type = bpy.types.Texture,

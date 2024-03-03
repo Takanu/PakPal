@@ -3,6 +3,15 @@ import bpy, os
 from .material_slots import FindMaterialSlotInName
 from .main_menu import CreatePakPreviewTexture
 
+def PAK_Update_RefreshList(self, context):
+    """
+    Triggers an update of the Texture List
+    """
+
+    bpy.ops.pak.refresh_images()
+    
+    return
+
 def PAK_Update_EnableExport(self, context):
     """
     Updates the "Enable Export" property for all selected images
