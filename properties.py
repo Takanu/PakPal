@@ -159,6 +159,8 @@ class PAK_FileData(PropertyGroup):
 
     ## The index of the currently selected collection from the UI list.  Will be -1 if not selected.
     bundles_list_index: IntProperty(
+        name = "Image",
+        description = "This is an image datablock stored in the currently open .blend file",
         default = 0,
         update = PAK_Update_TextureList_Preview
     )
@@ -220,6 +222,12 @@ class PAK_FileData(PropertyGroup):
     show_fake_user: BoolProperty(
         name = "Show Fake Users",
         description = "Shows if an image has a fake user",
+        default = False,
+    )
+
+    show_file_format: BoolProperty(
+        name = "Show Format Type",
+        description = "Shows the format of the image",
         default = False,
     )
 

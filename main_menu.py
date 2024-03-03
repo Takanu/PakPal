@@ -53,6 +53,14 @@ class PAK_UL_TextureList(bpy.types.UIList):
             else:
                 fake_box.label(text = '', icon = 'FAKE_USER_OFF')
         
+        # FORMAT TYPE
+        if data.enable_bundles is False and data.show_file_format is True:
+            format_type = str(item.pak_items[0].tex.file_format)
+            user_box = layout.box()
+            user_box.alignment = 'RIGHT'
+            user_box.scale_y = 0.5
+            user_box.label(text = format_type + " ")
+        
         # ENABLE EXPORT
         # //////////////
         export_item = layout.row(align = False)
@@ -113,6 +121,7 @@ class PAK_PT_TextureListOptions(bpy.types.Panel):
         display_options.prop(file_data, 'show_material_count')
         display_options.prop(file_data, 'show_user_count')
         display_options.prop(file_data, 'show_fake_user')
+        display_options.prop(file_data, 'show_file_format')
         display_options.separator()
         display_options.separator()
         display_options.prop(file_data, 'show_hidden')
